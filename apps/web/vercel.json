@@ -1,0 +1,4 @@
+{
+  "installCommand": "cd ../.. && pnpm install",
+  "buildCommand": "cd ../.. && pnpm --filter @hotel-pricing/db exec prisma generate && pnpm --filter @hotel-pricing/web build"
+}

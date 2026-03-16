@@ -1,0 +1,327 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ANALYST
+  CLIENT
+}
+
+enum OTA {
+  EXPEDIA
+  BOOKING
+}
+
+enum HotelStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ScrapeStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+enum ScrapeMode {
+  REAL
+  MOCK
+}
+
+enum ListingType {
+  HOTEL
+  COMPETITOR
+}
+
+model User {
+  id              String          @id @default(cuid())
+  email           String          @unique
+  passwordHash    String
+  role            Role
+  name            String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  hotelAccess     HotelAccess[]
+  overrides       PriceOverride[]
+  resolvedThreads MessageThread[] @relation("resolvedThreads")
+  sentMessages    Message[]
+}
+
+model Hotel {
+  id              String            @id @default(cuid())
+  name            String
+  pmsName         String?
+  phone           String?
+  email           String?
+  address         String?
+  city            String?
+  thumbnailUrl    String?
+  timezone        String            @default("America/New_York")
+  roomCount       Int               @default(100)
+  status          HotelStatus       @default(ACTIVE)
+  minRate         Int?              // cents
+  maxRate         Int?              // cents
+  occTarget       Float?            @default(75) // percentage
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  access          HotelAccess[]
+  listings        HotelListing[]
+  competitors     HotelCompetitor[]
+  dailyRates      DailyRate[]
+  reviews         ReviewSnapshot[]
+  occupancy       OccupancyEntry[]
+  promotions      Promotion[]
+  events          Event[]
+  overrides       PriceOverride[]
+  recommendations Recommendation[]
+  ratePlans       RatePlan[]
+  discountMix     DiscountMix[]
+  messageThreads  MessageThread[]
+}
+
+model HotelAccess {
+  id      String @id @default(cuid())
+  userId  String
+  hotelId String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hotel   Hotel  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, hotelId])
+}
+
+model Competitor {
+  id        String              @id @default(cuid())
+  name      String
+  createdAt DateTime            @default(now())
+  listings  CompetitorListing[]
+  hotels    HotelCompetitor[]
+  dailyRates DailyRate[]
+  reviews   ReviewSnapshot[]
+}
+
+model CompetitorListing {
+  id           String     @id @default(cuid())
+  competitorId String
+  ota          OTA
+  url          String
+  active       Boolean    @default(true)
+  competitor   Competitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+}
+
+model HotelCompetitor {
+  id           String     @id @default(cuid())
+  hotelId      String
+  competitorId String
+  weight       Float      @default(0.5) // 0-1
+  active       Boolean    @default(true)
+  hotel        Hotel      @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  competitor   Competitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+
+  @@unique([hotelId, competitorId])
+}
+
+model HotelListing {
+  id      String  @id @default(cuid())
+  hotelId String
+  ota     OTA
+  url     String
+  active  Boolean @default(true)
+  hotel   Hotel   @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  @@unique([hotelId, ota])
+}
+
+model DailyRate {
+  id           String      @id @default(cuid())
+  listingType  ListingType
+  hotelId      String?
+  competitorId String?
+  ota          OTA
+  date         DateTime    @db.Date
+  priceCents   Int
+  currency     String      @default("USD")
+  scrapedAt    DateTime    @default(now())
+  sourceRunId  String?
+  hotel        Hotel?      @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  competitor   Competitor? @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+  sourceRun    ScrapeRun?  @relation(fields: [sourceRunId], references: [id])
+
+  @@index([date, hotelId])
+  @@index([date, competitorId])
+}
+
+model ReviewSnapshot {
+  id           String      @id @default(cuid())
+  listingType  ListingType
+  hotelId      String?
+  competitorId String?
+  ota          OTA
+  ratingValue  Float
+  ratingScale  Float       @default(5.0)
+  reviewCount  Int?
+  scrapedAt    DateTime    @default(now())
+  sourceRunId  String?
+  hotel        Hotel?      @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  competitor   Competitor? @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+  sourceRun    ScrapeRun?  @relation(fields: [sourceRunId], references: [id])
+}
+
+model OccupancyEntry {
+  id               String   @id @default(cuid())
+  hotelId          String
+  date             DateTime @db.Date
+  occPercent       Float?
+  roomsOnBooks     Int?
+  occLyPercent     Float?
+  otbLyRooms       Int?
+  availableRooms   Int?
+  forecastRooms    Int?
+  forecastPercent  Float?
+  arrivals         Int?
+  departures       Int?
+  overbookingLimit Int?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  hotel            Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  @@unique([hotelId, date])
+}
+
+model Promotion {
+  id          String   @id @default(cuid())
+  hotelId     String
+  title       String
+  description String?
+  startDate   DateTime @db.Date
+  endDate     DateTime @db.Date
+  terms       String?
+  createdAt   DateTime @default(now())
+  hotel       Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+}
+
+model Event {
+  id      String   @id @default(cuid())
+  hotelId String
+  date    DateTime @db.Date
+  title   String
+  notes   String?
+  hotel   Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  @@index([hotelId, date])
+}
+
+model PriceOverride {
+  id                String   @id @default(cuid())
+  hotelId           String
+  date              DateTime @db.Date
+  overridePriceCents Int
+  reason            String?
+  createdByUserId   String
+  createdAt         DateTime @default(now())
+  hotel             Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  createdBy         User     @relation(fields: [createdByUserId], references: [id])
+
+  @@unique([hotelId, date])
+}
+
+model Recommendation {
+  id                   String   @id @default(cuid())
+  hotelId              String
+  date                 DateTime @db.Date
+  recommendedPriceCents Int
+  confidence           Float    @default(0.5)
+  rationaleJson        Json?
+  createdAt            DateTime @default(now())
+  hotel                Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  @@unique([hotelId, date])
+}
+
+model RatePlan {
+  id              String        @id @default(cuid())
+  hotelId         String
+  code            String
+  name            String
+  discountPercent Float         @default(0)
+  active          Boolean       @default(true)
+  hotel           Hotel         @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  discountMixes   DiscountMix[]
+
+  @@unique([hotelId, code])
+}
+
+model DiscountMix {
+  id           String   @id @default(cuid())
+  hotelId      String
+  date         DateTime @db.Date
+  planId       String
+  sharePercent Float
+  hotel        Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  plan         RatePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([hotelId, date, planId])
+}
+
+model ScrapeRun {
+  id          String       @id @default(cuid())
+  startedAt   DateTime     @default(now())
+  finishedAt  DateTime?
+  status      ScrapeStatus @default(PENDING)
+  mode        ScrapeMode   @default(MOCK)
+  summaryJson Json?
+  rates       DailyRate[]
+  reviews     ReviewSnapshot[]
+  errors      ScrapeError[]
+}
+
+model ScrapeError {
+  id          String    @id @default(cuid())
+  runId       String
+  contextJson Json?
+  message     String
+  createdAt   DateTime  @default(now())
+  run         ScrapeRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+}
+
+model MessageThread {
+  id               String    @id @default(cuid())
+  hotelId          String
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  resolvedAt       DateTime?
+  resolvedByUserId String?
+  hotel            Hotel     @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  resolvedBy       User?     @relation("resolvedThreads", fields: [resolvedByUserId], references: [id])
+  messages         Message[]
+
+  @@index([hotelId])
+}
+
+model Message {
+  id           String        @id @default(cuid())
+  threadId     String
+  senderUserId String
+  body         String
+  createdAt    DateTime      @default(now())
+  readAt       DateTime?
+  thread       MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  sender       User          @relation(fields: [senderUserId], references: [id])
+}
+
+model SecurityEvent {
+  id           String   @id @default(cuid())
+  userId       String?
+  hotelId      String?
+  type         String
+  metadataJson Json?
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@index([hotelId])
+}
