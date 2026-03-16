@@ -158,6 +158,33 @@ Analyst sees all hotels and full UI; client sees only the assigned demo hotel (r
 
 ---
 
+## Deploy to Vercel
+
+1. **Import the repo** at [vercel.com](https://vercel.com) → Add New → Project → import `MarcoFaggio/Trotsky`.
+
+2. **Root Directory** (critical):  
+   Settings → General → Root Directory → set to **`apps/web`** and Save.
+
+3. **Build & Development Settings** (override so the monorepo builds correctly):  
+   Settings → Build & Development Settings → override:
+   - **Install Command:** `cd ../.. && pnpm install`
+   - **Build Command:** `cd ../.. && pnpm --filter @hotel-pricing/db exec prisma generate && pnpm --filter @hotel-pricing/web build`  
+   Leave Output Directory empty. Save.
+
+4. **Environment variables:**  
+   Settings → Environment Variables → add:
+   - `DATABASE_URL` — your Neon (or other Postgres) connection string
+   - `JWT_SECRET` — long random string (e.g. `openssl rand -hex 32`)
+   - `JWT_REFRESH_SECRET` — another long random string  
+   Optional: `REDIS_URL` (e.g. Upstash) so “Refresh” doesn’t error; without it the rest of the app works.
+
+5. **Deploy** (Redeploy from Deployments tab or push a commit).
+
+6. **Seed the database once** (same `DATABASE_URL` as on Vercel):  
+   From your machine: `pnpm db:seed`. Then open the Vercel URL and log in with **analyst@example.com** / **Password123!**.
+
+---
+
 ## Key Commands Reference
 
 | Command | Description |
