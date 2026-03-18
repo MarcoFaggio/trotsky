@@ -51,6 +51,12 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      boxShadow: {
+        "landing-card":
+          "0 1px 2px 0 rgb(0 0 0 / 0.05), 0 4px 12px -2px rgb(0 0 0 / 0.2)",
+        "landing-glow": "0 0 40px -8px rgb(16 185 129 / 0.2)",
+        "landing-glow-subtle": "0 0 24px -6px rgb(0 0 0 / 0.3)",
+      },
       keyframes: {
         "fade-up": {
           "0%": { opacity: "0", transform: "translateY(20px)" },

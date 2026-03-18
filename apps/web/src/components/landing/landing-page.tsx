@@ -15,9 +15,9 @@ import {
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen">
+    <div className="landing-page min-h-screen landing-bg" data-landing>
       <LandingNav />
-      <main>
+      <main className="relative">
         <Hero />
         <PainPoints />
         <WhyDifferent />

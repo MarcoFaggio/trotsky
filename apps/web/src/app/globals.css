@@ -30,6 +30,16 @@
     --landing-violet: 263 70% 50%;
     --landing-sky: 199 89% 48%;
   }
+
+  /* Scoped dark theme for landing page only */
+  .landing-page {
+    --landing-bg: 222 47% 8%;
+    --landing-bg-elevated: 222 40% 12%;
+    --landing-foreground: 210 20% 98%;
+    --landing-muted: 215 16% 57%;
+    --landing-border: 215 25% 18%;
+    --landing-card: 222 42% 11%;
+  }
 }
 
 @layer base {
@@ -43,14 +53,48 @@
 
 @layer utilities {
   @keyframes cursor-blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0; }
+    0%, 45% { opacity: 1; }
+    50%, 100% { opacity: 0; }
   }
   @keyframes fade-in-up {
     from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
   }
   .animate-cursor-blink {
-    animation: cursor-blink 0.8s step-end infinite;
+    animation: cursor-blink 1s step-end infinite;
+  }
+
+  /* Landing: background and surface utilities (use inside .landing-page) */
+  .landing-bg {
+    background-color: hsl(var(--landing-bg));
+  }
+  .landing-bg-elevated {
+    background-color: hsl(var(--landing-bg-elevated));
+  }
+  .landing-bg-card {
+    background-color: hsl(var(--landing-card));
+  }
+  .landing-text {
+    color: hsl(var(--landing-foreground));
+  }
+  .landing-text-muted {
+    color: hsl(var(--landing-muted));
+  }
+  .landing-border {
+    border-color: hsl(var(--landing-border));
+  }
+
+  /* Subtle grid overlay for sections */
+  .landing-grid-pattern {
+    background-image:
+      linear-gradient(hsl(var(--landing-border) / 0.15) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--landing-border) / 0.15) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* Soft noise texture (base64 or SVG) - very subtle */
+  .landing-noise {
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 }

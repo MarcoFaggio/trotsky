@@ -1,5 +1,6 @@
 "use client";
 
+import { Check, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { SectionWrapper } from "./section-wrapper";
 
@@ -33,27 +34,27 @@ const rows = [
 
 export function ComparisonTable() {
   return (
-    <SectionWrapper className="bg-muted/30 px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+    <SectionWrapper className="landing-bg-elevated px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
       <div className="mx-auto max-w-4xl">
-        <h2 className="text-center text-2xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl">
+        <h2 className="text-center text-2xl font-bold tracking-tight landing-text sm:text-3xl md:text-4xl">
           The Efficiency Divide
         </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-center text-muted-foreground">
+        <p className="mx-auto mt-4 max-w-2xl text-center landing-text-muted">
           See how traditional workflows compare with automated market
           intelligence.
         </p>
-        <div className="mt-10 hidden overflow-hidden rounded-xl border border-border bg-card shadow-sm md:block">
+        <div className="mt-12 hidden overflow-hidden rounded-xl border border-landing-border landing-bg-card shadow-landing-card md:block">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[320px] border-collapse">
               <thead>
-                <tr className="border-b border-border bg-muted">
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">
+                <tr className="border-b border-landing-border landing-bg-elevated">
+                  <th className="px-5 py-4 text-left text-sm font-semibold landing-text">
                     Feature
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-muted-foreground">
+                  <th className="px-5 py-4 text-left text-sm font-semibold landing-text-muted">
                     Traditional
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-landing-emerald">
+                  <th className="px-5 py-4 text-left text-sm font-semibold text-landing-emerald">
                     Trosky
                   </th>
                 </tr>
@@ -73,17 +74,19 @@ export function ComparisonTable() {
                     }}
                     className={
                       i < rows.length - 1
-                        ? "border-b border-border"
+                        ? "border-b border-landing-border"
                         : ""
                     }
                   >
-                    <td className="px-4 py-3 text-sm text-foreground">
+                    <td className="px-5 py-4 text-sm landing-text">
                       {row.feature}
                     </td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">
+                    <td className="px-5 py-4 text-sm landing-text-muted flex items-center gap-2">
+                      <X className="h-4 w-4 shrink-0 text-landing-amber/80" />
                       {row.traditional}
                     </td>
-                    <td className="px-4 py-3 text-sm font-medium text-landing-emerald">
+                    <td className="px-5 py-4 text-sm font-medium text-landing-emerald flex items-center gap-2">
+                      <Check className="h-4 w-4 shrink-0" />
                       {row.trosky}
                     </td>
                   </motion.tr>
@@ -92,7 +95,7 @@ export function ComparisonTable() {
             </table>
           </div>
         </div>
-        <div className="mt-6 grid gap-4 md:hidden">
+        <div className="mt-8 grid gap-4 md:hidden">
           {rows.map((row, i) => (
             <motion.div
               key={row.feature}
@@ -105,13 +108,15 @@ export function ComparisonTable() {
                 damping: 24,
                 delay: i * 0.05,
               }}
-              className="rounded-xl border border-border bg-card p-4"
+              className="rounded-xl border border-landing-border landing-bg-card p-4 shadow-landing-card"
             >
-              <p className="text-sm font-medium text-foreground">{row.feature}</p>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="text-sm font-medium landing-text">{row.feature}</p>
+              <p className="mt-2 flex items-center gap-2 text-sm landing-text-muted">
+                <X className="h-3.5 w-3.5 shrink-0 text-landing-amber/80" />
                 Traditional: {row.traditional}
               </p>
-              <p className="mt-1 text-sm font-medium text-landing-emerald">
+              <p className="mt-1 flex items-center gap-2 text-sm font-medium text-landing-emerald">
+                <Check className="h-3.5 w-3.5 shrink-0" />
                 Trosky: {row.trosky}
               </p>
             </motion.div>

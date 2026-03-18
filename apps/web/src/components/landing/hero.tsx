@@ -3,13 +3,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { TrendingUp, ArrowRight, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+const EYEBROW = "Hotel rate intelligence";
 const HEADLINE = "Stop Losing Revenue to Your Competitors";
 const VALUE_PROP =
-  "Trosky Analytics automates hotel rate tracking across OTAs and direct channels, helping revenue teams save time, react faster, and make better pricing decisions with confidence.";
+  "Automate competitor rate tracking across Expedia, Booking.com, and direct. Save time, react faster, and make better pricing decisions.";
 const SUBHEADLINE =
-  "Monitor competitor prices across Expedia, Booking.com, and direct channels. Get continuous tracking, faster decisions, and live visibility for stakeholders — all in one platform.";
+  "Continuous tracking, faster decisions, and live visibility for stakeholders — in one platform.";
 
 export function Hero() {
   const [displayedHeadline, setDisplayedHeadline] = useState("");
@@ -25,63 +27,158 @@ export function Hero() {
         setHeadlineComplete(true);
         clearInterval(t);
       }
-    }, 38);
+    }, 42);
     return () => clearInterval(t);
   }, []);
 
   return (
-    <section className="relative overflow-hidden border-b border-border bg-background px-4 pt-24 pb-20 sm:px-6 sm:pt-32 sm:pb-28 lg:px-8">
-      <div className="mx-auto max-w-4xl text-center">
-        <motion.h1
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.35 }}
-          className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl"
-        >
-          <span>{displayedHeadline}</span>
-          {!headlineComplete && (
-            <span
-              className="ml-0.5 inline-block h-0.75em w-0.5 bg-primary animate-cursor-blink"
-              aria-hidden
-            />
-          )}
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.45, type: "spring", stiffness: 120, damping: 24 }}
-          className="mt-6 text-lg text-muted-foreground sm:text-xl"
-        >
-          {VALUE_PROP}
-        </motion.p>
-        <motion.p
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.65, type: "spring", stiffness: 120, damping: 24 }}
-          className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground"
-        >
-          {SUBHEADLINE}
-        </motion.p>
-        <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.85, type: "spring", stiffness: 120, damping: 24 }}
-          className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
-        >
-          <Link href="/login">
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
-              <Button
-                size="lg"
-                className="min-w-[200px] font-medium shadow-md transition-shadow hover:shadow-lg"
-              >
-                Schedule Free Demo
-              </Button>
+    <section className="relative overflow-hidden border-landing border-b landing-bg px-4 pt-28 pb-16 sm:px-6 sm:pt-36 sm:pb-24 lg:px-8">
+      {/* Background: radial glow + grid + noise */}
+      <div
+        className="pointer-events-none absolute inset-0 landing-grid-pattern opacity-50"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute left-1/2 top-1/3 h-[480px] w-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[120px] bg-[hsl(160_84%_39%_/_0.2)]"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-0 landing-noise mix-blend-overlay"
+        aria-hidden
+      />
+
+      <div className="relative mx-auto max-w-6xl">
+        <div className="grid gap-12 lg:grid-cols-[1fr,1fr] lg:gap-16 lg:items-center">
+          {/* Left: copy + CTAs */}
+          <div className="max-w-xl">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="mb-4 inline-flex items-center gap-2 rounded-full border border-landing-border bg-landing-bg-elevated px-3 py-1.5 text-xs font-medium uppercase tracking-wider landing-text-muted"
+            >
+              <TrendingUp className="h-3.5 w-3.5 text-landing-emerald" />
+              {EYEBROW}
             </motion.div>
-          </Link>
-          <p className="text-sm text-muted-foreground">
-            No credit card required • 15-minute intro call
-          </p>
-        </motion.div>
+            <motion.h1
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.35 }}
+              className="text-3xl font-bold tracking-tight landing-text sm:text-4xl md:text-5xl lg:text-[2.75rem] lg:leading-[1.15]"
+            >
+              <span>{displayedHeadline}</span>
+              {!headlineComplete && (
+                <span
+                  className="ml-0.5 inline-block h-0.85em w-0.5 bg-landing-emerald animate-cursor-blink"
+                  aria-hidden
+                />
+              )}
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, type: "spring", stiffness: 120, damping: 24 }}
+              className="mt-6 text-lg landing-text-muted sm:text-xl"
+            >
+              {VALUE_PROP}
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.65, type: "spring", stiffness: 120, damping: 24 }}
+              className="mt-3 text-base landing-text-muted"
+            >
+              {SUBHEADLINE}
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.85, type: "spring", stiffness: 120, damping: 24 }}
+              className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center"
+            >
+              <Link href="/login">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="inline-flex"
+                >
+                  <Button
+                    size="lg"
+                    className="gap-2 min-w-[200px] font-medium bg-landing-emerald text-white hover:bg-landing-emerald/90 shadow-landing-glow border-0"
+                  >
+                    Schedule Free Demo
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </motion.div>
+              </Link>
+              <p className="text-sm landing-text-muted">
+                No credit card required · 15-minute intro call
+              </p>
+            </motion.div>
+          </div>
+
+          {/* Right (desktop) / below (tablet): product-style mockup panel */}
+          <motion.div
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.6, type: "spring", stiffness: 100, damping: 24 }}
+            className="relative hidden md:block"
+          >
+            <div className="rounded-2xl border border-landing-border bg-landing-bg-card shadow-landing-card overflow-hidden">
+              {/* Mockup header */}
+              <div className="flex items-center justify-between border-b border-landing-border px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-landing-emerald" />
+                  <span className="text-sm font-medium landing-text">Live monitoring</span>
+                </div>
+                <span className="rounded-full bg-[hsl(160_84%_39%_/_0.2)] px-2 py-0.5 text-xs font-medium text-landing-emerald">
+                  Active
+                </span>
+              </div>
+              {/* Mockup body: mini table + chart suggestion */}
+              <div className="p-4 space-y-4">
+                <div className="space-y-2">
+                  {[
+                    { label: "Competitor A", rate: "₹12,400", change: "+2.1%" },
+                    { label: "Competitor B", rate: "₹11,800", change: "-0.5%" },
+                    { label: "Competitor C", rate: "₹13,100", change: "+1.2%" },
+                  ].map((row, i) => (
+                    <div
+                      key={row.label}
+                      className="flex items-center justify-between rounded-lg bg-landing-bg-elevated/80 px-3 py-2 text-sm"
+                    >
+                      <span className="landing-text-muted">{row.label}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="landing-text font-medium">{row.rate}</span>
+                        <span
+                          className={
+                            row.change.startsWith("+")
+                              ? "text-landing-amber text-xs"
+                              : "text-landing-emerald text-xs"
+                          }
+                        >
+                          {row.change}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="h-16 rounded-lg bg-landing-bg-elevated/60 flex items-end justify-around gap-1 px-2 pb-2">
+                  {[40, 65, 45, 80, 55, 70, 50].map((h, i) => (
+                    <div
+                      key={i}
+                      className="flex-1 max-w-[24px] rounded-t bg-[hsl(160_84%_39%_/_0.6)]"
+                      style={{ height: `${h}%` }}
+                    />
+                  ))}
+                </div>
+                <p className="text-xs landing-text-muted text-center">
+                  Rate movement · Last 7 days
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
