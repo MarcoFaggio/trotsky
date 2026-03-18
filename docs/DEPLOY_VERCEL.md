@@ -41,10 +41,13 @@ Vercel will run the build again using `apps/web` as the root and the commands fr
 
 ### If you see: "No Output Directory named 'public' found"
 
-Next.js builds to **`.next`**, not `public`. Two things to do:
+Vercel is treating the project as a generic app and expecting a `public` folder. Next.js uses `.next` and its own runtime. Two fixes:
 
-1. **In the repo** — `apps/web/vercel.json` now has `"outputDirectory": ".next"`. Push that change and redeploy (or redeploy after the next push).
-2. **In Vercel** — **Settings** → **Build & Development**. Find **Output Directory**. If it says `public`, clear it (leave it empty) or set it to **`.next`**. Save, then **Redeploy**.
+1. **In the repo** — `apps/web/vercel.json` now has **`"framework": "nextjs"`** so Vercel uses the Next.js preset and stops looking for `public`. Push and redeploy.
+2. **In Vercel (required)** — **Settings** → **Build & Development**:
+   - **Framework Preset:** set to **Next.js** (use the dropdown; if it says "Other", change it to Next.js).
+   - **Output Directory:** turn **Override** **off**, or leave the field **empty**. Do not set it to `public`.
+   Save, then **Redeploy**.
 
 ---
 
