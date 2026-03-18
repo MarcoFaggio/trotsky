@@ -5,9 +5,15 @@ import bcrypt from "bcryptjs";
 import {
   createAccessToken,
   createRefreshToken,
-  setAuthCookies,
 } from "@/lib/auth";
 import { checkRateLimit } from "@/lib/rate-limiter";
+
+const COOKIE_OPTS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/",
+};
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") || "unknown";
@@ -19,6 +25,8 @@ export async function POST(request: NextRequest) {
       { status: 429 }
     );
   }
+
+  const debugSecret = process.env.DEBUG_LOGIN_SECRET;
 
   try {
     const body = await request.json();
@@ -60,9 +68,7 @@ export async function POST(request: NextRequest) {
 
     const refreshToken = await createRefreshToken({ sub: user.id });
 
-    await setAuthCookies(accessToken, refreshToken);
-
-    return NextResponse.json({
+    const response = NextResponse.json({
       user: {
         id: user.id,
         email: user.email,
@@ -70,13 +76,29 @@ export async function POST(request: NextRequest) {
         name: user.name,
       },
     });
+
+    response.cookies.set("access_token", accessToken, {
+      ...COOKIE_OPTS,
+      maxAge: 15 * 60,
+    });
+    response.cookies.set("refresh_token", refreshToken, {
+      ...COOKIE_OPTS,
+      maxAge: 7 * 24 * 60 * 60,
+    });
+
+    return response;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     const stack = error instanceof Error ? error.stack : undefined;
     console.error("Login error:", message, stack ?? error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+
+    const body: { error: string; debug?: string } = {
+      error: "Internal server error",
+    };
+    if (debugSecret && request.headers.get("x-debug-login") === debugSecret) {
+      body.debug = message;
+    }
+
+    return NextResponse.json(body, { status: 500 });
   }
 }
