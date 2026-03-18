@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
 
     const refreshToken = await createRefreshToken({ sub: user.id });
 
-    setAuthCookies(accessToken, refreshToken);
+    await setAuthCookies(accessToken, refreshToken);
 
     return NextResponse.json({
       user: {
@@ -71,7 +71,8 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Login error:", error);
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("Login error:", message, error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

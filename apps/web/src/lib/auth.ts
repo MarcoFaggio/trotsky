@@ -56,11 +56,11 @@ export async function verifyRefreshToken(
   }
 }
 
-export function setAuthCookies(
+export async function setAuthCookies(
   accessToken: string,
   refreshToken: string
 ) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   cookieStore.set("access_token", accessToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -77,14 +77,14 @@ export function setAuthCookies(
   });
 }
 
-export function clearAuthCookies() {
-  const cookieStore = cookies();
+export async function clearAuthCookies() {
+  const cookieStore = await cookies();
   cookieStore.delete("access_token");
   cookieStore.delete("refresh_token");
 }
 
 export async function getSession(): Promise<JWTPayload | null> {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const accessToken = cookieStore.get("access_token")?.value;
   if (!accessToken) return null;
   return verifyAccessToken(accessToken);

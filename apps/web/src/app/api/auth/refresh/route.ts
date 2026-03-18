@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     });
     const refreshToken = await createRefreshToken({ sub: user.id });
 
-    setAuthCookies(accessToken, refreshToken);
+    await setAuthCookies(accessToken, refreshToken);
 
     return NextResponse.json({
       user: {
