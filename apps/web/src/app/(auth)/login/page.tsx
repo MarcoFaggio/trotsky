@@ -87,7 +87,7 @@ export default function LoginPage() {
               {loading ? "Signing in..." : "Sign In"}
             </Button>
             <div className="text-xs text-muted-foreground text-center space-y-1">
-              <p>Demo accounts:</p>
+              <p>Demo accounts: FOR NOW ONLY WORK ON LOCALHOST</p>
               <p>analyst@example.com / Password123!</p>
               <p>client@example.com / Password123!</p>
             </div>
