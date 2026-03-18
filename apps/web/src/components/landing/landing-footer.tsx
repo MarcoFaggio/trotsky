@@ -9,7 +9,7 @@ export function LandingFooter() {
         <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:justify-between sm:items-center">
           <div className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5 text-landing-emerald" aria-hidden />
-            <span className="text-sm font-semibold landing-text">Trosky</span>
+            <span className="text-sm font-semibold landing-text">Trotsky</span>
           </div>
           <p className="text-sm landing-text-muted">
             Empowering hotels with precise, real-time market intelligence.

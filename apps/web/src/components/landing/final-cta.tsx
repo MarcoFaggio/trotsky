@@ -26,7 +26,7 @@ export function FinalCta() {
             Ready to Outpace the Competition?
           </h2>
           <p className="mt-4 landing-text-muted">
-            Join hotel revenue teams using Trosky Analytics to save time,
+            Join hotel revenue teams using Trotsky Analytics to save time,
             improve visibility, and make faster pricing decisions.
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">

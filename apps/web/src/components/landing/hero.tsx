@@ -3,15 +3,16 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { TrendingUp, ArrowRight, Activity } from "lucide-react";
+import { TrendingUp, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { HeroChart } from "./hero-chart";
 
-const EYEBROW = "Hotel rate intelligence";
+const EYEBROW = "Hotel rate intelligence · AI-driven pricing";
 const HEADLINE = "Stop Losing Revenue to Your Competitors";
 const VALUE_PROP =
-  "Automate competitor rate tracking across Expedia, Booking.com, and direct. Save time, react faster, and make better pricing decisions.";
+  "Automate competitor rate tracking across Expedia, Booking.com, and direct. Get AI-recommended rates, save time, and make better pricing decisions.";
 const SUBHEADLINE =
-  "Continuous tracking, faster decisions, and live visibility for stakeholders — in one platform.";
+  "Continuous tracking, AI Recommended rate in every view, and live visibility for stakeholders — in one platform.";
 
 export function Hero() {
   const [displayedHeadline, setDisplayedHeadline] = useState("");
@@ -58,7 +59,10 @@ export function Hero() {
               className="mb-4 inline-flex items-center gap-2 rounded-full border border-landing-border bg-landing-bg-elevated px-3 py-1.5 text-xs font-medium uppercase tracking-wider landing-text-muted"
             >
               <TrendingUp className="h-3.5 w-3.5 text-landing-emerald" />
-              {EYEBROW}
+              <span>{EYEBROW.split(" · ")[0]}</span>
+              <span className="text-landing-emerald">·</span>
+              <Sparkles className="h-3.5 w-3.5 text-landing-emerald" />
+              <span>AI-driven pricing</span>
             </motion.div>
             <motion.h1
               initial={{ opacity: 0 }}
@@ -117,66 +121,14 @@ export function Hero() {
             </motion.div>
           </div>
 
-          {/* Right (desktop) / below (tablet): product-style mockup panel */}
+          {/* Right (desktop) / below (tablet): real app chart — Competitive Rate Comparison */}
           <motion.div
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.6, type: "spring", stiffness: 100, damping: 24 }}
             className="relative hidden md:block"
           >
-            <div className="rounded-2xl border border-landing-border bg-landing-bg-card shadow-landing-card overflow-hidden">
-              {/* Mockup header */}
-              <div className="flex items-center justify-between border-b border-landing-border px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <Activity className="h-4 w-4 text-landing-emerald" />
-                  <span className="text-sm font-medium landing-text">Live monitoring</span>
-                </div>
-                <span className="rounded-full bg-[hsl(160_84%_39%_/_0.2)] px-2 py-0.5 text-xs font-medium text-landing-emerald">
-                  Active
-                </span>
-              </div>
-              {/* Mockup body: mini table + chart suggestion */}
-              <div className="p-4 space-y-4">
-                <div className="space-y-2">
-                  {[
-                    { label: "Competitor A", rate: "₹12,400", change: "+2.1%" },
-                    { label: "Competitor B", rate: "₹11,800", change: "-0.5%" },
-                    { label: "Competitor C", rate: "₹13,100", change: "+1.2%" },
-                  ].map((row, i) => (
-                    <div
-                      key={row.label}
-                      className="flex items-center justify-between rounded-lg bg-landing-bg-elevated/80 px-3 py-2 text-sm"
-                    >
-                      <span className="landing-text-muted">{row.label}</span>
-                      <div className="flex items-center gap-3">
-                        <span className="landing-text font-medium">{row.rate}</span>
-                        <span
-                          className={
-                            row.change.startsWith("+")
-                              ? "text-landing-amber text-xs"
-                              : "text-landing-emerald text-xs"
-                          }
-                        >
-                          {row.change}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="h-16 rounded-lg bg-landing-bg-elevated/60 flex items-end justify-around gap-1 px-2 pb-2">
-                  {[40, 65, 45, 80, 55, 70, 50].map((h, i) => (
-                    <div
-                      key={i}
-                      className="flex-1 max-w-[24px] rounded-t bg-[hsl(160_84%_39%_/_0.6)]"
-                      style={{ height: `${h}%` }}
-                    />
-                  ))}
-                </div>
-                <p className="text-xs landing-text-muted text-center">
-                  Rate movement · Last 7 days
-                </p>
-              </div>
-            </div>
+            <HeroChart />
           </motion.div>
         </div>
       </div>

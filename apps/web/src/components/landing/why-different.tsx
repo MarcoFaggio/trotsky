@@ -33,11 +33,12 @@ const features = [
     size: "small" as const,
   },
   {
-    title: "Decision Support",
-    body: "Replace manual PDFs with self-service reporting and structured insights.",
+    title: "AI Recommended Rate",
+    body: "Every date gets an AI-suggested rate. See it in the Competitive Rate Comparison chart and in Day Detail — same green dashed line you see in the product.",
     icon: Sparkles,
     iconBg: "bg-landing-emerald text-white",
     size: "small" as const,
+    badge: "AI",
   },
 ];
 
@@ -46,10 +47,10 @@ export function WhyDifferent() {
     <SectionWrapper className="landing-bg border-t border-landing-border px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <h2 className="text-center text-2xl font-bold tracking-tight landing-text sm:text-3xl md:text-4xl">
-          Why Trosky Analytics Is Different
+          Why Trotsky Analytics Is Different
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-center landing-text-muted">
-          Built for hotel revenue teams that need speed, visibility, and
+          Built for hotel revenue teams: automated tracking, AI-driven recommended rates, and
           reliable market intelligence.
         </p>
         {/* Bento-style grid: one large, three smaller */}

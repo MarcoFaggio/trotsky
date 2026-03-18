@@ -13,7 +13,7 @@ const steps = [
   },
   {
     title: "Automated Data Collection",
-    body: "Trosky begins tracking competitor prices and availability automatically.",
+    body: "Trotsky begins tracking competitor prices and availability automatically.",
     icon: ScanSearch,
     bg: "bg-landing-sky text-white",
   },
