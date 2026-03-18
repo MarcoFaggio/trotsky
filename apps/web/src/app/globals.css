@@ -24,6 +24,11 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
+    /* Landing accents */
+    --landing-emerald: 160 84% 39%;
+    --landing-amber: 38 92% 50%;
+    --landing-violet: 263 70% 50%;
+    --landing-sky: 199 89% 48%;
   }
 }
 
@@ -33,5 +38,19 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  @keyframes cursor-blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-cursor-blink {
+    animation: cursor-blink 0.8s step-end infinite;
   }
 }
