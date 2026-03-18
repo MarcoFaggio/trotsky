@@ -31,14 +31,14 @@
     --landing-sky: 199 89% 48%;
   }
 
-  /* Scoped dark theme for landing page only */
+  /* Landing page: light theme with white gradient */
   .landing-page {
-    --landing-bg: 222 47% 8%;
-    --landing-bg-elevated: 222 40% 12%;
-    --landing-foreground: 210 20% 98%;
-    --landing-muted: 215 16% 57%;
-    --landing-border: 215 25% 18%;
-    --landing-card: 222 42% 11%;
+    --landing-bg: 0 0% 100%;
+    --landing-bg-elevated: 210 40% 98%;
+    --landing-foreground: 222.2 84% 4.9%;
+    --landing-muted: 215.4 16.3% 46.9%;
+    --landing-border: 214.3 31.8% 91.4%;
+    --landing-card: 0 0% 100%;
   }
 }
 
@@ -66,7 +66,7 @@
 
   /* Landing: background and surface utilities (use inside .landing-page) */
   .landing-bg {
-    background-color: hsl(var(--landing-bg));
+    background: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(210 40% 98.5%) 50%, hsl(210 35% 97%) 100%);
   }
   .landing-bg-elevated {
     background-color: hsl(var(--landing-bg-elevated));
@@ -84,17 +84,11 @@
     border-color: hsl(var(--landing-border));
   }
 
-  /* Subtle grid overlay for sections */
+  /* Subtle grid overlay for sections (light) */
   .landing-grid-pattern {
     background-image:
-      linear-gradient(hsl(var(--landing-border) / 0.15) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--landing-border) / 0.15) 1px, transparent 1px);
+      linear-gradient(hsl(var(--landing-border) / 0.4) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--landing-border) / 0.4) 1px, transparent 1px);
     background-size: 48px 48px;
-  }
-
-  /* Soft noise texture (base64 or SVG) - very subtle */
-  .landing-noise {
-    opacity: 0.03;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import {
   ComposedChart,
   Line,
@@ -7,16 +8,16 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
+  Tooltip,
   Legend,
   ResponsiveContainer,
 } from "recharts";
 
 /**
- * Static mock data matching the app's Competitive Rate Comparison.
- * Prices in cents; occupancy 0–100.
- * Uses exact app colors from overview-graph.tsx: #2563eb, #16a34a, #64748b, #e2e8f0.
+ * Interactive Competitive Rate Comparison — matches app behavior.
+ * Prices in cents; occupancy 0–100. App colors: #2563eb, #16a34a, #64748b, #e2e8f0.
  */
-const MOCK_CHART_DATA = [
+const FULL_MOCK_DATA = [
   { dateLabel: "Mar 18", "Your Hotel": 11200, "Comp Avg": 10800, Recommended: 11500, Occupancy: 72 },
   { dateLabel: "Mar 19", "Your Hotel": 11600, "Comp Avg": 11000, Recommended: 11800, Occupancy: 68 },
   { dateLabel: "Mar 20", "Your Hotel": 12000, "Comp Avg": 11400, Recommended: 12200, Occupancy: 75 },
@@ -40,29 +41,66 @@ const APP_COLORS = {
   occupancyFill: "#e2e8f0",
 };
 
+function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ name: string; value: number; color: string }>; label?: string }) {
+  if (!active || !payload?.length || !label) return null;
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-lg text-xs min-w-[160px]">
+      <p className="font-semibold text-slate-900 mb-2">{label}</p>
+      {payload.map((entry) => (
+        <div key={entry.name} className="flex items-center justify-between gap-3 py-0.5">
+          <div className="flex items-center gap-1.5">
+            <div className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: entry.color }} />
+            <span className="text-slate-500">{entry.name}</span>
+          </div>
+          <span className="font-medium text-slate-900">
+            {entry.name === "Occupancy" ? `${Math.round(entry.value)}%` : `$${Math.round(entry.value / 100)}`}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const RANGES = [7, 14, 30] as const;
+
 export function HeroChart() {
+  const [graphRange, setGraphRange] = useState<7 | 14 | 30>(14);
+
+  const chartData = useMemo(
+    () => FULL_MOCK_DATA.slice(-graphRange),
+    [graphRange]
+  );
+
+  const barSize = graphRange > 14 ? 8 : 14;
+
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-lg">
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-sm font-semibold text-slate-900">Competitive Rate Comparison</h3>
-        <div className="flex rounded-md border border-slate-200 bg-slate-50 p-0.5">
-          <span className="px-2 py-1 text-xs text-slate-500">7 Days</span>
-          <span className="rounded bg-white px-2 py-1 text-xs font-medium text-slate-900 shadow-sm">14 Days</span>
-          <span className="px-2 py-1 text-xs text-slate-500">30 Days</span>
+        <div className="flex rounded-md border border-slate-200 bg-slate-50 p-0.5" role="tablist" aria-label="Date range">
+          {RANGES.map((days) => (
+            <button
+              key={days}
+              type="button"
+              role="tab"
+              aria-selected={graphRange === days}
+              onClick={() => setGraphRange(days)}
+              className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
+                graphRange === days
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+              }`}
+            >
+              {days} Days
+            </button>
+          ))}
         </div>
       </div>
       <div className="h-[220px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart
-            data={MOCK_CHART_DATA}
-            margin={{ top: 5, right: 8, left: 0, bottom: 0 }}
-          >
+          <ComposedChart data={chartData} margin={{ top: 5, right: 8, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis
-              dataKey="dateLabel"
-              tick={{ fontSize: 10, fill: "#64748b" }}
-              tickLine={false}
-            />
+            <XAxis dataKey="dateLabel" tick={{ fontSize: 10, fill: "#64748b" }} tickLine={false} />
             <YAxis
               yAxisId="price"
               tick={{ fontSize: 10, fill: "#64748b" }}
@@ -79,6 +117,7 @@ export function HeroChart() {
               width={32}
               domain={[0, 100]}
             />
+            <Tooltip content={<ChartTooltip />} />
             <Legend wrapperStyle={{ fontSize: 10 }} iconSize={6} />
             <Bar
               yAxisId="occ"
@@ -86,7 +125,7 @@ export function HeroChart() {
               fill={APP_COLORS.occupancyFill}
               opacity={0.5}
               radius={[2, 2, 0, 0]}
-              barSize={10}
+              barSize={barSize}
               name="Occupancy"
             />
             <Line
@@ -125,7 +164,7 @@ export function HeroChart() {
         </ResponsiveContainer>
       </div>
       <p className="mt-1 text-center text-[10px] text-slate-500">
-        Same chart you get in the dashboard · AI Recommended rate in green
+        Same chart as in the dashboard · Switch range to see 7, 14, or 30 days
       </p>
     </div>
   );

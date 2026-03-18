@@ -34,19 +34,8 @@ export function Hero() {
 
   return (
     <section className="relative overflow-hidden border-landing border-b landing-bg px-4 pt-28 pb-16 sm:px-6 sm:pt-36 sm:pb-24 lg:px-8">
-      {/* Background: radial glow + grid + noise */}
-      <div
-        className="pointer-events-none absolute inset-0 landing-grid-pattern opacity-50"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute left-1/2 top-1/3 h-[480px] w-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[120px] bg-[hsl(160_84%_39%_/_0.2)]"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute inset-0 landing-noise mix-blend-overlay"
-        aria-hidden
-      />
+      {/* Subtle grid */}
+      <div className="pointer-events-none absolute inset-0 landing-grid-pattern opacity-30" aria-hidden />
 
       <div className="relative mx-auto max-w-6xl">
         <div className="grid gap-12 lg:grid-cols-[1fr,1fr] lg:gap-16 lg:items-center">
@@ -56,12 +45,12 @@ export function Hero() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="mb-4 inline-flex items-center gap-2 rounded-full border border-landing-border bg-landing-bg-elevated px-3 py-1.5 text-xs font-medium uppercase tracking-wider landing-text-muted"
+              className="mb-4 inline-flex items-center gap-2 rounded-full border border-landing-border bg-white/80 px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground shadow-sm"
             >
-              <TrendingUp className="h-3.5 w-3.5 text-landing-emerald" />
+              <TrendingUp className="h-3.5 w-3.5 text-primary" />
               <span>{EYEBROW.split(" · ")[0]}</span>
-              <span className="text-landing-emerald">·</span>
-              <Sparkles className="h-3.5 w-3.5 text-landing-emerald" />
+              <span className="text-primary">·</span>
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
               <span>AI-driven pricing</span>
             </motion.div>
             <motion.h1
@@ -73,7 +62,7 @@ export function Hero() {
               <span>{displayedHeadline}</span>
               {!headlineComplete && (
                 <span
-                  className="ml-0.5 inline-block h-0.85em w-0.5 bg-landing-emerald animate-cursor-blink"
+                  className="ml-0.5 inline-block h-0.85em w-0.5 bg-primary animate-cursor-blink"
                   aria-hidden
                 />
               )}
@@ -108,7 +97,7 @@ export function Hero() {
                 >
                   <Button
                     size="lg"
-                    className="gap-2 min-w-[200px] font-medium bg-landing-emerald text-white hover:bg-landing-emerald/90 shadow-landing-glow border-0"
+                    className="gap-2 min-w-[200px] font-medium bg-primary text-primary-foreground hover:bg-primary/90"
                   >
                     Schedule Free Demo
                     <ArrowRight className="h-4 w-4" />

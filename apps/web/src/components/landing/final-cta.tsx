@@ -39,7 +39,7 @@ export function FinalCta() {
               >
                 <Button
                   size="lg"
-                  className="gap-2 min-w-[200px] font-medium bg-landing-emerald text-white hover:bg-landing-emerald/90 shadow-landing-glow border-0"
+                  className="gap-2 min-w-[200px] font-medium"
                 >
                   Schedule Free Demo
                   <ArrowRight className="h-4 w-4" />
