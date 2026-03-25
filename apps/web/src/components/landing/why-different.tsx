@@ -47,7 +47,7 @@ export function WhyDifferent() {
     <SectionWrapper className="landing-bg border-t border-landing-border px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <h2 className="text-center text-2xl font-bold tracking-tight landing-text sm:text-3xl md:text-4xl">
-          Why Trotsky Analytics Is Different
+          Why Trosky Analytics Is Different
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-center landing-text-muted">
           Built for hotel revenue teams: automated tracking, AI-driven recommended rates, and

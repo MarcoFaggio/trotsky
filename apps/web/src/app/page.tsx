@@ -8,9 +8,9 @@ const JWT_SECRET = new TextEncoder().encode(
 );
 
 export const metadata = {
-  title: "Trotsky Analytics – Automated Hotel Rate Tracking & Market Intelligence",
+  title: "Trosky Analytics – Automated Hotel Rate Tracking & Market Intelligence",
   description:
-    "Trotsky Analytics automates hotel rate tracking across OTAs and direct channels. Save time, react faster, and make better pricing decisions with real-time market intelligence.",
+    "Trosky Analytics automates hotel rate tracking across OTAs and direct channels. Save time, react faster, and make better pricing decisions with real-time market intelligence.",
 };
 
 export default async function Home() {

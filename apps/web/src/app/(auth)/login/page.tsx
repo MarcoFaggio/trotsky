@@ -49,7 +49,7 @@ export default function LoginPage() {
           <div className="mx-auto mb-4 h-12 w-12 rounded-lg bg-primary flex items-center justify-center">
             <span className="text-xl font-bold text-primary-foreground">T</span>
           </div>
-          <CardTitle className="text-2xl">Trotsky</CardTitle>
+          <CardTitle className="text-2xl">Trosky</CardTitle>
           <CardDescription>
             Sign in to manage your hotel pricing strategy
           </CardDescription>

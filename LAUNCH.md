@@ -1,4 +1,4 @@
-# How to launch Trotsky
+# How to launch Trosky
 
 You need **PostgreSQL** and **Redis** running somewhere. Your `.env` currently points to `localhost:5432` and `localhost:6379`, which require Docker (or local Postgres/Redis).
 

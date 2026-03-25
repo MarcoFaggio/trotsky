@@ -9,31 +9,31 @@ const rows = [
     feature: "Daily Data Entry",
     icon: ClipboardList,
     traditional: "10+ Hours / Week",
-    trotsky: "100% Automated",
+    trosky: "100% Automated",
   },
   {
     feature: "Update Frequency",
     icon: RefreshCw,
     traditional: "Once Daily",
-    trotsky: "Every 60 Minutes",
+    trosky: "Every 60 Minutes",
   },
   {
     feature: "Reporting",
     icon: FileText,
     traditional: "Manual PDF",
-    trotsky: "Self-Service",
+    trosky: "Self-Service",
   },
   {
     feature: "Market Visibility",
     icon: Eye,
     traditional: "Limited",
-    trotsky: "Real-Time",
+    trosky: "Real-Time",
   },
   {
     feature: "Stakeholder Access",
     icon: Users,
     traditional: "By Request",
-    trotsky: "24/7 Portal",
+    trosky: "24/7 Portal",
   },
 ];
 
@@ -75,7 +75,7 @@ export function ComparisonTable() {
                     Traditional
                   </th>
                   <th className="px-6 py-5 text-left text-sm font-semibold text-primary">
-                    Trotsky
+                    Trosky
                   </th>
                 </tr>
               </thead>
@@ -114,7 +114,7 @@ export function ComparisonTable() {
                       </td>
                       <td className="px-6 py-4 text-sm font-medium text-primary flex items-center gap-2">
                         <Check className="h-4 w-4 shrink-0" />
-                        {row.trotsky}
+                        {row.trosky}
                       </td>
                     </motion.tr>
                   );
@@ -153,7 +153,7 @@ export function ComparisonTable() {
                   </p>
                   <p className="flex items-center gap-2 text-sm font-medium text-primary">
                     <Check className="h-3.5 w-3.5 shrink-0" />
-                    <span>Trotsky:</span> {row.trotsky}
+                    <span>Trosky:</span> {row.trosky}
                   </p>
                 </div>
               </motion.div>

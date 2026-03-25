@@ -1,6 +1,6 @@
-# Dashboard Guide — Trotsky
+# Dashboard Guide — Trosky
 
-This document explains every part of the Trotsky UI and how the pieces fit together.
+This document explains every part of the Trosky UI and how the pieces fit together.
 
 ---
 
@@ -289,7 +289,7 @@ Trigger a scrape run and see history.
 
 ## 14. What you have now (summary)
 
-You have a single **Trotsky** app where:
+You have a single **Trosky** app where:
 
 - **Analysts** can manage hotels and competitors, enter occupancy and OTB, see rate matrix + calendar, open day-level detail (pricing, competitors, occupancy, ADR/revenue, events/promotions), set overrides and add events, manage promotions and rate plans, run scrapes (mock or real), and export CSV.  
 - **Clients** see only their hotel, read-only: same dashboard, matrix, calendar, and day detail, but no edits.  

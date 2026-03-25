@@ -1,4 +1,4 @@
-# Deploy Trotsky (Web) to Vercel
+# Deploy Trosky (Web) to Vercel
 
 Follow these steps to get your landing page and app live for clients.
 
@@ -11,7 +11,7 @@ You **don’t run any commands** in a terminal. You only change settings on the 
 ### Step A: Open project settings
 
 1. Go to [vercel.com](https://vercel.com) and log in.
-2. Open your **Trotsky** project (click the project name).
+2. Open your **Trosky** project (click the project name).
 3. In the top menu, click **Settings**.
 
 ### Step B: Set Root Directory
@@ -74,10 +74,10 @@ If you’re asked to sign in, use a **Personal Access Token** (not your GitHub p
 
 ---
 
-## Step 3: Import the Trotsky repo
+## Step 3: Import the Trosky repo
 
 1. On the Vercel dashboard, click **Add New…** → **Project**.
-2. Find **Trotsky** in the list (repo: `MarcoFaggio/Trotsky`) and click **Import**.
+2. Find **Trosky** in the list (repo: `MarcoFaggio/Trosky`) and click **Import**.
 
 ---
 
@@ -107,14 +107,14 @@ If there is an **Environment Variables** section, you can skip it for now unless
 
 1. Click **Deploy**.
 2. Wait for the build to finish (usually 1–2 minutes).
-3. When it’s done, Vercel shows a **Visit** link (e.g. `trotsky-xxx.vercel.app`). That’s your live site.
+3. When it’s done, Vercel shows a **Visit** link (e.g. `trosky-xxx.vercel.app`). That’s your live site.
 
 ---
 
 ## Step 6: Optional — custom domain
 
 1. In the project, go to **Settings** → **Domains**.
-2. Add your domain (e.g. `app.trotsky.com` or `trotsky.com`).
+2. Add your domain (e.g. `app.trosky.com` or `trosky.com`).
 3. Follow Vercel’s instructions to add the DNS records at your registrar. Vercel will issue SSL automatically.
 
 ---
@@ -135,4 +135,4 @@ If your app needs env vars in production (e.g. `JWT_SECRET`, `DATABASE_URL`):
 - **Vercel:** Import repo → set **Root Directory** to `apps/web` → Deploy.
 - **Live URL:** Use the **Visit** link from the deployment (or your custom domain once configured).
 
-You can share the Vercel URL with clients to show the Trotsky landing page and app.
+You can share the Vercel URL with clients to show the Trosky landing page and app.

@@ -1,4 +1,4 @@
-# Trotsky — Design & Color Reference
+# Trosky — Design & Color Reference
 
 This doc summarizes the **app** color scheme used in the dashboard and product UI so the landing page and any marketing assets stay consistent.
 

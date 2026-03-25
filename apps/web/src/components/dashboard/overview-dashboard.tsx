@@ -72,11 +72,11 @@ export function OverviewDashboard({
   const [overviewLoading, setOverviewLoading] = useState(true);
   const [advancedLoading, setAdvancedLoading] = useState(false);
   const [graphRange, setGraphRange] = useSessionStorage(
-    "trotsky:graphRange",
+    "trosky:graphRange",
     14
   );
   const [advancedRange, setAdvancedRange] = useSessionStorage(
-    "trotsky:advancedRange",
+    "trosky:advancedRange",
     "14"
   );
   const [selectedDate, setSelectedDate] = useState<string | null>(null);

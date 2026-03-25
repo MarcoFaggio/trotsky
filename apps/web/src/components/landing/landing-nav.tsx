@@ -33,7 +33,7 @@ export function LandingNav() {
           className="flex items-center gap-2 text-xl font-semibold tracking-tight landing-text transition-opacity hover:opacity-90"
         >
           <BarChart3 className="h-6 w-6 text-primary" aria-hidden />
-          Trotsky
+          Trosky
         </Link>
         <Link href="/login">
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>

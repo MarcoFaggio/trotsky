@@ -1,6 +1,6 @@
-# Trotsky
+# Trosky
 
-**Trotsky** is an AI-powered hotel revenue management SaaS application for competitive rate analysis, occupancy tracking, and pricing recommendations.
+**Trosky** is an AI-powered hotel revenue management SaaS application for competitive rate analysis, occupancy tracking, and pricing recommendations.
 
 ---
 
@@ -160,7 +160,7 @@ Analyst sees all hotels and full UI; client sees only the assigned demo hotel (r
 
 ## Deploy to Vercel
 
-1. **Import the repo** at [vercel.com](https://vercel.com) → Add New → Project → import `MarcoFaggio/Trotsky`.
+1. **Import the repo** at [vercel.com](https://vercel.com) → Add New → Project → import `MarcoFaggio/Trosky`.
 
 2. **Root Directory** (critical):  
    Settings → General → Root Directory → set to **`apps/web`** and Save.

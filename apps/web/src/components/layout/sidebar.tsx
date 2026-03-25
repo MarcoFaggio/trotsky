@@ -45,7 +45,7 @@ const clientLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/events", label: "Events", icon: Calendar },
   { href: "/promotions", label: "Promotions", icon: Megaphone },
-  { href: "/messages", label: "Message Trotsky", icon: MessageSquare },
+  { href: "/messages", label: "Message Trosky", icon: MessageSquare },
   { href: "/pace", label: "Pace / OTB", icon: TrendingUp },
 ];
 
@@ -84,7 +84,7 @@ export function Sidebar({
             </div>
             {!collapsed && (
               <span className="font-semibold text-sm whitespace-nowrap">
-                Trotsky
+                Trosky
               </span>
             )}
           </Link>

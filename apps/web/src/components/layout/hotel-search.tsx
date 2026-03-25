@@ -63,7 +63,7 @@ export function HotelSearch({ onSelect }: HotelSearchProps) {
     setResults([]);
     try {
       sessionStorage.setItem(
-        "trotsky:lastHotelId",
+        "trosky:lastHotelId",
         JSON.stringify(hotel.id)
       );
     } catch {}

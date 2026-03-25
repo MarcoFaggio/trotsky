@@ -38,10 +38,10 @@ export function Advantage() {
     <SectionWrapper className="landing-bg border-t border-landing-border px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <h2 className="text-center text-2xl font-bold tracking-tight landing-text sm:text-3xl md:text-4xl">
-          The Trotsky Advantage
+          The Trosky Advantage
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-center landing-text-muted">
-          What changes after you adopt Trotsky: less manual work, more visibility, faster decisions.
+          What changes after you adopt Trosky: less manual work, more visibility, faster decisions.
         </p>
         <div className="mt-14 grid gap-10 lg:grid-cols-2 lg:gap-16">
           <div className="space-y-5">

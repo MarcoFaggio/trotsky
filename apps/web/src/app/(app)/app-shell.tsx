@@ -26,11 +26,11 @@ export function AppShell({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [collapsed, setCollapsed] = useSessionStorage(
-    "trotsky:sidebarCollapsed",
+    "trosky:sidebarCollapsed",
     false
   );
   const [lastHotelId, setLastHotelId] = useSessionStorage<string | null>(
-    "trotsky:lastHotelId",
+    "trosky:lastHotelId",
     null
   );
 

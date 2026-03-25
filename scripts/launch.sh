@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Launch Trotsky (web app only).
+# Launch Trosky (web app only).
 # Requires: .env with DATABASE_URL and REDIS_URL pointing to a running Postgres + Redis.
 # (Use Docker: docker compose up -d   OR   use Neon + Upstash and put their URLs in .env)
 

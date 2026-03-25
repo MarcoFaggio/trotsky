@@ -1,6 +1,6 @@
-# Trotsky — Full Product Documentation
+# Trosky — Full Product Documentation
 
-Complete product documentation for **Trotsky**: user flows, features, data model, and behavior. This describes the system as built (POC/MVP scope).
+Complete product documentation for **Trosky**: user flows, features, data model, and behavior. This describes the system as built (POC/MVP scope).
 
 ---
 
@@ -22,7 +22,7 @@ Complete product documentation for **Trotsky**: user flows, features, data model
 
 ### 1.1 What it is
 
-**Trotsky** is a SaaS application for revenue teams and hotel clients. It supports:
+**Trosky** is a SaaS application for revenue teams and hotel clients. It supports:
 
 - **Competitive rate tracking** — Our hotel’s rates and competitor rates (from OTA listings, scraped or mock).
 - **AI rate recommendations** — Deterministic engine that suggests a price per date from competitor anchor, occupancy, pace, and events.
@@ -427,4 +427,4 @@ Same “our rate” is used in matrix, calendar, summary cards, day detail, and 
 
 ---
 
-This document describes **Trotsky** as implemented: authentication (login, session, logout), user roles (Analyst vs Client), every route and who can access it, step-by-step user flows for analysts and clients, and a full feature and data reference. User provisioning is via seed or future admin (no self-service signup). For dashboard-level detail of each screen component, see **DASHBOARD-GUIDE.md**.
+This document describes **Trosky** as implemented: authentication (login, session, logout), user roles (Analyst vs Client), every route and who can access it, step-by-step user flows for analysts and clients, and a full feature and data reference. User provisioning is via seed or future admin (no self-service signup). For dashboard-level detail of each screen component, see **DASHBOARD-GUIDE.md**.

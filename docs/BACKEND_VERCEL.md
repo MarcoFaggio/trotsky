@@ -1,6 +1,6 @@
 # Full backend on Vercel
 
-Get the Trotsky web app on Vercel talking to a real database and (optionally) Redis so login, dashboard, hotels, and the rest of the app work in production.
+Get the Trosky web app on Vercel talking to a real database and (optionally) Redis so login, dashboard, hotels, and the rest of the app work in production.
 
 ---
 
