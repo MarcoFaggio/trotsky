@@ -36,12 +36,37 @@ export interface DashboardDay {
   arrivals: number | null;
   departures: number | null;
   overbookingLimit: number | null;
+  signalDirection: "POSITIVE_DEMAND" | "NEGATIVE_DISRUPTION" | "NEUTRAL" | null;
+  signalImpactBps: number | null;
+  signalCount: number;
   competitors: {
     id: string;
     name: string;
     weight: number;
     rate: number | null;
   }[];
+}
+
+export interface ImportedSignalSummary {
+  id: string;
+  hotelId: string;
+  hotelName: string;
+  externalSignalId: string;
+  date: string;
+  title: string;
+  category:
+    | "CONCERT"
+    | "SPORTS"
+    | "FESTIVAL"
+    | "CONVENTION"
+    | "SEVERE_WEATHER"
+    | "TRANSPORT_DISRUPTION"
+    | "CALAMITY"
+    | "OTHER";
+  direction: "POSITIVE_DEMAND" | "NEGATIVE_DISRUPTION" | "NEUTRAL";
+  impactBps: number;
+  relevanceScore: number;
+  isSuppressed: boolean;
 }
 
 export interface ScrapeResult {

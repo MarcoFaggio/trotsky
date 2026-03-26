@@ -10,7 +10,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Calendar, Trash2, Plus } from "lucide-react";
 import { createEvent } from "@/actions/occupancy";
 import { deleteEvent } from "@/actions/events";
+import { suppressSignalImpact, unsuppressSignalImpact } from "@/actions/signals";
 import { toast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface EventItem {
   id: string;
@@ -23,16 +25,31 @@ interface EventItem {
 
 interface EventsListProps {
   events: EventItem[];
+  importedSignals: {
+    id: string;
+    hotelId: string;
+    hotelName: string;
+    externalSignalId: string;
+    date: string;
+    title: string;
+    category: string;
+    direction: "POSITIVE_DEMAND" | "NEGATIVE_DISRUPTION" | "NEUTRAL";
+    impactBps: number;
+    relevanceScore: number;
+    isSuppressed: boolean;
+  }[];
   hotels: { id: string; name: string }[];
   isAnalyst: boolean;
 }
 
 export function EventsList({
   events: initialEvents,
+  importedSignals: initialSignals,
   hotels,
   isAnalyst,
 }: EventsListProps) {
   const [events, setEvents] = useState(initialEvents);
+  const [signals, setSignals] = useState(initialSignals);
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({
     hotelId: hotels[0]?.id || "",
@@ -86,6 +103,39 @@ export function EventsList({
     });
   }
 
+  async function handleSuppressSignal(signal: (typeof initialSignals)[number]) {
+    try {
+      await suppressSignalImpact({
+        hotelId: signal.hotelId,
+        externalSignalId: signal.externalSignalId,
+        date: signal.date,
+        reason: "IRRELEVANT",
+      });
+      setSignals((prev) =>
+        prev.map((s) => (s.id === signal.id ? { ...s, isSuppressed: true } : s))
+      );
+      toast({ title: "Signal suppressed" });
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    }
+  }
+
+  async function handleUnsuppressSignal(signal: (typeof initialSignals)[number]) {
+    try {
+      await unsuppressSignalImpact({
+        hotelId: signal.hotelId,
+        externalSignalId: signal.externalSignalId,
+        date: signal.date,
+      });
+      setSignals((prev) =>
+        prev.map((s) => (s.id === signal.id ? { ...s, isSuppressed: false } : s))
+      );
+      toast({ title: "Signal restored" });
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -107,6 +157,13 @@ export function EventsList({
         )}
       </div>
 
+      <Tabs defaultValue="manual" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="manual">Manual Events</TabsTrigger>
+          {isAnalyst && <TabsTrigger value="imported">Imported Signals</TabsTrigger>}
+        </TabsList>
+
+        <TabsContent value="manual" className="space-y-6">
       {upcoming.length > 0 && (
         <div className="space-y-3">
           <h2 className="text-sm font-semibold">Upcoming Events</h2>
@@ -208,6 +265,63 @@ export function EventsList({
           )}
         </div>
       )}
+        </TabsContent>
+        {isAnalyst && (
+          <TabsContent value="imported" className="space-y-3">
+            {signals.length === 0 ? (
+              <div className="rounded-lg border-2 border-dashed p-12 text-center">
+                <p className="text-sm text-muted-foreground">No imported signals found.</p>
+              </div>
+            ) : (
+              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                {signals.map((signal) => (
+                  <Card key={signal.id} className={signal.isSuppressed ? "opacity-60" : ""}>
+                    <CardContent className="p-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <Badge variant={signal.direction === "NEGATIVE_DISRUPTION" ? "destructive" : "secondary"}>
+                            {signal.direction === "NEGATIVE_DISRUPTION" ? "Disruption" : "Demand up"}
+                          </Badge>
+                          <span className="text-xs font-semibold">
+                            {signal.impactBps >= 0 ? "+" : ""}
+                            {(signal.impactBps / 100).toFixed(1)}%
+                          </span>
+                        </div>
+                        <p className="text-sm font-medium">{signal.title}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatDate(signal.date)} · {signal.category} · {signal.hotelName}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Relevance {(signal.relevanceScore * 100).toFixed(0)}%
+                        </p>
+                        {!signal.isSuppressed ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={() => handleSuppressSignal(signal)}
+                          >
+                            Suppress
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={() => handleUnsuppressSignal(signal)}
+                          >
+                            Undo suppression
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        )}
+      </Tabs>
 
       {/* Add Event Dialog */}
       <Dialog open={showAdd} onOpenChange={setShowAdd}>

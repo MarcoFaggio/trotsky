@@ -61,6 +61,9 @@ export function CalendarView({ days, onDayClick }: CalendarViewProps) {
       arrivals: null,
       departures: null,
       overbookingLimit: null,
+      signalDirection: null,
+      signalImpactBps: null,
+      signalCount: 0,
       competitors: [],
     } as DashboardDay));
   }
@@ -120,6 +123,16 @@ export function CalendarView({ days, onDayClick }: CalendarViewProps) {
                   )}
                   {day.hasPromotion && (
                     <div className="h-1.5 w-1.5 rounded-full bg-purple-500" />
+                  )}
+                  {day.signalCount > 0 && (
+                    <div
+                      className={cn(
+                        "h-1.5 w-1.5 rounded-full",
+                        day.signalDirection === "NEGATIVE_DISRUPTION"
+                          ? "bg-red-500"
+                          : "bg-indigo-500"
+                      )}
+                    />
                   )}
                 </div>
               </div>

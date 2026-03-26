@@ -70,6 +70,10 @@ export function computeRecommendation(input: {
   otbRooms: number | null;
   otbLyRooms: number | null;
   hasEvent: boolean;
+  manualEventCount?: number;
+  signalNetBps?: number;
+  signalPositiveBps?: number;
+  signalNegativeBps?: number;
   minRate: number | null;
   maxRate: number | null;
   discountWarning: boolean;
@@ -122,13 +126,23 @@ export function computeRecommendation(input: {
   }
 
   if (input.hasEvent) {
-    adjustment += 0.05;
-    rationale.push("Event on this date: +5%");
+    const eventBump = input.manualEventCount && input.manualEventCount > 1 ? 0.06 : 0.05;
+    adjustment += eventBump;
+    rationale.push(`Manual event pressure: +${(eventBump * 100).toFixed(0)}%`);
   }
 
   if (input.discountWarning) {
     adjustment -= 0.02;
     rationale.push("Discount warning active: -2% conservative adjustment");
+  }
+
+  if (typeof input.signalNetBps === "number" && input.signalNetBps !== 0) {
+    const signalAdj = input.signalNetBps / 10000;
+    adjustment += signalAdj;
+    const signalPct = Math.abs(input.signalNetBps) / 100;
+    rationale.push(
+      `Imported external signals: ${input.signalNetBps > 0 ? "+" : "-"}${signalPct.toFixed(1)}%`
+    );
   }
 
   let price = compAnchor * (1 + adjustment);
@@ -155,6 +169,36 @@ export function computeRecommendation(input: {
     recommendedPriceCents: Math.round(price),
     confidence: Math.round(confidence * 100) / 100,
     rationale,
+  };
+}
+
+export function computeSignalPressure(
+  impacts: Array<{ impactBps: number; isSuppressed?: boolean }>
+): {
+  netBps: number;
+  positiveBps: number;
+  negativeBps: number;
+} {
+  const active = impacts.filter((i) => !i.isSuppressed);
+  let positive = 0;
+  let negative = 0;
+  for (const impact of active) {
+    if (impact.impactBps >= 0) {
+      positive += impact.impactBps;
+    } else {
+      negative += impact.impactBps;
+    }
+  }
+
+  // Hard caps to avoid destabilizing recommendations.
+  positive = Math.min(positive, 700);
+  negative = Math.max(negative, -1000);
+  const net = Math.min(Math.max(positive + negative, -1000), 700);
+
+  return {
+    netBps: net,
+    positiveBps: positive,
+    negativeBps: negative,
   };
 }
 

@@ -62,9 +62,22 @@ export function RateMatrix({ days, competitors, onCellClick }: RateMatrixProps) 
                   >
                     <div className="text-xs text-muted-foreground">{dow}</div>
                     <div className="text-xs">{day}</div>
-                    {d.hasEvent && (
-                      <div className="h-1.5 w-1.5 rounded-full bg-amber-500 mx-auto mt-1" />
-                    )}
+                    <div className="mt-1 flex items-center justify-center gap-1">
+                      {d.hasEvent && (
+                        <div className="h-1.5 w-1.5 rounded-full bg-amber-500" title="Manual event" />
+                      )}
+                      {d.signalCount > 0 && (
+                        <div
+                          className={cn(
+                            "h-1.5 w-1.5 rounded-full",
+                            d.signalDirection === "NEGATIVE_DISRUPTION"
+                              ? "bg-red-500"
+                              : "bg-indigo-500"
+                          )}
+                          title="Imported signal"
+                        />
+                      )}
+                    </div>
                   </th>
                 );
               })}

@@ -113,7 +113,27 @@ export type DiscountMixInput = z.infer<typeof discountMixSchema>;
 
 export const createHotelExtendedSchema = createHotelSchema.extend({
   city: z.string().optional(),
+  countryCode: z.string().length(2).optional().or(z.literal("")),
+  regionCode: z.string().optional(),
+  market: z.string().optional(),
+  submarket: z.string().optional(),
+  latitude: z.number().min(-90).max(90).optional(),
+  longitude: z.number().min(-180).max(180).optional(),
   thumbnailUrl: z.string().url().optional().or(z.literal("")),
+});
+
+export const signalSuppressionSchema = z.object({
+  hotelId: z.string(),
+  externalSignalId: z.string(),
+  date: z.string().or(z.date()),
+  reason: z.enum([
+    "IRRELEVANT",
+    "DUPLICATE",
+    "LOW_CONFIDENCE",
+    "MANUAL_OVERRIDE",
+    "OTHER",
+  ]),
+  note: z.string().max(500).optional(),
 });
 
 export const messageSchema = z.object({
@@ -129,3 +149,4 @@ export const searchHotelSchema = z.object({
 export type CreateHotelExtendedInput = z.infer<typeof createHotelExtendedSchema>;
 export type MessageInput = z.infer<typeof messageSchema>;
 export type SearchHotelInput = z.infer<typeof searchHotelSchema>;
+export type SignalSuppressionInput = z.infer<typeof signalSuppressionSchema>;

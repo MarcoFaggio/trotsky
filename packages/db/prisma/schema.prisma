@@ -40,6 +40,37 @@ enum ListingType {
   COMPETITOR
 }
 
+enum ExternalSignalCategory {
+  CONCERT
+  SPORTS
+  FESTIVAL
+  CONVENTION
+  SEVERE_WEATHER
+  TRANSPORT_DISRUPTION
+  CALAMITY
+  OTHER
+}
+
+enum ExternalSignalDirection {
+  POSITIVE_DEMAND
+  NEGATIVE_DISRUPTION
+  NEUTRAL
+}
+
+enum ExternalSignalStatus {
+  ACTIVE
+  CANCELLED
+  SUPERSEDED
+}
+
+enum SignalSuppressionReason {
+  IRRELEVANT
+  DUPLICATE
+  LOW_CONFIDENCE
+  MANUAL_OVERRIDE
+  OTHER
+}
+
 model User {
   id              String          @id @default(cuid())
   email           String          @unique
@@ -52,6 +83,7 @@ model User {
   overrides       PriceOverride[]
   resolvedThreads MessageThread[] @relation("resolvedThreads")
   sentMessages    Message[]
+  suppressedSignalImpacts HotelSignalImpact[] @relation("suppressedSignalImpacts")
 }
 
 model Hotel {
@@ -62,6 +94,15 @@ model Hotel {
   email           String?
   address         String?
   city            String?
+  countryCode     String?
+  regionCode      String?
+  market          String?
+  submarket       String?
+  latitude        Float?
+  longitude       Float?
+  geoConfidence   Float?
+  geoSource       String?
+  geoUpdatedAt    DateTime?
   thumbnailUrl    String?
   timezone        String            @default("America/New_York")
   roomCount       Int               @default(100)
@@ -84,6 +125,7 @@ model Hotel {
   ratePlans       RatePlan[]
   discountMix     DiscountMix[]
   messageThreads  MessageThread[]
+  signalImpacts   HotelSignalImpact[]
 }
 
 model HotelAccess {
@@ -288,6 +330,68 @@ model ScrapeError {
   message     String
   createdAt   DateTime  @default(now())
   run         ScrapeRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+}
+
+model ExternalSignal {
+  id               String                  @id @default(cuid())
+  sourceName       String
+  sourceSignalId   String
+  sourceUrl        String?
+  title            String
+  description      String?
+  category         ExternalSignalCategory
+  direction        ExternalSignalDirection
+  severity         Int
+  sourceConfidence Float?
+  startsAt         DateTime
+  endsAt           DateTime
+  timezone         String?
+  venueName        String?
+  city             String?
+  countryCode      String?
+  latitude         Float?
+  longitude        Float?
+  status           ExternalSignalStatus    @default(ACTIVE)
+  rawHash          String
+  firstSeenAt      DateTime                @default(now())
+  lastSeenAt       DateTime                @default(now())
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+  impacts          HotelSignalImpact[]
+
+  @@unique([sourceName, sourceSignalId])
+  @@index([category, direction])
+  @@index([startsAt, endsAt])
+  @@index([city, countryCode])
+  @@index([status])
+  @@index([rawHash])
+}
+
+model HotelSignalImpact {
+  id                String                  @id @default(cuid())
+  hotelId           String
+  externalSignalId  String
+  date              DateTime                @db.Date
+  direction         ExternalSignalDirection
+  relevanceScore    Float
+  impactBps         Int
+  distanceKm        Float?
+  matchReason       String
+  isSuppressed      Boolean                 @default(false)
+  suppressedByUserId String?
+  suppressedAt      DateTime?
+  suppressionReason SignalSuppressionReason?
+  suppressionNote   String?
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  hotel             Hotel                   @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  externalSignal    ExternalSignal          @relation(fields: [externalSignalId], references: [id], onDelete: Cascade)
+  suppressedBy      User?                   @relation("suppressedSignalImpacts", fields: [suppressedByUserId], references: [id])
+
+  @@unique([hotelId, externalSignalId, date])
+  @@index([hotelId, date])
+  @@index([externalSignalId])
+  @@index([isSuppressed])
 }
 
 model MessageThread {

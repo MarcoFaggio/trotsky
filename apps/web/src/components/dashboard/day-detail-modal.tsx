@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { AlertTriangle, Plus, Calendar, TrendingUp, DollarSign, Users } from "lucide-react";
 import { setPriceOverride, createEvent, upsertOccupancy } from "@/actions/occupancy";
 import { getEventsForDate, getPromotionsForDate } from "@/actions/occupancy";
+import { getSignalsForDate, suppressSignalImpact } from "@/actions/signals";
 import { getDiscountMix } from "@/actions/rate-plans";
 import { toast } from "@/hooks/use-toast";
 import type { DashboardDay } from "@hotel-pricing/shared";
@@ -66,11 +67,28 @@ export function DayDetailModal({
   const [overbookingEdit, setOverbookingEdit] = useState(data?.overbookingLimit?.toString() || "");
   const [saving, setSaving] = useState(false);
   const [showAddEvent, setShowAddEvent] = useState(false);
+  const [signals, setSignals] = useState<
+    {
+      externalSignalId: string;
+      date: Date;
+      impactBps: number;
+      externalSignal: {
+        title: string;
+        category: string;
+        direction: string;
+      };
+    }[]
+  >([]);
   const [discountWarning, setDiscountWarning] = useState<{ warning: boolean; reasons: string[] }>({ warning: false, reasons: [] });
 
   useEffect(() => {
     getEventsForDate(hotelId, date).then(setEvents).catch(() => {});
     getPromotionsForDate(hotelId, date).then(setPromos).catch(() => {});
+    if (isAnalyst) {
+      getSignalsForDate(hotelId, date).then(setSignals).catch(() => {});
+    } else {
+      setSignals([]);
+    }
     getDiscountMix(hotelId, date).then((mixes) => {
       if (mixes.length > 0 && data?.ourRate) {
         const barRate = data.ourRate;
@@ -146,6 +164,27 @@ export function DayDetailModal({
         overbookingLimit: overbookingEdit ? parseInt(overbookingEdit) : null,
       });
       toast({ title: "Occupancy updated" });
+      onRefresh();
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleSuppressSignal(externalSignalId: string) {
+    setSaving(true);
+    try {
+      await suppressSignalImpact({
+        hotelId,
+        externalSignalId,
+        date,
+        reason: "IRRELEVANT",
+      });
+      setSignals((prev) =>
+        prev.filter((signal) => signal.externalSignalId !== externalSignalId)
+      );
+      toast({ title: "Signal suppressed" });
       onRefresh();
     } catch (e: any) {
       toast({ title: "Error", description: e.message, variant: "destructive" });
@@ -462,12 +501,46 @@ export function DayDetailModal({
             <div>
               <h4 className="text-sm font-semibold flex items-center gap-2 mb-2">
                 <Calendar className="h-4 w-4" />
-                Events & Promotions
+                Events, Imported Signals & Promotions
               </h4>
 
-              {events.length === 0 && promotions.length === 0 && (
-                <p className="text-xs text-muted-foreground">No events or promotions on this date.</p>
+              {events.length === 0 && promotions.length === 0 && signals.length === 0 && (
+                <p className="text-xs text-muted-foreground">No events, imported signals, or promotions on this date.</p>
               )}
+
+              {isAnalyst && signals.map((s) => (
+                <div key={s.externalSignalId} className="rounded-md border p-2 mb-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant={s.impactBps >= 0 ? "secondary" : "destructive"}
+                        className="text-[10px]"
+                      >
+                        {s.impactBps >= 0 ? "Demand up" : "Disruption"}
+                      </Badge>
+                      <span className="text-sm font-medium">{s.externalSignal.title}</span>
+                    </div>
+                    <span className="text-xs font-semibold">
+                      {s.impactBps >= 0 ? "+" : ""}
+                      {(s.impactBps / 100).toFixed(1)}%
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {s.externalSignal.category}
+                  </p>
+                  {isAnalyst && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2 mt-1 text-xs"
+                      onClick={() => handleSuppressSignal(s.externalSignalId)}
+                      disabled={saving}
+                    >
+                      Suppress
+                    </Button>
+                  )}
+                </div>
+              ))}
 
               {events.map((e) => (
                 <div key={e.id} className="rounded-md border p-2 mb-2">

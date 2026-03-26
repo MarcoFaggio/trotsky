@@ -78,6 +78,15 @@ async function main() {
       email: "gm@comfortinnatl.example.com",
       address: "381 Peachtree St, Atlanta, GA 30308",
       city: "Atlanta, GA",
+      countryCode: "US",
+      regionCode: "GA",
+      market: "Atlanta",
+      submarket: "Downtown",
+      latitude: 33.7612,
+      longitude: -84.3877,
+      geoConfidence: 0.92,
+      geoSource: "seed",
+      geoUpdatedAt: new Date(),
       timezone: "America/New_York",
       roomCount: 92,
       status: "ACTIVE",
@@ -345,6 +354,7 @@ async function main() {
         { hotelId: hotel.id, date, planId: seniorPlan.id, sharePercent: 10 },
         { hotelId: hotel.id, date, planId: mobilePlan.id, sharePercent: 15 },
       ],
+      skipDuplicates: true,
     });
   }
 
@@ -352,10 +362,20 @@ async function main() {
   for (let i = 0; i < 14; i++) {
     const date = toDateOnly(addDays(today, i));
     const recPrice = mockPrice(12200, i, 99);
-    await prisma.recommendation.create({
-      data: {
+    await prisma.recommendation.upsert({
+      where: { hotelId_date: { hotelId: hotel.id, date } },
+      create: {
         hotelId: hotel.id,
         date,
+        recommendedPriceCents: recPrice,
+        confidence: 0.65 + Math.sin(i) * 0.15,
+        rationaleJson: [
+          `Comp anchor: $${(mockPrice(11500, i, 50) / 100).toFixed(0)}`,
+          i % 7 >= 5 ? "Weekend demand boost: +5%" : "Midweek rate",
+          "Occupancy near target: neutral adjustment",
+        ],
+      },
+      update: {
         recommendedPriceCents: recPrice,
         confidence: 0.65 + Math.sin(i) * 0.15,
         rationaleJson: [

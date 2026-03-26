@@ -1,5 +1,5 @@
 import { prisma } from "@hotel-pricing/db";
-import { computeRecommendation } from "@hotel-pricing/shared";
+import { computeRecommendation, computeSignalPressure } from "@hotel-pricing/shared";
 import pino from "pino";
 
 const logger = pino({ name: "recommendations" });
@@ -43,6 +43,10 @@ export async function recomputeRecommendationsProcessor(data: { hotelId?: string
         const events = await prisma.event.findMany({
           where: { hotelId: hotel.id, date },
         });
+        const signalImpacts = await prisma.hotelSignalImpact.findMany({
+          where: { hotelId: hotel.id, date },
+          select: { impactBps: true, isSuppressed: true },
+        });
 
         const compRates: { rate: number; weight: number }[] = [];
         for (const hc of competitors) {
@@ -58,6 +62,7 @@ export async function recomputeRecommendationsProcessor(data: { hotelId?: string
         const ourRate = override?.overridePriceCents || hotelRate?.priceCents || 0;
         if (ourRate === 0 && compRates.length === 0) continue;
 
+        const signalPressure = computeSignalPressure(signalImpacts);
         const result = computeRecommendation({
           ourRate,
           competitorRates: compRates,
@@ -67,6 +72,10 @@ export async function recomputeRecommendationsProcessor(data: { hotelId?: string
           otbRooms: occ?.roomsOnBooks || null,
           otbLyRooms: occ?.otbLyRooms || null,
           hasEvent: events.length > 0,
+          manualEventCount: events.length,
+          signalNetBps: signalPressure.netBps,
+          signalPositiveBps: signalPressure.positiveBps,
+          signalNegativeBps: signalPressure.negativeBps,
           minRate: hotel.minRate,
           maxRate: hotel.maxRate,
           discountWarning: false,

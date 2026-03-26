@@ -14,7 +14,7 @@ export async function getDashboardData(
   const start = new Date(startDate + "T00:00:00.000Z");
   const end = new Date(endDate + "T00:00:00.000Z");
 
-  const [hotel, hotelRates, competitors, occupancy, recommendations, events, promotions, overrides] = await Promise.all([
+  const [hotel, hotelRates, competitors, occupancy, recommendations, events, promotions, overrides, signalImpacts] = await Promise.all([
     prisma.hotel.findUnique({ where: { id: hotelId } }),
     prisma.dailyRate.findMany({
       where: { hotelId, listingType: "HOTEL", date: { gte: start, lte: end } },
@@ -52,6 +52,14 @@ export async function getDashboardData(
     prisma.priceOverride.findMany({
       where: { hotelId, date: { gte: start, lte: end } },
     }),
+    prisma.hotelSignalImpact.findMany({
+      where: { hotelId, date: { gte: start, lte: end } },
+      include: {
+        externalSignal: {
+          select: { direction: true },
+        },
+      },
+    }),
   ]);
 
   const days: DashboardDay[] = [];
@@ -81,6 +89,21 @@ export async function getDashboardData(
         p.startDate.toISOString().split("T")[0] <= dateStr &&
         p.endDate.toISOString().split("T")[0] >= dateStr
     );
+    const daySignals = signalImpacts.filter(
+      (s) => s.date.toISOString().split("T")[0] === dateStr && !s.isSuppressed
+    );
+    const signalImpactBps =
+      daySignals.length > 0
+        ? daySignals.reduce((sum, s) => sum + s.impactBps, 0)
+        : null;
+    const signalDirection =
+      signalImpactBps === null
+        ? null
+        : signalImpactBps > 0
+        ? "POSITIVE_DEMAND"
+        : signalImpactBps < 0
+        ? "NEGATIVE_DISRUPTION"
+        : "NEUTRAL";
 
     const compData = competitors.map((hc) => {
       const rate = hc.competitor.dailyRates.find(
@@ -123,6 +146,9 @@ export async function getDashboardData(
       arrivals: occ?.arrivals ?? null,
       departures: occ?.departures ?? null,
       overbookingLimit: occ?.overbookingLimit ?? null,
+      signalDirection,
+      signalImpactBps,
+      signalCount: daySignals.length,
       competitors: compData,
     });
 
