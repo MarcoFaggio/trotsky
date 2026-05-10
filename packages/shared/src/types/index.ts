@@ -216,3 +216,134 @@ export interface MessageItem {
   createdAt: string;
   readAt: string | null;
 }
+
+export type InquirySource =
+  | "WEB_CHAT"
+  | "WHATSAPP"
+  | "INSTAGRAM"
+  | "FACEBOOK"
+  | "EMAIL"
+  | "PHONE"
+  | "MANUAL"
+  | "OTHER";
+
+export type InquiryIntent =
+  | "INDIVIDUAL_BOOKING"
+  | "GROUP_ROOMS"
+  | "MEETING_EVENT"
+  | "WEDDING"
+  | "SCHOOL_TRIP"
+  | "CORPORATE_OFFSITE"
+  | "GENERAL"
+  | "UNKNOWN";
+
+export type InquiryStatus =
+  | "NEW"
+  | "QUALIFYING"
+  | "RFP_READY"
+  | "PROPOSAL_SENT"
+  | "WON"
+  | "LOST"
+  | "SPAM";
+
+export type InquiryPriority = "LOW" | "NORMAL" | "HIGH" | "URGENT";
+
+export type InquiryProposalStatus =
+  | "DRAFT"
+  | "SENT"
+  | "ACCEPTED"
+  | "DECLINED"
+  | "EXPIRED";
+
+export interface InquirySummary {
+  id: string;
+  hotelId: string;
+  hotelName: string;
+  source: InquirySource;
+  intent: InquiryIntent;
+  status: InquiryStatus;
+  priority: InquiryPriority;
+  guestName: string | null;
+  guestEmail: string | null;
+  organizationName: string | null;
+  summary: string | null;
+  checkIn: string | null;
+  checkOut: string | null;
+  guestCount: number | null;
+  roomCount: number | null;
+  budgetCents: number | null;
+  eventSpaceNeeded: boolean;
+  cateringNeeded: boolean;
+  aiConfidence: number | null;
+  createdAt: string;
+  updatedAt: string;
+  messageCount: number;
+  proposalCount: number;
+}
+
+export interface InquiryMessageSummary {
+  id: string;
+  senderType: "GUEST" | "AI" | "STAFF" | "SYSTEM";
+  senderName: string | null;
+  body: string;
+  createdAt: string;
+}
+
+export interface GroupRfpSummary {
+  id: string;
+  eventType: string | null;
+  flexibleDates: boolean;
+  roomsPerNight: number | null;
+  attendeeCount: number | null;
+  meetingRoomSetup: string | null;
+  foodAndBeverage: string | null;
+  decisionDate: string | null;
+  notes: string | null;
+}
+
+export interface InquiryProposalSummary {
+  id: string;
+  roomRateCents: number | null;
+  totalEstimateCents: number | null;
+  currency: string;
+  roomBlock: number | null;
+  cutoffDate: string | null;
+  cancellationTerms: string | null;
+  notes: string | null;
+  status: InquiryProposalStatus;
+  createdByName: string | null;
+  sentAt: string | null;
+  expiresAt: string | null;
+  createdAt: string;
+}
+
+export interface InquiryAiAnalysis {
+  provider: "heuristic" | "model";
+  intent: InquiryIntent;
+  confidence: number;
+  priority: InquiryPriority;
+  suggestedStatus: InquiryStatus;
+  summary: string | null;
+  extracted: {
+    checkIn: string | null;
+    checkOut: string | null;
+    guestCount: number | null;
+    roomCount: number | null;
+    budgetCents: number | null;
+    eventSpaceNeeded: boolean;
+    cateringNeeded: boolean;
+    organizationName: string | null;
+  };
+  missingFields: string[];
+  recommendedNextAction: string;
+  rationale: string[];
+  analyzedAt: string;
+}
+
+export interface InquiryDetail extends InquirySummary {
+  guestPhone: string | null;
+  aiAnalysis: InquiryAiAnalysis | null;
+  messages: InquiryMessageSummary[];
+  groupRfp: GroupRfpSummary | null;
+  proposals: InquiryProposalSummary[];
+}

@@ -1,18 +1,23 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 const defaultVariants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 28 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
       type: "spring",
-      stiffness: 90,
-      damping: 24,
+      stiffness: 85,
+      damping: 26,
     },
   },
+};
+
+const staticVariants = {
+  hidden: { opacity: 1, y: 0 },
+  visible: { opacity: 1, y: 0 },
 };
 
 interface SectionWrapperProps {
@@ -28,14 +33,16 @@ export function SectionWrapper({
   delay = 0,
   id,
 }: SectionWrapperProps) {
+  const reduced = useReducedMotion();
+  const variants = reduced ? staticVariants : defaultVariants;
   return (
     <motion.section
       id={id}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-50px" }}
+      viewport={{ once: true, margin: "-80px" }}
       transition={{ delay }}
-      variants={defaultVariants}
+      variants={variants}
       className={className}
     >
       {children}

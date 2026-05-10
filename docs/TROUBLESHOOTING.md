@@ -21,11 +21,19 @@ PostgreSQL isn't running.
 - **Docker:** `docker compose up -d` then `docker compose ps` to verify
 - **Hosted (Neon/Supabase):** Check your `DATABASE_URL` in `.env` — make sure it includes `?sslmode=require` for hosted providers
 
-### "connect ECONNREFUSED 127.0.0.1:6379"
+### "connect ECONNREFUSED 127.0.0.1:6379" or "::1:6379"
 
 Redis isn't running. Either:
-- Start Redis: `docker compose up -d`
-- Or remove `REDIS_URL` from `.env` — the app works without it (scrape/refresh won't work)
+- Start Redis: `pnpm infra:up` or `docker compose up -d`
+- Use `REDIS_URL=redis://127.0.0.1:6379` in `.env` if `localhost` resolves to IPv6 (`::1`) but Redis listens on IPv4 only
+- For UI-only dev, run `pnpm dev` (does not start the worker)
+
+### Watchpack / "EMFILE: too many open files, watch"
+
+Common on external drives or large monorepos. Fixes:
+- From the repo root, `pnpm dev` enables webpack polling (`NEXT_DEV_POLLING`) — prefer this over `pnpm dev:full` when you only need the browser
+- Run `./scripts/dev-local.sh` (raises `ulimit -n` on macOS before starting)
+- Manually: `ulimit -n 10240` in the terminal session
 
 ### Login returns "Invalid email or password"
 
@@ -56,15 +64,19 @@ pnpm --filter @hotel-pricing/db exec prisma db push
 pnpm db:seed
 ```
 
-### Port 3000 already in use
+### Wrong URL / 404 in the browser
 
-Another process is using port 3000. Kill it or use a different port:
+Local dev uses a **fixed port (3030)** — open **http://localhost:3030**. If you open port **3000**, you may be hitting a different app (and see a 404 or blank page).
+
+### Port 3030 already in use
+
+Another process is using the dev port:
 
 ```bash
-lsof -ti:3000 | xargs kill
-# or
-PORT=3001 pnpm --filter @hotel-pricing/web dev
+lsof -ti:3030 | xargs kill
 ```
+
+Or change the port in `apps/web/package.json` (`next dev -p …`).
 
 ---
 

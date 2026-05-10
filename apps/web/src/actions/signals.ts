@@ -3,6 +3,7 @@
 import { prisma } from "@hotel-pricing/db";
 import { requireAnalyst, requireHotelAccess } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
+import { queueRecommendationRecompute } from "@/lib/recommendation-queue";
 
 function toDateObj(date: string): Date {
   return new Date(date + "T00:00:00.000Z");
@@ -104,6 +105,7 @@ export async function suppressSignalImpact(data: {
 
   revalidatePath("/events");
   revalidatePath(`/hotels/${data.hotelId}`);
+  await queueRecommendationRecompute(data.hotelId, "signal-suppressed");
 }
 
 export async function unsuppressSignalImpact(data: {
@@ -132,4 +134,5 @@ export async function unsuppressSignalImpact(data: {
 
   revalidatePath("/events");
   revalidatePath(`/hotels/${data.hotelId}`);
+  await queueRecommendationRecompute(data.hotelId, "signal-unsuppressed");
 }

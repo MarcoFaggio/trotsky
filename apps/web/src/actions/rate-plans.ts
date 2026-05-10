@@ -3,6 +3,13 @@
 import { prisma } from "@hotel-pricing/db";
 import { requireAnalyst, requireHotelAccess } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
+import { queueRecommendationRecompute } from "@/lib/recommendation-queue";
+
+function assertDiscountPercent(discountPercent: number) {
+  if (discountPercent < 0 || discountPercent > 100) {
+    throw new Error("Discount percent must be between 0 and 100.");
+  }
+}
 
 export async function getRatePlans(hotelId: string) {
   await requireHotelAccess(hotelId);
@@ -18,7 +25,8 @@ export async function createRatePlan(data: {
   name: string;
   discountPercent: number;
 }) {
-  await requireHotelAccess(data.hotelId);
+  await requireAnalyst();
+  assertDiscountPercent(data.discountPercent);
   const plan = await prisma.ratePlan.create({
     data: {
       hotelId: data.hotelId,
@@ -28,6 +36,7 @@ export async function createRatePlan(data: {
     },
   });
   revalidatePath(`/hotels/${data.hotelId}`);
+  await queueRecommendationRecompute(data.hotelId, "rate-plan-created");
   return plan;
 }
 
@@ -38,6 +47,9 @@ export async function updateRatePlan(data: {
   active?: boolean;
 }) {
   await requireAnalyst();
+  if (data.discountPercent !== undefined) {
+    assertDiscountPercent(data.discountPercent);
+  }
   const plan = await prisma.ratePlan.update({
     where: { id: data.id },
     data: {
@@ -47,6 +59,7 @@ export async function updateRatePlan(data: {
     },
   });
   revalidatePath(`/hotels/${plan.hotelId}`);
+  await queueRecommendationRecompute(plan.hotelId, "rate-plan-updated");
   return plan;
 }
 
@@ -65,6 +78,13 @@ export async function saveDiscountMix(data: {
   mixes: { planId: string; sharePercent: number }[];
 }) {
   await requireAnalyst();
+  const totalShare = data.mixes.reduce((sum, mix) => sum + mix.sharePercent, 0);
+  if (totalShare > 100) {
+    throw new Error("Discount mix share cannot exceed 100%.");
+  }
+  if (data.mixes.some((mix) => mix.sharePercent < 0 || mix.sharePercent > 100)) {
+    throw new Error("Each discount mix share must be between 0 and 100.");
+  }
   const dateObj = new Date(data.date + "T00:00:00.000Z");
 
   await prisma.discountMix.deleteMany({
@@ -83,4 +103,5 @@ export async function saveDiscountMix(data: {
   }
 
   revalidatePath(`/hotels/${data.hotelId}`);
+  await queueRecommendationRecompute(data.hotelId, "discount-mix-updated");
 }

@@ -75,8 +75,8 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 48%;
-    --chart-grid: 217.2 32.6% 20%;
-    --chart-axis: 215 20.2% 65.1%;
+    --chart-grid: 217.2 32.6% 28%;
+    --chart-axis: 215 20.2% 72%;
     --chart-primary: 217.2 91.2% 64%;
     --chart-comparison: 215 20.2% 65.1%;
     --chart-recommended: 160 84% 45%;
@@ -123,9 +123,76 @@
     animation: cursor-blink 1s step-end infinite;
   }
 
+  /* Editorial landing palette — warm paper, ink, copper accent */
+  .landing-editorial {
+    --landing-accent-warm: 32 90% 42%;
+    --landing-ink: 222 47% 11%;
+    --landing-paper: 40 33% 98%;
+  }
+
   /* Landing: background and surface utilities (use inside .landing-page) */
   .landing-bg {
-    background: linear-gradient(180deg, hsl(var(--landing-bg)) 0%, hsl(var(--landing-bg-elevated)) 55%, hsl(var(--landing-bg)) 100%);
+    background:
+      radial-gradient(ellipse 120% 80% at 50% -30%, hsl(var(--primary) / 0.08) 0%, transparent 55%),
+      linear-gradient(180deg, hsl(var(--landing-bg)) 0%, hsl(var(--landing-bg-elevated)) 52%, hsl(40 28% 97%) 100%);
+  }
+
+  .landing-aurora-blobs {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  @keyframes landing-aurora-blob {
+    0%,
+    100% {
+      opacity: 0.45;
+      transform: scale(1) translate(0, 0);
+    }
+    33% {
+      opacity: 0.65;
+      transform: scale(1.05) translate(2%, -1%);
+    }
+    66% {
+      opacity: 0.5;
+      transform: scale(1.02) translate(-1%, 2%);
+    }
+  }
+
+  .landing-aurora-blobs::before,
+  .landing-aurora-blobs::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    animation: landing-aurora-blob 22s ease-in-out infinite;
+  }
+
+  .landing-aurora-blobs::before {
+    width: min(70vw, 520px);
+    height: min(70vw, 520px);
+    top: -15%;
+    right: -10%;
+    background: radial-gradient(circle, hsl(var(--primary) / 0.22) 0%, transparent 70%);
+    animation-delay: -4s;
+  }
+
+  .landing-aurora-blobs::after {
+    width: min(55vw, 420px);
+    height: min(55vw, 420px);
+    bottom: 10%;
+    left: -8%;
+    background: radial-gradient(circle, hsl(160 45% 42% / 0.14) 0%, transparent 72%);
+    animation-delay: -10s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .landing-aurora-blobs::before,
+    .landing-aurora-blobs::after {
+      animation: none;
+      opacity: 0.35;
+    }
   }
   .landing-bg-elevated {
     background-color: hsl(var(--landing-bg-elevated));

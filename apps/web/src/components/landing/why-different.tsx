@@ -46,10 +46,10 @@ export function WhyDifferent() {
   return (
     <SectionWrapper id="platform" className="landing-bg border-t border-landing-border px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
       <div className="mx-auto max-w-6xl">
-        <h2 className="text-center text-2xl font-bold tracking-tight landing-text sm:text-3xl md:text-4xl">
-          Why Trosky Analytics Is Different
+        <h2 className="text-center font-landing-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl md:text-[2.35rem]">
+          Why Trosky is different
         </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-center landing-text-muted">
+        <p className="mx-auto mt-5 max-w-2xl text-center text-base leading-relaxed text-muted-foreground sm:text-lg">
           Built for hotel revenue teams: automated tracking, AI-driven recommended rates, and
           reliable market intelligence.
         </p>

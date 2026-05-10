@@ -8,7 +8,8 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "passThroughEnv": ["NEXT_DEV_POLLING"]
     },
     "lint": {
       "dependsOn": ["^build"]

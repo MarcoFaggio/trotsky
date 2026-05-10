@@ -7,7 +7,9 @@ import pino from "pino";
 const logger = pino({ name: "daily-scrape" });
 const SCRAPE_MODE = process.env.SCRAPE_MODE || "mock";
 
-export async function dailyScrapeProcessor(data: any) {
+export async function dailyScrapeProcessor(
+  data: any
+): Promise<{ affectedHotelIds: string[] }> {
   const targetHotelId = data?.hotelId as string | undefined;
   logger.info({ mode: SCRAPE_MODE, hotelId: targetHotelId || "all" }, "Starting scrape");
 
@@ -21,6 +23,7 @@ export async function dailyScrapeProcessor(data: any) {
   let listingsScraped = 0;
   let ratesStored = 0;
   let failures = 0;
+  const affectedHotelIds = new Set<string>();
 
   try {
     const hotelWhere: any = { status: "ACTIVE" };
@@ -51,6 +54,7 @@ export async function dailyScrapeProcessor(data: any) {
     }
 
     for (const hotel of hotels) {
+      affectedHotelIds.add(hotel.id);
       // Scrape hotel listings
       for (const listing of hotel.listings) {
         try {
@@ -66,7 +70,12 @@ export async function dailyScrapeProcessor(data: any) {
           for (const result of results) {
             await prisma.dailyRate.upsert({
               where: {
-                id: "lookup", // Will fail, triggering create
+                daily_rate_hotel_listing_date: {
+                  listingType: "HOTEL",
+                  hotelId: hotel.id,
+                  ota: listing.ota,
+                  date: result.date,
+                },
               },
               create: {
                 listingType: "HOTEL",
@@ -77,28 +86,12 @@ export async function dailyScrapeProcessor(data: any) {
                 currency: result.currency,
                 sourceRunId: run.id,
               },
-              update: {},
-            }).catch(async () => {
-              // Upsert by deleting old and creating new
-              await prisma.dailyRate.deleteMany({
-                where: {
-                  hotelId: hotel.id,
-                  listingType: "HOTEL",
-                  ota: listing.ota,
-                  date: result.date,
-                },
-              });
-              await prisma.dailyRate.create({
-                data: {
-                  listingType: "HOTEL",
-                  hotelId: hotel.id,
-                  ota: listing.ota,
-                  date: result.date,
-                  priceCents: result.priceCents,
-                  currency: result.currency,
-                  sourceRunId: run.id,
-                },
-              });
+              update: {
+                priceCents: result.priceCents,
+                currency: result.currency,
+                scrapedAt: new Date(),
+                sourceRunId: run.id,
+              },
             });
             ratesStored++;
           }
@@ -141,22 +134,28 @@ export async function dailyScrapeProcessor(data: any) {
             listingsScraped++;
 
             for (const result of results) {
-              await prisma.dailyRate.deleteMany({
+              await prisma.dailyRate.upsert({
                 where: {
-                  competitorId: hc.competitor.id,
-                  listingType: "COMPETITOR",
-                  ota: listing.ota,
-                  date: result.date,
+                  daily_rate_competitor_listing_date: {
+                    listingType: "COMPETITOR",
+                    competitorId: hc.competitor.id,
+                    ota: listing.ota,
+                    date: result.date,
+                  },
                 },
-              });
-              await prisma.dailyRate.create({
-                data: {
+                create: {
                   listingType: "COMPETITOR",
                   competitorId: hc.competitor.id,
                   ota: listing.ota,
                   date: result.date,
                   priceCents: result.priceCents,
                   currency: result.currency,
+                  sourceRunId: run.id,
+                },
+                update: {
+                  priceCents: result.priceCents,
+                  currency: result.currency,
+                  scrapedAt: new Date(),
                   sourceRunId: run.id,
                 },
               });
@@ -200,6 +199,7 @@ export async function dailyScrapeProcessor(data: any) {
     });
 
     logger.info({ runId: run.id, listingsScraped, ratesStored, failures }, "Scrape complete");
+    return { affectedHotelIds: Array.from(affectedHotelIds) };
   } catch (err: any) {
     await prisma.scrapeRun.update({
       where: { id: run.id },

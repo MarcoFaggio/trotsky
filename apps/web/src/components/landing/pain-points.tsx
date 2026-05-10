@@ -30,12 +30,12 @@ const points = [
 
 export function PainPoints() {
   return (
-    <SectionWrapper id="problem" className="landing-bg-elevated px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
+    <SectionWrapper id="problem" className="bg-muted/40 px-4 py-24 sm:px-6 sm:py-28 lg:px-8 dark:bg-muted/20">
       <div className="mx-auto max-w-6xl">
-        <h2 className="text-center text-2xl font-bold tracking-tight landing-text sm:text-3xl md:text-4xl">
-          The Status Quo Is Costing You Revenue
+        <h2 className="text-center font-landing-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl md:text-[2.35rem] md:leading-tight">
+          The status quo is costing you revenue
         </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-center landing-text-muted">
+        <p className="mx-auto mt-5 max-w-2xl text-center text-base leading-relaxed text-muted-foreground sm:text-lg">
           Manual competitor tracking slows decision-making, creates reporting
           delays, and leaves teams reacting too late.
         </p>

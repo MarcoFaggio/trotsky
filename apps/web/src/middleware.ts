@@ -3,7 +3,15 @@ import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 import { jwtAccessSecretBytes } from "@/lib/jwt-secrets";
 
-const publicPaths = ["/", "/login", "/api/auth/login", "/api/auth/refresh", "/api/health"];
+const publicPaths = [
+  "/",
+  "/login",
+  "/inquire",
+  "/api/auth/login",
+  "/api/auth/refresh",
+  "/api/health",
+  "/api/inquiries/public",
+];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

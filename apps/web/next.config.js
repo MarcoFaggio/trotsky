@@ -10,7 +10,20 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ["bcryptjs"],
   },
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, dev }) => {
+    // Polling reduces file descriptors vs native FSEvent watchers — use on external drives
+    // or when you see EMFILE: set NEXT_DEV_POLLING=1 (see root package.json `dev` script).
+    if (
+      dev &&
+      (process.env.NEXT_DEV_POLLING === "1" ||
+        process.env.NEXT_DEV_POLLING === "true")
+    ) {
+      config.watchOptions = {
+        poll: 1500,
+        aggregateTimeout: 500,
+        ignored: ["**/node_modules/**", "**/.git/**"],
+      };
+    }
     if (isServer) {
       config.plugins = [...config.plugins, new PrismaPlugin()];
     }

@@ -3,6 +3,7 @@
 import { prisma } from "@hotel-pricing/db";
 import { requireAnalyst, requireHotelAccess } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
+import { queueRecommendationRecompute } from "@/lib/recommendation-queue";
 
 export async function upsertOccupancy(data: {
   hotelId: string;
@@ -54,6 +55,7 @@ export async function upsertOccupancy(data: {
   revalidatePath(`/hotels/${data.hotelId}`);
   revalidatePath("/dashboard");
   revalidatePath("/occupancy");
+  await queueRecommendationRecompute(data.hotelId, "occupancy-updated");
 }
 
 export async function bulkUpsertOccupancy(
@@ -90,6 +92,12 @@ export async function bulkUpsertOccupancy(
   }
 
   revalidatePath("/occupancy");
+  const hotelIds = Array.from(new Set(entries.map((entry) => entry.hotelId)));
+  await Promise.all(
+    hotelIds.map((hotelId) =>
+      queueRecommendationRecompute(hotelId, "occupancy-bulk-updated")
+    )
+  );
 }
 
 export async function getOccupancyData(hotelId: string, days: number = 30) {
@@ -133,6 +141,7 @@ export async function setPriceOverride(data: {
   });
 
   revalidatePath(`/hotels/${data.hotelId}`);
+  await queueRecommendationRecompute(data.hotelId, "price-override-updated");
 }
 
 export async function createEvent(data: {
@@ -154,6 +163,7 @@ export async function createEvent(data: {
   });
 
   revalidatePath(`/hotels/${data.hotelId}`);
+  await queueRecommendationRecompute(data.hotelId, "event-created");
   return event;
 }
 
@@ -166,20 +176,26 @@ export async function createPromotion(data: {
   terms?: string;
 }) {
   await requireAnalyst();
+  const startDate = new Date(data.startDate + "T00:00:00.000Z");
+  const endDate = new Date(data.endDate + "T00:00:00.000Z");
+  if (endDate < startDate) {
+    throw new Error("Promotion end date must be on or after the start date.");
+  }
   
   const promo = await prisma.promotion.create({
     data: {
       hotelId: data.hotelId,
       title: data.title,
       description: data.description,
-      startDate: new Date(data.startDate + "T00:00:00.000Z"),
-      endDate: new Date(data.endDate + "T00:00:00.000Z"),
+      startDate,
+      endDate,
       terms: data.terms,
     },
   });
 
   revalidatePath(`/hotels/${data.hotelId}`);
   revalidatePath("/promotions");
+  await queueRecommendationRecompute(data.hotelId, "promotion-created");
   return promo;
 }
 
@@ -201,8 +217,10 @@ export async function getPromotions(hotelId?: string) {
 
 export async function deletePromotion(id: string) {
   await requireAnalyst();
-  await prisma.promotion.delete({ where: { id } });
+  const promo = await prisma.promotion.delete({ where: { id } });
   revalidatePath("/promotions");
+  revalidatePath(`/hotels/${promo.hotelId}`);
+  await queueRecommendationRecompute(promo.hotelId, "promotion-deleted");
 }
 
 export async function getEventsForDate(hotelId: string, date: string) {

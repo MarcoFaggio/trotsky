@@ -29,10 +29,10 @@ export function ProcessSteps() {
   return (
     <SectionWrapper id="process" className="landing-bg-elevated px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
       <div className="mx-auto max-w-6xl">
-        <h2 className="text-center text-2xl font-bold tracking-tight landing-text sm:text-3xl md:text-4xl">
-          Get Started in 3 Simple Steps
+        <h2 className="text-center font-landing-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl md:text-[2.35rem]">
+          Three steps to live intelligence
         </h2>
-        <p className="mx-auto mt-4 max-w-xl text-center landing-text-muted">
+        <p className="mx-auto mt-5 max-w-xl text-center text-base leading-relaxed text-muted-foreground">
           Frictionless onboarding. You focus on strategy; we handle the data.
         </p>
         <div className="mt-14 grid gap-10 sm:grid-cols-3">

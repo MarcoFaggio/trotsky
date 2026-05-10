@@ -1,6 +1,8 @@
 # Trosky
 
-AI-powered hotel revenue management — competitive rate tracking, occupancy analytics, and pricing recommendations.
+**Trosky** is hotel revenue intelligence software: competitive rate tracking from OTAs (scraped or mock), occupancy and pace views, events and promotions on the calendar, AI-assisted rate recommendations, and an **inquiry inbox** so planners and guests can submit leads (`/inquire`) while analysts and hotel clients triage them in-app (`/inquiries`).
+
+**Who uses it:** **Analysts** (Trosky / revenue team — full portfolio, scrapes, settings). **Clients** (hotel stakeholders — assigned hotels, read-only pricing cockpit plus inquiries for their properties). See [docs/TROSKY-OVERVIEW.md](docs/TROSKY-OVERVIEW.md) and [docs/USER-GUIDE-ANALYST-AND-CLIENT.md](docs/USER-GUIDE-ANALYST-AND-CLIENT.md).
 
 ## Quick start
 
@@ -12,16 +14,26 @@ pnpm install
 cp .env.example .env
 # Edit .env — see "Environment variables" below
 
-# 3. Database
-pnpm --filter @hotel-pricing/db exec prisma generate
-pnpm --filter @hotel-pricing/db exec prisma migrate dev --name init
+# 3. Local Postgres + Redis (Docker)
+pnpm infra:up
+# Or: docker compose up -d
+
+# 4. Database
+pnpm db:generate
+pnpm exec dotenv -e .env -- pnpm --filter @hotel-pricing/db exec prisma migrate dev --name init
+# Or apply existing migrations without prompting: pnpm db:migrate:deploy
 pnpm db:seed
 
-# 4. Run
-pnpm --filter @hotel-pricing/web dev
+# 5. Run the app (pick one)
+pnpm dev                    # Next.js only — best default; no Redis/worker noise
+./scripts/dev-local.sh      # Same + raises open-file limit on macOS / starts Docker
+pnpm dev:stack              # Docker up + web + worker (queues need Redis)
+pnpm dev:full               # Web + worker — start Redis first (`pnpm infra:up`)
 ```
 
-Open **http://localhost:3000** and log in:
+**External drive / “too many open files” (EMFILE):** `pnpm dev` uses polling for file watching. If problems persist: `ulimit -n 10240` in the shell before running, or use `./scripts/dev-local.sh`.
+
+In development, the app listens on **port 3030** (see `apps/web` `dev` script). Open **http://localhost:3030** and log in:
 
 | Role | Email | Password |
 |------|-------|----------|
@@ -51,7 +63,7 @@ Open **http://localhost:3000** and log in:
 └──────────────────────────────────────────────────────────┘
 ```
 
-**Data flow:** Scraper → DailyRate → Recommendation engine → Dashboard. Occupancy is manual entry (or future PMS integration). Analysts manage hotels, competitors, events, and promotions. Clients get read-only access to their assigned hotel.
+**Data flow:** Scraper → DailyRate → Recommendation engine → Dashboard. Occupancy is manual entry (or future PMS integration). Analysts manage hotels, competitors, events, and promotions. Clients get read-only access to their assigned hotel(s). **Inquiries:** public form posts to the API; heuristic (model-ready) analysis runs on create; staff work leads in `/inquiries` (see [docs/AI-INQUIRY-LAYER.md](docs/AI-INQUIRY-LAYER.md)).
 
 ---
 
@@ -66,8 +78,10 @@ Copy `.env.example` to `.env` and configure:
 | `JWT_SECRET` | Yes | Access token signing key. **Must be set in production** (app will crash without it) |
 | `JWT_REFRESH_SECRET` | Yes | Refresh token signing key. **Must be set in production** |
 | `SCRAPE_MODE` | No | `mock` (default) or `real` (uses Playwright) |
-| `OPENAI_API_KEY` | No | For AI-powered rate explanations |
+| `OPENAI_API_KEY` | No | For AI-powered rate explanations and inquiry analysis |
 | `ANTHROPIC_API_KEY` | No | Alternative AI provider |
+| `INQUIRY_AI_PROVIDER` | No | `heuristic` by default; placeholder for future `openai` inquiry analysis |
+| `INQUIRY_AI_MODEL` | No | Placeholder model name for future inquiry analysis, e.g. `gpt-4o-mini` |
 | `DISCOUNT_ADR_THRESHOLD` | No | ADR warning threshold % below BAR (default: 12) |
 | `DISCOUNT_SHARE_THRESHOLD` | No | Discount share warning threshold % (default: 35) |
 | `NEXT_PUBLIC_SHOW_DEMO_CREDENTIALS` | No | Set to `true` to show demo login credentials |
@@ -112,13 +126,19 @@ Without the worker, "Run scrape now" and "Refresh" return an error; everything e
 | Command | What it does |
 |---------|-------------|
 | `pnpm install` | Install all workspace deps |
-| `pnpm --filter @hotel-pricing/web dev` | Start web app (port 3000) |
-| `pnpm --filter @hotel-pricing/worker dev` | Start BullMQ worker |
+| `pnpm dev` | Start web app only (**port 3030**), polling watcher — recommended daily driver |
+| `pnpm dev:full` | Turborepo: web + worker (Redis must be running) |
+| `pnpm dev:stack` | `docker compose up -d` then `dev:full` |
+| `pnpm infra:up` / `pnpm infra:down` | Start/stop Postgres + Redis via Docker Compose |
+| `./scripts/dev-local.sh` | macOS-friendly: `ulimit`, Docker up, then web only (`--full` for worker too) |
+| `pnpm --filter @hotel-pricing/worker dev` | Start BullMQ worker alone (needs Redis) |
 | `pnpm build` | Build all packages |
 | `pnpm db:seed` | Seed demo data (1 hotel, 5 competitors, 2 users) |
 | `pnpm db:studio` | Open Prisma Studio |
-| `pnpm db:migrate` | Run Prisma migrations |
+| `pnpm db:migrate` | Interactive migrate (dev) — from `packages/db` |
+| `pnpm db:migrate:deploy` | Apply migrations (CI/prod) — loads `.env` via `pnpm exec dotenv` |
 | `pnpm db:generate` | Regenerate Prisma client |
+| `pnpm cleanup:appledouble` | Remove macOS `._*` junk files (external disks) |
 
 ---
 
@@ -126,8 +146,9 @@ Without the worker, "Run scrape now" and "Refresh" return an error; everything e
 
 | Route | Access | Description |
 |-------|--------|-------------|
-| `/` | Public | Landing page (redirects to dashboard if logged in) |
+| `/` | Public | Marketing landing (redirects to `/dashboard` if valid session cookie) |
 | `/login` | Public | Email/password login |
+| `/inquire` | Public | Guest/planner inquiry form → creates lead + heuristic analysis |
 | `/dashboard` | All | Multi-hotel overview (analyst) or redirect to assigned hotel (client) |
 | `/hotels` | Analyst | Hotel list + create |
 | `/hotels/[id]` | All | Hotel dashboard — rate matrix, calendar, summary cards |
@@ -135,6 +156,7 @@ Without the worker, "Run scrape now" and "Refresh" return an error; everything e
 | `/occupancy` | Analyst | Bulk occupancy/OTB entry (30 days) |
 | `/pace` | All | Pace vs last year + STR-like ADR index |
 | `/events` | All | Events + external signal management |
+| `/inquiries` | All | Inquiry inbox — **analyst:** all hotels; **client:** assigned hotels only |
 | `/messages` | All | Threaded messaging per hotel |
 | `/promotions` | Analyst | Promotion CRUD |
 | `/portfolio` | Analyst | Cross-hotel KPI overview |
@@ -144,9 +166,9 @@ Without the worker, "Run scrape now" and "Refresh" return an error; everything e
 
 ## Roles
 
-**Analyst** — Full access: manage hotels, competitors, occupancy, events, promotions, rate plans, price overrides, scraping, CSV exports.
+**Analyst** — Full access: manage hotels, competitors, occupancy, events, promotions, rate plans, price overrides, scraping, CSV exports, **all hotels’ inquiries**.
 
-**Client** — Read-only access to one assigned hotel: dashboard, rate matrix, calendar, day detail, pace. No edit buttons, no admin pages.
+**Client** — Read-only pricing intelligence for assigned hotel(s): dashboard, matrix, calendar, day detail, pace, events/promotions as exposed in-app; **inquiries only for hotels they can access**. No scrape admin, no bulk occupancy, no hotel settings.
 
 Access is enforced at three levels: middleware (JWT), server actions (RBAC helpers), and UI (conditional rendering).
 
@@ -182,8 +204,11 @@ See [Deploying to Vercel](docs/DEPLOY.md) for step-by-step deployment instructio
 
 | Document | What it covers |
 |----------|---------------|
+| [Trosky overview](docs/TROSKY-OVERVIEW.md) | What the product is, architecture, inquiry slice, recent ship themes |
+| [Analyst & client user guide](docs/USER-GUIDE-ANALYST-AND-CLIENT.md) | Sidebar, permissions, `/inquiries` by role, public `/inquire` |
+| [AI inquiry layer](docs/AI-INQUIRY-LAYER.md) | Inquiry domain model, flows, phases, AI/heuristic direction |
 | [Product documentation](docs/PRODUCT-DOCUMENTATION.md) | Full spec: roles, auth flows, user flows, feature reference, data model, business rules, glossary |
-| [Dashboard guide](docs/DASHBOARD-GUIDE.md) | Screen-by-screen walkthrough of every UI component |
+| [Dashboard guide](docs/DASHBOARD-GUIDE.md) | Screen-by-screen walkthrough of dashboard UI |
 | [Deploy guide](docs/DEPLOY.md) | Vercel + database + worker deployment |
 | [Design & colors](docs/DESIGN-COLORS.md) | Color palette, chart colors, typography, iconography |
 | [API reference](docs/API.md) | Endpoints, server actions, error codes |

@@ -15,9 +15,12 @@ import {
 
 export function LandingPage() {
   return (
-    <div className="landing-page min-h-screen landing-bg" data-landing>
+    <div
+      className="landing-page landing-editorial min-h-screen bg-[hsl(40_33%_98%)] font-landing-sans text-[hsl(222_47%_11%)] antialiased dark:bg-background dark:text-foreground"
+      data-landing
+    >
       <LandingNav />
-      <main className="relative">
+      <main className="relative overflow-x-hidden">
         <Hero />
         <PainPoints />
         <WhyDifferent />

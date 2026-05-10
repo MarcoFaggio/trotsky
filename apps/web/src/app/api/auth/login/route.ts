@@ -7,11 +7,15 @@ import {
   createRefreshToken,
 } from "@/lib/auth";
 import { attachAuthSessionCookies } from "@/lib/auth-cookies";
-import { checkRateLimit } from "@/lib/rate-limiter";
+import { checkRateLimitAsync } from "@/lib/rate-limiter";
 
 export async function POST(request: NextRequest) {
-  const ip = request.headers.get("x-forwarded-for") || "unknown";
-  const rateLimit = checkRateLimit(`login:${ip}`);
+  const forwarded = request.headers.get("x-forwarded-for");
+  const ip =
+    forwarded?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
+  const rateLimit = await checkRateLimitAsync(`login:${ip}`);
 
   if (!rateLimit.allowed) {
     return NextResponse.json(

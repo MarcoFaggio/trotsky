@@ -39,7 +39,7 @@ Or use the launch script: `chmod +x scripts/launch.sh && ./scripts/launch.sh`
 
 ## Log in
 
-Open **http://localhost:3000** and use:
+Open **http://localhost:3030** and use:
 
 | Role | Email | Password |
 |------|-------|----------|

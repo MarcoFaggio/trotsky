@@ -74,6 +74,25 @@ Check database connectivity. No auth required.
 
 If DB is unreachable, returns 503 with `"db": "error"` and a generic error message (details are logged server-side, not exposed).
 
+### Public inquiries
+
+#### `POST /api/inquiries/public`
+
+Creates an **`Inquiry`** for a hotel from the public **`/inquire`** form (no auth).
+
+**Request (JSON):** Validated by `publicInquirySchema` — includes `hotelId`, guest fields, `message`, optional `source`, honeypot `website` (must be empty).
+
+**Success (200):** `{ "inquiry": { "id": "...", ... } }` — inquiry persisted; heuristic analysis runs unless `INQUIRY_PUBLIC_AI_ANALYSIS=false`.
+
+**Errors:**
+
+| Status | Cause |
+|--------|--------|
+| 400 | Invalid payload |
+| 404 | Hotel missing or inactive |
+| 429 | Rate limit (per IP; key `public-inquiry:<ip>`) |
+| 500 | Server error |
+
 ### Dashboard data
 
 #### `GET /api/v1/dashboard/[hotelId]?range=14`
@@ -175,6 +194,19 @@ Server actions are called directly from React components. They enforce auth via 
 | `sendMessage(data)` | Any user | Send a message in a thread |
 | `resolveThread(threadId)` / `reopenThread(threadId)` | Analyst | Change thread status |
 
+### Inquiries (`actions/inquiries.ts`)
+
+| Action | Auth | Description |
+|--------|------|-------------|
+| `getInquiries(hotelId?)` | Any user | List inquiries; analyst: all hotels (optional filter); client: accessible hotels only |
+| `getInquiryDetail(id)` | Inquiry access | Full detail including messages, RFP/proposal, AI analysis shape |
+| `createManualInquiry(formData)` | Hotel access | Create inquiry for selected hotel |
+| `analyzeInquiry(formData)` | Inquiry access | Re-run heuristic extraction; updates `aiExtractedJson` / confidence |
+| `updateInquiryStatus(formData)` | Inquiry access | Status, intent, priority updates |
+| `addInquiryMessage(formData)` | Inquiry access | Staff or structured guest message |
+| `upsertGroupRfp(formData)` | Inquiry access | Create/update **GroupRfp** shell |
+| `createInquiryProposal(formData)` | Inquiry access | Create **InquiryProposal** shell |
+
 ---
 
 ## Error patterns
@@ -195,5 +227,6 @@ API routes return JSON with an `error` field and appropriate HTTP status codes.
 | Endpoint | Limit | Window |
 |----------|-------|--------|
 | `POST /api/auth/login` | 5 attempts | 15 minutes per IP |
+| `POST /api/inquiries/public` | Configured in `rate-limiter` | Per IP (`public-inquiry:*`) |
 
-Rate limiting is in-memory (resets on deploy). Other endpoints are not rate-limited.
+Rate limiting is in-memory (resets on deploy).

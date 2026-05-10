@@ -1,124 +1,170 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { TrendingUp, ArrowRight, Sparkles } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { ArrowRight, MessageSquareQuote, Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HeroChart } from "./hero-chart";
 
-const EYEBROW = "Hotel rate intelligence · AI-driven pricing";
-const HEADLINE = "Stop Losing Revenue to Your Competitors";
-const VALUE_PROP =
-  "Automate competitor rate tracking across Expedia, Booking.com, and direct. Get AI-recommended rates, save time, and make better pricing decisions.";
-const SUBHEADLINE =
-  "Continuous tracking, AI Recommended rate in every view, and live visibility for stakeholders — in one platform.";
+const HEADLINE = "Price with conviction—not guesswork";
+const SUB =
+  "Automated competitor rates across OTAs, AI-backed recommendations, and a live dashboard your owners can trust. Built for revenue teams who outgrow spreadsheets.";
+const STATS = [
+  { label: "Hotels on Trosky", value: "500+", valueClass: "text-primary" },
+  { label: "Rates tracked / week", value: "2.4M+", valueClass: "text-emerald-600 dark:text-emerald-400" },
+  { label: "Avg. time saved", value: "10h+", valueClass: "text-amber-600 dark:text-amber-400" },
+];
 
 export function Hero() {
-  const [displayedHeadline, setDisplayedHeadline] = useState("");
-  const [headlineComplete, setHeadlineComplete] = useState(false);
-
-  useEffect(() => {
-    let i = 0;
-    const t = setInterval(() => {
-      if (i <= HEADLINE.length) {
-        setDisplayedHeadline(HEADLINE.slice(0, i));
-        i++;
-      } else {
-        setHeadlineComplete(true);
-        clearInterval(t);
-      }
-    }, 42);
-    return () => clearInterval(t);
-  }, []);
+  const reduced = useReducedMotion();
 
   return (
-    <section className="relative overflow-hidden border-landing border-b landing-bg px-4 pt-28 pb-16 sm:px-6 sm:pt-36 sm:pb-24 lg:px-8">
-      {/* Subtle grid */}
-      <div className="pointer-events-none absolute inset-0 landing-grid-pattern opacity-30" aria-hidden />
+    <section className="relative border-b border-border/60 bg-gradient-to-b from-background via-background to-muted/25 px-4 pb-16 pt-24 dark:to-muted/15 sm:px-6 sm:pb-24 sm:pt-32 lg:px-8 lg:pb-28 lg:pt-36">
+      <div className="landing-aurora-blobs opacity-90 dark:opacity-100" aria-hidden />
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.35] dark:opacity-[0.12] dark:mix-blend-soft-light"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='48' height='48' viewBox='0 0 48 48' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 48V0h48' fill='none' stroke='%23000' stroke-opacity='0.06'/%3E%3C/svg%3E")`,
+        }}
+        aria-hidden
+      />
 
       <div className="relative mx-auto max-w-6xl">
-        <div className="grid gap-12 lg:grid-cols-[1fr,1fr] lg:gap-16 lg:items-center">
-          {/* Left: copy + CTAs */}
-          <div className="max-w-xl">
+        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-14">
+          <div className="max-w-2xl">
             <motion.div
-              initial={{ opacity: 0, y: 12 }}
+              initial={reduced ? false : { opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              className="mb-4 inline-flex items-center gap-2 rounded-full border border-landing-border bg-card/80 px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground shadow-sm"
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              className="mb-6 inline-flex flex-wrap items-center gap-2"
             >
-              <TrendingUp className="h-3.5 w-3.5 text-primary" />
-              <span>{EYEBROW.split(" · ")[0]}</span>
-              <span className="text-primary">·</span>
-              <Sparkles className="h-3.5 w-3.5 text-primary" />
-              <span>AI-driven pricing</span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card/90 px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur-sm">
+                <Zap className="h-3.5 w-3.5 text-amber-500" aria-hidden />
+                Revenue intelligence for modern hotel teams
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary">
+                <Sparkles className="h-3.5 w-3.5" aria-hidden />
+                AI recommendations in every view
+              </span>
             </motion.div>
+
             <motion.h1
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.35 }}
-              className="text-3xl font-bold tracking-tight landing-text sm:text-4xl md:text-5xl lg:text-[2.75rem] lg:leading-[1.15]"
+              className="font-landing-display text-4xl font-semibold leading-[1.08] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-[3.35rem]"
+              initial={reduced ? false : { opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, delay: 0.06, ease: [0.22, 1, 0.36, 1] }}
             >
-              <span>{displayedHeadline}</span>
-              {!headlineComplete && (
-                <span
-                  className="ml-0.5 inline-block h-0.85em w-0.5 bg-primary animate-cursor-blink"
-                  aria-hidden
-                />
-              )}
+              {HEADLINE}
             </motion.h1>
+
             <motion.p
-              initial={{ opacity: 0, y: 14 }}
+              initial={reduced ? false : { opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, type: "spring", stiffness: 120, damping: 24 }}
-              className="mt-6 text-lg landing-text-muted sm:text-xl"
+              transition={{ duration: 0.45, delay: reduced ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className="mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground sm:text-xl"
             >
-              {VALUE_PROP}
+              {SUB}
             </motion.p>
-            <motion.p
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.65, type: "spring", stiffness: 120, damping: 24 }}
-              className="mt-3 text-base landing-text-muted"
-            >
-              {SUBHEADLINE}
-            </motion.p>
+
             <motion.div
-              initial={{ opacity: 0, y: 14 }}
+              initial={reduced ? false : { opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.85, type: "spring", stiffness: 120, damping: 24 }}
-              className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center"
+              transition={{ duration: 0.45, delay: reduced ? 0 : 0.5 }}
+              className="mt-10 flex w-full max-w-lg flex-col gap-3 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center sm:gap-4"
             >
-              <Link href="/login">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="inline-flex"
+              <Link href="/login" className="w-full sm:w-auto">
+                <motion.span
+                  whileHover={reduced ? undefined : { scale: 1.02 }}
+                  whileTap={reduced ? undefined : { scale: 0.98 }}
+                  className="flex w-full sm:inline-flex"
                 >
                   <Button
                     size="lg"
-                    className="gap-2 min-w-[200px] font-medium bg-primary text-primary-foreground hover:bg-primary/90"
+                    className="w-full gap-2 rounded-xl px-8 text-base font-semibold shadow-lg shadow-primary/30 dark:shadow-primary/20 sm:min-w-[220px]"
                   >
-                    Schedule Free Demo
+                    Sign in with pilot access
                     <ArrowRight className="h-4 w-4" />
                   </Button>
-                </motion.div>
+                </motion.span>
               </Link>
-              <p className="text-sm landing-text-muted">
-                No credit card required · 15-minute intro call
-              </p>
+              <Link href="/inquire" className="w-full sm:w-auto">
+                <motion.span
+                  whileHover={reduced ? undefined : { scale: 1.02 }}
+                  whileTap={reduced ? undefined : { scale: 0.98 }}
+                  className="flex w-full sm:inline-flex"
+                >
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="w-full gap-2 rounded-xl border-2 border-border bg-card/90 px-8 text-base font-semibold backdrop-blur-sm dark:border-white/15 dark:bg-card/50 sm:min-w-[220px]"
+                  >
+                    <MessageSquareQuote className="h-4 w-4" />
+                    Send us an inquiry
+                  </Button>
+                </motion.span>
+              </Link>
+            </motion.div>
+
+            <motion.p
+              initial={reduced ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: reduced ? 0 : 0.65 }}
+              className="mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground"
+            >
+              Use analyst or client demo accounts from the login page when demo hints are enabled.
+            </motion.p>
+
+            <motion.div
+              initial={reduced ? false : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: reduced ? 0 : 0.7, duration: 0.45 }}
+              className="mt-12 grid gap-4 sm:grid-cols-3"
+            >
+              {STATS.map((s, i) => (
+                <motion.div
+                  key={s.label}
+                  initial={reduced ? false : { opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: reduced ? 0 : 0.08 * i }}
+                  className="rounded-2xl border border-border/80 bg-card/60 p-4 shadow-sm backdrop-blur-md"
+                >
+                  <p className={`text-2xl font-bold tracking-tight tabular-nums ${s.valueClass}`}>
+                    {s.value}
+                  </p>
+                  <p className="mt-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {s.label}
+                  </p>
+                </motion.div>
+              ))}
             </motion.div>
           </div>
 
-          {/* Right (desktop) / below (tablet): real app chart — Competitive Rate Comparison */}
-          <motion.div
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.6, type: "spring", stiffness: 100, damping: 24 }}
-            className="relative hidden md:block"
-          >
-            <HeroChart />
-          </motion.div>
+            <motion.div
+              initial={reduced ? false : { opacity: 0, x: 28 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{
+                type: "spring",
+                stiffness: 90,
+                damping: 22,
+                delay: reduced ? 0 : 0.25,
+              }}
+              className="relative order-first mx-auto w-full max-w-lg lg:order-none lg:max-w-none"
+            >
+              <div
+                className="absolute -inset-3 rounded-3xl bg-gradient-to-br from-primary/25 via-primary/5 to-emerald-500/20 blur-2xl dark:from-primary/30 dark:via-transparent dark:to-emerald-500/25"
+                aria-hidden
+              />
+              <motion.div
+                whileHover={reduced ? undefined : { y: -3 }}
+                transition={{ type: "spring", stiffness: 280, damping: 22 }}
+                className="relative rounded-2xl border border-border/70 bg-card/95 p-1 shadow-2xl shadow-black/[0.08] ring-1 ring-black/[0.04] backdrop-blur dark:border-white/10 dark:bg-card/80 dark:shadow-black/50 dark:ring-white/[0.06]"
+              >
+                <HeroChart />
+              </motion.div>
+            </motion.div>
+
+          {/* Mobile: chart stacks below; stats already visible */}
         </div>
       </div>
     </section>

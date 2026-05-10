@@ -1,23 +1,64 @@
 "use client";
 
+import Link from "next/link";
+import { motion } from "framer-motion";
 import { BarChart3 } from "lucide-react";
 
 export function LandingFooter() {
   return (
-    <footer className="border-t border-landing-border landing-bg px-4 py-10 sm:px-6 lg:px-8" role="contentinfo">
+    <footer
+      className="border-t border-border bg-muted/30 px-4 py-16 sm:px-6 lg:px-8 dark:bg-muted/15"
+      role="contentinfo"
+    >
       <div className="mx-auto max-w-6xl">
-        <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:justify-between sm:items-center">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="h-5 w-5 text-landing-emerald" aria-hidden />
-            <span className="text-sm font-semibold landing-text">Trosky</span>
+        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="lg:col-span-2">
+            <div className="flex items-center gap-2 font-landing-display text-lg font-semibold">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+                <BarChart3 className="h-5 w-5" aria-hidden />
+              </span>
+              Trosky
+            </div>
+            <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
+              Automated competitor intelligence and AI-backed rates — so revenue teams spend less time in spreadsheets and more time winning share.
+            </p>
           </div>
-          <p className="text-sm landing-text-muted">
-            Empowering hotels with precise, real-time market intelligence.
-          </p>
-          <p className="text-sm landing-text-muted">
-            Bangalore, KA 560038
-          </p>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Product</p>
+            <ul className="mt-4 space-y-3 text-sm">
+              <li>
+                <Link href="#platform" className="text-foreground/90 transition-colors hover:text-primary">
+                  Platform
+                </Link>
+              </li>
+              <li>
+                <Link href="/inquire" className="text-foreground/90 transition-colors hover:text-primary">
+                  Contact / inquiry
+                </Link>
+              </li>
+              <li>
+                <Link href="/login" className="text-foreground/90 transition-colors hover:text-primary">
+                  Log in
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Company</p>
+            <p className="mt-4 text-sm text-muted-foreground">
+              Bangalore, KA 560038
+            </p>
+          </div>
         </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-border/80 pt-8 text-center text-xs text-muted-foreground sm:flex-row sm:text-left"
+        >
+          <span>© {new Date().getFullYear()} Trosky. All rights reserved.</span>
+          <span className="font-medium text-foreground/80">Built for hotel revenue & commercial teams</span>
+        </motion.div>
       </div>
     </footer>
   );

@@ -3,6 +3,7 @@
 import { prisma } from "@hotel-pricing/db";
 import { requireAuth, requireAnalyst, requireHotelAccess } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
+import { queueRecommendationRecompute } from "@/lib/recommendation-queue";
 
 export async function getEvents(hotelId?: string) {
   const session = await requireAuth();
@@ -34,8 +35,10 @@ export async function getEvents(hotelId?: string) {
 
 export async function deleteEvent(id: string) {
   await requireAnalyst();
-  await prisma.event.delete({ where: { id } });
+  const event = await prisma.event.delete({ where: { id } });
   revalidatePath("/events");
+  revalidatePath(`/hotels/${event.hotelId}`);
+  await queueRecommendationRecompute(event.hotelId, "event-deleted");
 }
 
 export async function updateEvent(data: {
@@ -52,6 +55,8 @@ export async function updateEvent(data: {
     },
   });
   revalidatePath("/events");
+  revalidatePath(`/hotels/${event.hotelId}`);
+  await queueRecommendationRecompute(event.hotelId, "event-updated");
   return event;
 }
 

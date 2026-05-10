@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, X, ClipboardList, RefreshCw, FileText, Eye, Users } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { SectionWrapper } from "./section-wrapper";
 
 const rows = [
@@ -37,29 +37,68 @@ const rows = [
   },
 ];
 
-export function ComparisonTable() {
+function EfficiencyDivideHeading() {
+  const reduced = useReducedMotion();
+
   return (
-    <SectionWrapper id="comparison" className="landing-bg px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
-      <div className="mx-auto max-w-4xl">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
+    <div className="mx-auto max-w-2xl text-center">
+      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+        Compare
+      </p>
+      <div className="group relative mt-4 inline-block px-1">
+        <motion.h2
+          className="font-landing-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl md:text-[2.35rem]"
+          initial={reduced ? false : { opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center"
+          transition={{ duration: 0.45 }}
         >
-          <p className="text-sm font-medium uppercase tracking-wider text-primary">
-            Compare
-          </p>
-          <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl">
-            The Efficiency Divide
-          </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
-            See how traditional workflows compare with automated market
-            intelligence.
-          </p>
-        </motion.div>
-        {/* Table cells must stay `display: table-cell`; flex on <td> breaks column layout in browsers. */}
-        <div className="mt-14 hidden overflow-hidden rounded-2xl border border-border bg-card shadow-lg md:block">
+          The efficiency divide
+        </motion.h2>
+        <motion.span
+          aria-hidden
+          className="absolute -bottom-1 left-0 h-[3px] w-full rounded-full bg-gradient-to-r from-primary/50 via-primary to-emerald-500/80 shadow-none transition-[box-shadow,filter] duration-500 group-hover:shadow-[0_10px_36px_-12px_rgba(59,130,246,0.45)] dark:from-primary/60 dark:via-primary dark:to-emerald-400/90 dark:group-hover:shadow-[0_12px_40px_-14px_rgba(96,165,250,0.4)]"
+          initial={reduced ? false : { scaleX: 0, opacity: 0 }}
+          whileInView={{ scaleX: 1, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{
+            duration: reduced ? 0 : 0.75,
+            delay: reduced ? 0 : 0.12,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+          style={{ transformOrigin: "left center" }}
+        />
+        <motion.span
+          aria-hidden
+          className="absolute -bottom-2 left-0 h-px w-full origin-center bg-gradient-to-r from-transparent via-border to-transparent opacity-80 transition-[opacity,transform] duration-500 group-hover:opacity-100 group-hover:scale-x-[1.02]"
+          initial={reduced ? false : { scaleX: 0 }}
+          whileInView={{ scaleX: 1 }}
+          viewport={{ once: true }}
+          transition={{
+            duration: reduced ? 0 : 0.55,
+            delay: reduced ? 0 : 0.35,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+          style={{ transformOrigin: "center" }}
+        />
+      </div>
+      <p className="mx-auto mt-8 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+        See how traditional workflows compare with automated market intelligence.
+      </p>
+    </div>
+  );
+}
+
+export function ComparisonTable() {
+  return (
+    <SectionWrapper
+      id="comparison"
+      className="bg-gradient-to-b from-background via-muted/20 to-background px-4 py-20 dark:via-muted/10 sm:px-6 sm:py-24 lg:px-8"
+    >
+      <div className="mx-auto max-w-4xl">
+        <EfficiencyDivideHeading />
+
+        <div className="mt-14 hidden overflow-hidden rounded-2xl border border-border bg-card shadow-lg dark:border-white/[0.08] dark:bg-card/90 dark:shadow-black/40 md:block">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] border-collapse">
               <colgroup>
@@ -68,7 +107,7 @@ export function ComparisonTable() {
                 <col className="md:w-[31%]" />
               </colgroup>
               <thead>
-                <tr className="border-b border-border bg-muted/50">
+                <tr className="border-b border-border bg-muted/40 dark:bg-muted/25">
                   <th
                     scope="col"
                     className="px-5 py-4 text-left text-sm font-semibold text-foreground sm:px-6 sm:py-5"
@@ -77,15 +116,21 @@ export function ComparisonTable() {
                   </th>
                   <th
                     scope="col"
-                    className="px-5 py-4 text-left text-sm font-semibold text-muted-foreground sm:px-6 sm:py-5"
+                    className="group relative px-5 py-4 text-left text-sm font-semibold text-muted-foreground sm:px-6 sm:py-5"
                   >
-                    Traditional
+                    <span className="relative inline-block">
+                      Traditional
+                      <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-muted-foreground/50 transition-all duration-500 group-hover:w-full" />
+                    </span>
                   </th>
                   <th
                     scope="col"
-                    className="px-5 py-4 text-left text-sm font-semibold text-primary sm:px-6 sm:py-5"
+                    className="group relative px-5 py-4 text-left text-sm font-semibold text-primary sm:px-6 sm:py-5"
                   >
-                    Trosky
+                    <span className="relative inline-block">
+                      Trosky
+                      <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-primary/70 transition-all duration-500 group-hover:w-full" />
+                    </span>
                   </th>
                 </tr>
               </thead>
@@ -106,19 +151,22 @@ export function ComparisonTable() {
                       }}
                       className={
                         i < rows.length - 1
-                          ? "border-b border-border transition-colors hover:bg-muted/20"
-                          : "transition-colors hover:bg-muted/20"
+                          ? "group border-b border-border transition-colors hover:bg-muted/25 dark:hover:bg-muted/15"
+                          : "group transition-colors hover:bg-muted/25 dark:hover:bg-muted/15"
                       }
                     >
                       <th
                         scope="row"
                         className="px-5 py-4 text-left align-middle font-normal sm:px-6 sm:py-5"
                       >
-                        <span className="flex items-center gap-3 text-sm font-medium text-foreground">
-                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                        <span className="relative flex items-center gap-3 text-sm font-medium text-foreground">
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground transition-colors group-hover:bg-primary/10 group-hover:text-primary">
                             <Icon className="h-4 w-4" />
                           </span>
-                          {row.feature}
+                          <span className="relative">
+                            {row.feature}
+                            <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-primary/40 transition-all duration-300 group-hover:w-full" />
+                          </span>
                         </span>
                       </th>
                       <td className="px-5 py-4 align-middle text-sm text-muted-foreground sm:px-6 sm:py-5">
@@ -150,6 +198,7 @@ export function ComparisonTable() {
             </table>
           </div>
         </div>
+
         <div className="mt-10 grid gap-4 md:hidden">
           {rows.map((row, i) => {
             const Icon = row.icon;
@@ -165,22 +214,29 @@ export function ComparisonTable() {
                   damping: 24,
                   delay: i * 0.05,
                 }}
-                className="rounded-2xl border border-border bg-card p-5 shadow-md"
+                className="rounded-2xl border border-border bg-card p-5 shadow-md dark:border-white/[0.08] dark:bg-card/95"
               >
                 <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/12 text-primary">
                     <Icon className="h-5 w-5" />
                   </span>
                   <p className="text-sm font-semibold text-foreground">{row.feature}</p>
                 </div>
-                <div className="mt-4 flex flex-col gap-2 rounded-lg bg-muted/40 p-3">
-                  <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <X className="h-3.5 w-3.5 shrink-0 text-destructive/80" />
-                    <span className="font-medium text-muted-foreground">Traditional:</span> {row.traditional}
+                <div className="mt-4 flex flex-col gap-3 rounded-xl bg-muted/35 p-4 dark:bg-muted/20">
+                  <p className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <X className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive/90" />
+                    <span>
+                      <span className="font-semibold text-foreground/80">Traditional: </span>
+                      {row.traditional}
+                    </span>
                   </p>
-                  <p className="flex items-center gap-2 text-sm font-medium text-primary">
-                    <Check className="h-3.5 w-3.5 shrink-0" />
-                    <span>Trosky:</span> {row.trosky}
+                  <div className="h-px w-full bg-gradient-to-r from-transparent via-border to-transparent" />
+                  <p className="flex items-start gap-2 text-sm font-medium text-primary">
+                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                    <span>
+                      <span className="text-primary/90">Trosky: </span>
+                      {row.trosky}
+                    </span>
                   </p>
                 </div>
               </motion.div>

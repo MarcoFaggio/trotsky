@@ -31,11 +31,12 @@ Complete product documentation for **Trosky**: user flows, features, data model,
 - **Promotions and events** — Date-range promotions and single-day events, shown on matrix/calendar and in day detail.
 - **Discount control** — Rate plans (BAR, AAA, etc.), discount mix per date, ADR-based warnings when discount impact is high.
 - **Scraping** — Mock or real (Playwright) OTA scrapers; admin can run a scrape and see runs/errors.
+- **Inquiry capture & inbox** — Public **`/inquire`** form; authenticated **`/inquiries`** for triage; heuristic (model-ready) analysis on create/re-analyze (see [AI-INQUIRY-LAYER.md](./AI-INQUIRY-LAYER.md)).
 
 ### 1.2 Who uses it
 
-- **Revenue analysts** — Full access: manage hotels and competitors, enter occupancy, set overrides, add events/promotions, run scrapes, export data.
-- **Hotel clients** — Read-only access to one assigned hotel: view dashboard, rate matrix, calendar, day detail, and pace.
+- **Revenue analysts** — Full access: manage hotels and competitors, enter occupancy, set overrides, add events/promotions, run scrapes, export data; **inquiries for all hotels**.
+- **Hotel clients** — Read-only pricing cockpit for assigned hotel(s): dashboard, rate matrix, calendar, day detail, pace; **inquiries only for hotels they have access to**.
 
 ### 1.3 Out of scope (current POC)
 
@@ -72,6 +73,9 @@ Complete product documentation for **Trosky**: user flows, features, data model,
 | View Pace / OTB | Yes, any allowed hotel | Yes, assigned hotel |
 | Run scrape / view Scrape Admin | Yes | No (no access to /admin) |
 | Export CSV (matrix, occupancy) | Yes | No (export in context of hotel dashboard) |
+| View **`/inquiries`** inbox | Yes (**all** hotels) | Yes (**assigned** hotels only) |
+| Create manual inquiry / triage lead | Yes (any hotel) | Yes (own accessible hotels) |
+| Use public **`/inquire`** form | Yes (as guest; no login) | Same |
 
 ### 2.3 How access is enforced
 
@@ -80,7 +84,7 @@ Complete product documentation for **Trosky**: user flows, features, data model,
   - `requireAuth()` — any logged-in user.
   - `requireRole('ANALYST')` — analyst only.
   - `requireHotelAccess(hotelId)` — analyst (any hotel) or client with `HotelAccess` for that `hotelId`.
-- **UI** — Analyst-only links (Hotels, Occupancy, Promotions, Scrape Admin) are hidden for clients. Buttons for override, Add Event, edit occupancy, etc., are hidden for clients in the Day Detail modal and elsewhere.
+- **UI** — Analyst-only links (Portfolio, Hotels, Occupancy, Scrape Admin) are hidden for clients; both roles see **Inquiries** with different data scope. Buttons for override, Add Event, edit occupancy, etc., are hidden for clients in the Day Detail modal and elsewhere.
 
 ---
 
@@ -129,7 +133,7 @@ To add a user today: run a script or insert into `User` and, for clients, into `
 
 ### 3.5 Protected routes and API
 
-- **Public**: `/login`, `POST /api/auth/login`, `POST /api/auth/refresh`. No JWT required.
+- **Public**: `/` (marketing landing when logged out), `/login`, `/inquire`, `POST /api/auth/login`, `POST /api/auth/refresh`, `POST /api/inquiries/public`, `GET /api/health`. No JWT required for these.
 - **All other app routes and APIs** require a valid JWT. Unauthenticated → redirect to `/login` or 401.
 
 ---
@@ -139,20 +143,26 @@ To add a user today: run a script or insert into `User` and, for clients, into `
 | Route | Purpose | ANALYST | CLIENT |
 |-------|---------|---------|--------|
 | `/login` | Login page | Allowed (usually redirect if already logged in) | Same |
-| `/` | Root | Redirect to `/dashboard` | Same |
+| `/` | Landing (logged out) or redirect | Logged out: landing; logged in: redirect to `/dashboard` | Same |
+| `/inquire` | Public inquiry form | Public | Public |
 | `/dashboard` | Overview or redirect | Multi-hotel dashboard | Redirect to `/hotels/[assignedId]` |
+| `/inquiries` | Inquiry inbox & detail | Yes — **all** hotels | Yes — **assigned** hotels only |
 | `/hotels` | Hotel list | Yes | No (403/redirect) |
 | `/hotels/new` | Create hotel form | Yes | No |
 | `/hotels/[id]` | Hotel dashboard (matrix/calendar) | Yes, any hotel | Yes, only if `HotelAccess` |
 | `/hotels/[id]/settings` | Hotel settings (general, competitors, rate plans) | Yes | No |
 | `/occupancy` | Bulk occupancy entry | Yes | No |
+| `/events` | Events (and related UX per build) | Yes | Yes (scoped) |
 | `/pace` | Pace / OTB dashboard | Yes, any hotel | Yes, assigned hotel |
 | `/promotions` | Promotions list and CRUD | Yes | No |
+| `/portfolio` | Cross-hotel portfolio (analyst) | Yes | No |
+| `/messages` | Messaging | Yes | Yes (scoped) |
 | `/admin/scrapes` | Scrape runs and “Run now” | Yes | No |
 | `POST /api/auth/login` | Login | Public | Public |
 | `POST /api/auth/refresh` | Refresh token | Cookie-based | Same |
 | `POST /api/auth/logout` | Logout | Authenticated | Same |
 | `GET /api/auth/me` | Current user | Authenticated | Same |
+| `POST /api/inquiries/public` | Create inquiry from web form | Public | Public |
 | `POST /api/scrape` | Queue scrape job | Analyst only | 403 |
 
 ---
@@ -232,21 +242,36 @@ To add a user today: run a script or insert into `User` and, for clients, into `
 - **Rate matrix**: On Hotel dashboard, with Rate Matrix or Calendar visible, click **Export CSV** → client builds CSV (dates × our rate, recommended, comp avg, occupancy, competitors) and triggers download.
 - **Occupancy**: On **Occupancy** page, select hotel, click **Export CSV** (or “CSV”) → download occupancy/OTB table for that hotel.
 
-### 5.9 Client: Full flow (read-only)
+### 5.9 Client: Full flow (read-only pricing + scoped inquiries)
 
 1. Open app → **`/login`**.
 2. Enter **client@example.com** / **Password123!** → Sign In.
 3. Redirect to **`/dashboard`** → server sees CLIENT role and **HotelAccess** → redirect to **`/hotels/[assignedHotelId]`**.
-4. **Hotel dashboard** loads for the single assigned hotel:
-   - Same summary cards, Rate Matrix, Calendar, date range, but **no Export CSV** (or it may be hidden for client).
+4. **Hotel dashboard** loads for the assigned hotel(s):
+   - Summary cards, Rate Matrix, Calendar, date range; analyst-only controls (override, export) hidden per RBAC.
 5. Click a date → **Day Detail modal** opens:
-   - Client sees: room pricing, competitor table, occupancy block, ADR/revenue, events/promotions.
-   - Client does **not** see: Price override input, Add Event, Edit occupancy, Add Promotion.
-6. Sidebar: only **Dashboard** (which redirects to same hotel), **Pace / OTB**, **Sign Out**. No Hotels, Occupancy, Promotions, Scrape Admin.
-7. **Pace** page: client can select only their hotel (or it’s pre-selected); sees OTB vs LY chart and ADR index.
-8. **Sign Out** → **POST /api/auth/logout** → redirect to **`/login`**.
+   - Client sees: room pricing, competitor table, occupancy block, ADR/revenue, events/promotions (read-only).
+   - Client does **not** see: Price override input, Add Event, Edit occupancy, Add Promotion (analyst-only affordances).
+6. Sidebar (client): **Dashboard**, **Events**, **Promotions**, **Inquiries**, **Message Trosky**, **Pace / OTB** — no Manage Hotels, Occupancy, Scrape Admin, Portfolio.
+7. **`/inquiries`**: list and detail for **only** hotels linked via **HotelAccess**; staff messages and status updates allowed where the UI exposes them.
+8. **Pace** page: OTB vs LY chart and ADR index for accessible hotel(s).
+9. **Sign Out** → **POST /api/auth/logout** → redirect to **`/login`**.
 
-### 5.10 Logout (any role)
+### 5.10 Analyst: Inquiry inbox (`/inquiries`)
+
+1. Sidebar → **Inquiries**.
+2. List shows inquiries across **all** hotels (optional hotel filter when present).
+3. Open an inquiry → detail: status, intent, priority, summary, heuristic/AI fields, messages.
+4. Optional **Analyze** action re-runs deterministic extraction (same shape as future LLM output).
+5. Add staff messages, update stage fields, attach RFP/proposal data per forms on the page.
+
+### 5.11 Guest / planner: Public inquiry (`/inquire`)
+
+1. Open **`/inquire`** (no login).
+2. Choose hotel, enter contact and message → **`POST /api/inquiries/public`**.
+3. Inquiry created; analysis runs (heuristic by default). Hotel staff sees it under **`/inquiries`** after login.
+
+### 5.12 Logout (any role)
 
 1. Sidebar → **Sign Out**.
 2. **POST /api/auth/logout** → cookies cleared.
@@ -267,9 +292,9 @@ To add a user today: run a script or insert into `User` and, for clients, into `
 
 ### 6.2 App shell (layout after login)
 
-- **Sidebar**: Logo/name; nav links (Dashboard, Hotels, Occupancy, Pace, Promotions, Scrape Admin); Sign Out. Links shown/hidden by role.
+- **Sidebar**: Logo/name; nav links **by role** — **Analyst:** Dashboard, Portfolio, Manage Hotels, Events, Occupancy, Pace / OTB, Promotions, **Inquiries**, Messages, Scrape Admin. **Client:** Dashboard, Events, Promotions, **Inquiries**, Message Trosky, Pace / OTB. Sign out at bottom.
 - **Top bar**: Hotel selector (dropdown of allowed hotels), user role badge and email.
-- **Main area**: Outlet for current page (dashboard, hotel dashboard, occupancy, etc.).
+- **Main area**: Outlet for current page (dashboard, hotel dashboard, occupancy, inquiries, etc.).
 
 ### 6.3 Dashboard (`/dashboard`)
 
@@ -330,6 +355,18 @@ To add a user today: run a script or insert into `User` and, for clients, into `
 - **Runs table**: Run ID, Started at, Duration, Status, Mode, Rates stored, Error count; Refresh button.
 - Errors are stored in `ScrapeError` per run (detail view can be added later).
 
+### 6.13 Inquiries (`/inquiries`) — Authenticated
+
+- **Route**: Same URL for analyst and client; **data scope** enforced server-side (analyst: all hotels; client: `HotelAccess` hotels only).
+- **List**: Inquiry rows with hotel, intent, status, priority, summary snippet, timestamps.
+- **Detail**: Edit status / intent / priority where offered; **Analyze** form posts server action to re-run heuristic extraction; **missing fields** surfaced from analysis; **messages** thread (guest vs staff); optional **Group RFP** and **proposal** sections when present in UI.
+- **Manual create**: Analyst can target any hotel; client only accessible hotels.
+
+### 6.14 Public inquiry (`/inquire`) — No login
+
+- Marketing copy + **PublicInquiryForm**: hotel picker, contact fields, message body, honeypot anti-spam.
+- Submit → **`POST /api/inquiries/public`** → creates `Inquiry` + first message + runs analysis; success shows confirmation (e.g. inquiry id).
+
 ---
 
 ## 7. Data model and entities
@@ -354,6 +391,15 @@ To add a user today: run a script or insert into `User` and, for clients, into `
 - **DiscountMix** — hotelId, date, planId, sharePercent. Unique (hotelId, date, planId). Sum of sharePercent for a hotel/date should be 100 for full mix.
 - **ScrapeRun** — startedAt, finishedAt, status (PENDING | RUNNING | COMPLETED | FAILED), mode (MOCK | REAL), summaryJson. Has many DailyRate, ReviewSnapshot, ScrapeError.
 - **ScrapeError** — runId, contextJson, message, createdAt.
+
+### 7.1a Inquiry-related entities
+
+- **Inquiry** — Lead for a hotel: source, intent, status, priority, contact and stay fields, `summary`, `aiConfidence`, `aiExtractedJson`, timestamps. Belongs to **Hotel**.
+- **InquiryMessage** — Thread messages (`GUEST` | `STAFF` | `SYSTEM` | future `AI`).
+- **GroupRfp** — Structured group demand linked to an inquiry when captured.
+- **InquiryProposal** — Proposal shell linked to an inquiry.
+
+See Prisma schema and [AI-INQUIRY-LAYER.md](./AI-INQUIRY-LAYER.md) for field-level detail.
 
 ### 7.2 How “our rate” is resolved
 

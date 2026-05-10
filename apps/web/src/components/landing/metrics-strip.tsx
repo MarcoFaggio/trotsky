@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, IndianRupee, ShieldCheck } from "lucide-react";
+import { Building2, DollarSign, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { SectionWrapper } from "./section-wrapper";
 
@@ -12,9 +12,9 @@ const metrics = [
     bg: "bg-[hsl(221_83%_53%)] text-white",
   },
   {
-    value: "₹50Cr+",
-    label: "Revenue Analyzed",
-    icon: IndianRupee,
+    value: "$50M+",
+    label: "Revenue under analysis",
+    icon: DollarSign,
     bg: "bg-landing-emerald text-white",
   },
   {
@@ -56,7 +56,7 @@ export function MetricsStrip() {
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 + 0.08 }}
-                className="mt-5 text-3xl font-bold tracking-tight landing-text sm:text-4xl"
+                className="mt-5 font-landing-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
               >
                 {value}
               </motion.p>

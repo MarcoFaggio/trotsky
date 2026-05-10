@@ -71,61 +71,120 @@ enum SignalSuppressionReason {
   OTHER
 }
 
+enum InquirySource {
+  WEB_CHAT
+  WHATSAPP
+  INSTAGRAM
+  FACEBOOK
+  EMAIL
+  PHONE
+  MANUAL
+  OTHER
+}
+
+enum InquiryIntent {
+  INDIVIDUAL_BOOKING
+  GROUP_ROOMS
+  MEETING_EVENT
+  WEDDING
+  SCHOOL_TRIP
+  CORPORATE_OFFSITE
+  GENERAL
+  UNKNOWN
+}
+
+enum InquiryStatus {
+  NEW
+  QUALIFYING
+  RFP_READY
+  PROPOSAL_SENT
+  WON
+  LOST
+  SPAM
+}
+
+enum InquiryPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum InquiryMessageSenderType {
+  GUEST
+  AI
+  STAFF
+  SYSTEM
+}
+
+enum InquiryProposalStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
 model User {
-  id              String          @id @default(cuid())
-  email           String          @unique
-  passwordHash    String
-  role            Role
-  name            String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  hotelAccess     HotelAccess[]
-  overrides       PriceOverride[]
-  resolvedThreads MessageThread[] @relation("resolvedThreads")
-  sentMessages    Message[]
+  id                      String              @id @default(cuid())
+  email                   String              @unique
+  passwordHash            String
+  role                    Role
+  name                    String?
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime            @updatedAt
+  hotelAccess             HotelAccess[]
+  overrides               PriceOverride[]
+  resolvedThreads         MessageThread[]     @relation("resolvedThreads")
+  sentMessages            Message[]
   suppressedSignalImpacts HotelSignalImpact[] @relation("suppressedSignalImpacts")
+  assignedInquiries       Inquiry[]           @relation("assignedInquiries")
+  inquiryMessages         InquiryMessage[]
+  inquiryProposals        InquiryProposal[]
 }
 
 model Hotel {
-  id              String            @id @default(cuid())
-  name            String
-  pmsName         String?
-  phone           String?
-  email           String?
-  address         String?
-  city            String?
-  countryCode     String?
-  regionCode      String?
-  market          String?
-  submarket       String?
-  latitude        Float?
-  longitude       Float?
-  geoConfidence   Float?
-  geoSource       String?
-  geoUpdatedAt    DateTime?
-  thumbnailUrl    String?
-  timezone        String            @default("America/New_York")
-  roomCount       Int               @default(100)
-  status          HotelStatus       @default(ACTIVE)
-  minRate         Int?              // cents
-  maxRate         Int?              // cents
-  occTarget       Float?            @default(75) // percentage
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  access          HotelAccess[]
-  listings        HotelListing[]
-  competitors     HotelCompetitor[]
-  dailyRates      DailyRate[]
-  reviews         ReviewSnapshot[]
-  occupancy       OccupancyEntry[]
-  promotions      Promotion[]
-  events          Event[]
-  overrides       PriceOverride[]
-  recommendations Recommendation[]
-  ratePlans       RatePlan[]
-  discountMix     DiscountMix[]
-  messageThreads  MessageThread[]
-  signalImpacts   HotelSignalImpact[]
+  id               String              @id @default(cuid())
+  name             String
+  pmsName          String?
+  phone            String?
+  email            String?
+  address          String?
+  city             String?
+  countryCode      String?
+  regionCode       String?
+  market           String?
+  submarket        String?
+  latitude         Float?
+  longitude        Float?
+  geoConfidence    Float?
+  geoSource        String?
+  geoUpdatedAt     DateTime?
+  thumbnailUrl     String?
+  timezone         String              @default("America/New_York")
+  roomCount        Int                 @default(100)
+  status           HotelStatus         @default(ACTIVE)
+  minRate          Int? // cents
+  maxRate          Int? // cents
+  occTarget        Float?              @default(75) // percentage
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  access           HotelAccess[]
+  listings         HotelListing[]
+  competitors      HotelCompetitor[]
+  dailyRates       DailyRate[]
+  reviews          ReviewSnapshot[]
+  occupancy        OccupancyEntry[]
+  promotions       Promotion[]
+  events           Event[]
+  overrides        PriceOverride[]
+  recommendations  Recommendation[]
+  ratePlans        RatePlan[]
+  discountMix      DiscountMix[]
+  messageThreads   MessageThread[]
+  signalImpacts    HotelSignalImpact[]
+  inquiries        Inquiry[]
+  inquiryProposals InquiryProposal[]
 }
 
 model HotelAccess {
@@ -139,13 +198,13 @@ model HotelAccess {
 }
 
 model Competitor {
-  id        String              @id @default(cuid())
-  name      String
-  createdAt DateTime            @default(now())
-  listings  CompetitorListing[]
-  hotels    HotelCompetitor[]
+  id         String              @id @default(cuid())
+  name       String
+  createdAt  DateTime            @default(now())
+  listings   CompetitorListing[]
+  hotels     HotelCompetitor[]
   dailyRates DailyRate[]
-  reviews   ReviewSnapshot[]
+  reviews    ReviewSnapshot[]
 }
 
 model CompetitorListing {
@@ -195,6 +254,8 @@ model DailyRate {
   competitor   Competitor? @relation(fields: [competitorId], references: [id], onDelete: Cascade)
   sourceRun    ScrapeRun?  @relation(fields: [sourceRunId], references: [id])
 
+  @@unique([listingType, hotelId, ota, date], name: "daily_rate_hotel_listing_date")
+  @@unique([listingType, competitorId, ota, date], name: "daily_rate_competitor_listing_date")
   @@index([date, hotelId])
   @@index([date, competitorId])
 }
@@ -260,28 +321,28 @@ model Event {
 }
 
 model PriceOverride {
-  id                String   @id @default(cuid())
-  hotelId           String
-  date              DateTime @db.Date
+  id                 String   @id @default(cuid())
+  hotelId            String
+  date               DateTime @db.Date
   overridePriceCents Int
-  reason            String?
-  createdByUserId   String
-  createdAt         DateTime @default(now())
-  hotel             Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
-  createdBy         User     @relation(fields: [createdByUserId], references: [id])
+  reason             String?
+  createdByUserId    String
+  createdAt          DateTime @default(now())
+  hotel              Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  createdBy          User     @relation(fields: [createdByUserId], references: [id])
 
   @@unique([hotelId, date])
 }
 
 model Recommendation {
-  id                   String   @id @default(cuid())
-  hotelId              String
-  date                 DateTime @db.Date
+  id                    String   @id @default(cuid())
+  hotelId               String
+  date                  DateTime @db.Date
   recommendedPriceCents Int
-  confidence           Float    @default(0.5)
-  rationaleJson        Json?
-  createdAt            DateTime @default(now())
-  hotel                Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  confidence            Float    @default(0.5)
+  rationaleJson         Json?
+  createdAt             DateTime @default(now())
+  hotel                 Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
 
   @@unique([hotelId, date])
 }
@@ -312,11 +373,11 @@ model DiscountMix {
 }
 
 model ScrapeRun {
-  id          String       @id @default(cuid())
-  startedAt   DateTime     @default(now())
+  id          String           @id @default(cuid())
+  startedAt   DateTime         @default(now())
   finishedAt  DateTime?
-  status      ScrapeStatus @default(PENDING)
-  mode        ScrapeMode   @default(MOCK)
+  status      ScrapeStatus     @default(PENDING)
+  mode        ScrapeMode       @default(MOCK)
   summaryJson Json?
   rates       DailyRate[]
   reviews     ReviewSnapshot[]
@@ -368,25 +429,25 @@ model ExternalSignal {
 }
 
 model HotelSignalImpact {
-  id                String                  @id @default(cuid())
-  hotelId           String
-  externalSignalId  String
-  date              DateTime                @db.Date
-  direction         ExternalSignalDirection
-  relevanceScore    Float
-  impactBps         Int
-  distanceKm        Float?
-  matchReason       String
-  isSuppressed      Boolean                 @default(false)
+  id                 String                   @id @default(cuid())
+  hotelId            String
+  externalSignalId   String
+  date               DateTime                 @db.Date
+  direction          ExternalSignalDirection
+  relevanceScore     Float
+  impactBps          Int
+  distanceKm         Float?
+  matchReason        String
+  isSuppressed       Boolean                  @default(false)
   suppressedByUserId String?
-  suppressedAt      DateTime?
-  suppressionReason SignalSuppressionReason?
-  suppressionNote   String?
-  createdAt         DateTime                @default(now())
-  updatedAt         DateTime                @updatedAt
-  hotel             Hotel                   @relation(fields: [hotelId], references: [id], onDelete: Cascade)
-  externalSignal    ExternalSignal          @relation(fields: [externalSignalId], references: [id], onDelete: Cascade)
-  suppressedBy      User?                   @relation("suppressedSignalImpacts", fields: [suppressedByUserId], references: [id])
+  suppressedAt       DateTime?
+  suppressionReason  SignalSuppressionReason?
+  suppressionNote    String?
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+  hotel              Hotel                    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  externalSignal     ExternalSignal           @relation(fields: [externalSignalId], references: [id], onDelete: Cascade)
+  suppressedBy       User?                    @relation("suppressedSignalImpacts", fields: [suppressedByUserId], references: [id])
 
   @@unique([hotelId, externalSignalId, date])
   @@index([hotelId, date])
@@ -429,4 +490,98 @@ model SecurityEvent {
 
   @@index([userId])
   @@index([hotelId])
+}
+
+model Inquiry {
+  id               String            @id @default(cuid())
+  hotelId          String
+  source           InquirySource     @default(MANUAL)
+  intent           InquiryIntent     @default(UNKNOWN)
+  status           InquiryStatus     @default(NEW)
+  priority         InquiryPriority   @default(NORMAL)
+  guestName        String?
+  guestEmail       String?
+  guestPhone       String?
+  organizationName String?
+  summary          String?
+  checkIn          DateTime?         @db.Date
+  checkOut         DateTime?         @db.Date
+  guestCount       Int?
+  roomCount        Int?
+  budgetCents      Int?
+  currency         String            @default("USD")
+  eventSpaceNeeded Boolean           @default(false)
+  cateringNeeded   Boolean           @default(false)
+  aiConfidence     Float?
+  aiExtractedJson  Json?
+  assignedToUserId String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  hotel            Hotel             @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  assignedTo       User?             @relation("assignedInquiries", fields: [assignedToUserId], references: [id])
+  messages         InquiryMessage[]
+  groupRfp         GroupRfp?
+  proposals        InquiryProposal[]
+
+  @@index([hotelId, status])
+  @@index([hotelId, createdAt])
+  @@index([intent])
+  @@index([source])
+}
+
+model InquiryMessage {
+  id               String                   @id @default(cuid())
+  inquiryId        String
+  senderType       InquiryMessageSenderType
+  senderUserId     String?
+  body             String
+  channelMessageId String?
+  metadataJson     Json?
+  createdAt        DateTime                 @default(now())
+  inquiry          Inquiry                  @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+  sender           User?                    @relation(fields: [senderUserId], references: [id])
+
+  @@index([inquiryId, createdAt])
+  @@index([senderUserId])
+}
+
+model GroupRfp {
+  id               String    @id @default(cuid())
+  inquiryId        String    @unique
+  eventType        String?
+  flexibleDates    Boolean   @default(false)
+  roomsPerNight    Int?
+  attendeeCount    Int?
+  meetingRoomSetup String?
+  foodAndBeverage  String?
+  decisionDate     DateTime? @db.Date
+  notes            String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  inquiry          Inquiry   @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+}
+
+model InquiryProposal {
+  id                 String                @id @default(cuid())
+  inquiryId          String
+  hotelId            String
+  roomRateCents      Int?
+  totalEstimateCents Int?
+  currency           String                @default("USD")
+  roomBlock          Int?
+  cutoffDate         DateTime?             @db.Date
+  cancellationTerms  String?
+  notes              String?
+  status             InquiryProposalStatus @default(DRAFT)
+  createdByUserId    String
+  sentAt             DateTime?
+  expiresAt          DateTime?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  inquiry            Inquiry               @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+  hotel              Hotel                 @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  createdBy          User                  @relation(fields: [createdByUserId], references: [id])
+
+  @@index([inquiryId])
+  @@index([hotelId, status])
 }

@@ -46,6 +46,14 @@ const config: Config = {
           sky: "hsl(var(--landing-sky))",
         },
       },
+      fontFamily: {
+        "landing-display": [
+          "var(--font-landing-display)",
+          "Georgia",
+          "serif",
+        ],
+        "landing-sans": ["var(--font-landing-body)", "system-ui", "sans-serif"],
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
@@ -70,11 +78,22 @@ const config: Config = {
           "0%": { opacity: "0", transform: "translateX(16px)" },
           "100%": { opacity: "1", transform: "translateX(0)" },
         },
+        "landing-aurora": {
+          "0%, 100%": { opacity: "0.45", transform: "scale(1) translate(0, 0)" },
+          "33%": { opacity: "0.65", transform: "scale(1.05) translate(2%, -1%)" },
+          "66%": { opacity: "0.5", transform: "scale(1.02) translate(-1%, 2%)" },
+        },
+        "landing-shimmer": {
+          "0%": { backgroundPosition: "200% center" },
+          "100%": { backgroundPosition: "-200% center" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.6s ease-out forwards",
         "scale-in": "scale-in 0.5s ease-out forwards",
         "slide-in-right": "slide-in-right 0.5s ease-out forwards",
+        "landing-aurora": "landing-aurora 18s ease-in-out infinite",
+        "landing-shimmer": "landing-shimmer 8s linear infinite",
       },
     },
   },

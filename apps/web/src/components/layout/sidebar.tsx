@@ -12,6 +12,7 @@ import {
   LogOut,
   Calendar,
   MessageSquare,
+  Inbox,
   ChevronLeft,
   ChevronRight,
   Briefcase,
@@ -37,6 +38,7 @@ const analystLinks = [
   { href: "/occupancy", label: "Occupancy", icon: BarChart3 },
   { href: "/pace", label: "Pace / OTB", icon: TrendingUp },
   { href: "/promotions", label: "Promotions", icon: Megaphone },
+  { href: "/inquiries", label: "Inquiries", icon: Inbox },
   { href: "/messages", label: "Messages", icon: MessageSquare },
   { href: "/admin/scrapes", label: "Scrape Admin", icon: Settings },
 ];
@@ -45,6 +47,7 @@ const clientLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/events", label: "Events", icon: Calendar },
   { href: "/promotions", label: "Promotions", icon: Megaphone },
+  { href: "/inquiries", label: "Inquiries", icon: Inbox },
   { href: "/messages", label: "Message Trosky", icon: MessageSquare },
   { href: "/pace", label: "Pace / OTB", icon: TrendingUp },
 ];
