@@ -4,26 +4,28 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --font-landing-body: Manrope, Avenir Next, Segoe UI, system-ui, sans-serif;
+    --font-landing-display: Fraunces, Georgia, Cambria, Times New Roman, serif;
+    --background: 42 34% 98%;
+    --foreground: 222 48% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 222 48% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
+    --popover-foreground: 222 48% 10%;
+    --primary: 221 80% 49%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --secondary: 214 36% 94%;
+    --secondary-foreground: 222 45% 13%;
+    --muted: 214 34% 93%;
+    --muted-foreground: 217 16% 42%;
+    --accent: 214 38% 92%;
+    --accent-foreground: 222 45% 13%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    --border: 215 28% 87%;
+    --input: 215 28% 87%;
+    --ring: 221 80% 49%;
+    --radius: 0.625rem;
     --chart-grid: 214.3 31.8% 91.4%;
     --chart-axis: 215.4 16.3% 46.9%;
     --chart-primary: 221.2 83.2% 53.3%;
@@ -47,33 +49,33 @@
 
   /* Landing page: light theme with white gradient */
   .landing-page {
-    --landing-bg: 0 0% 100%;
-    --landing-bg-elevated: 210 40% 98%;
-    --landing-foreground: 222.2 84% 4.9%;
-    --landing-muted: 215.4 16.3% 46.9%;
-    --landing-border: 214.3 31.8% 91.4%;
+    --landing-bg: 42 34% 98%;
+    --landing-bg-elevated: 214 44% 96%;
+    --landing-foreground: 222 48% 10%;
+    --landing-muted: 217 16% 42%;
+    --landing-border: 215 28% 87%;
     --landing-card: 0 0% 100%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 222 47% 6%;
     --foreground: 210 40% 98%;
-    --card: 222.2 47.4% 7.5%;
+    --card: 222 42% 9%;
     --card-foreground: 210 40% 98%;
-    --popover: 222.2 47.4% 7.5%;
+    --popover: 222 42% 9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
+    --primary: 217 91% 62%;
     --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 220 29% 15%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
+    --muted: 220 29% 15%;
+    --muted-foreground: 216 18% 70%;
+    --accent: 219 30% 18%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 45.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
+    --border: 219 28% 20%;
+    --input: 219 28% 20%;
     --ring: 224.3 76.3% 48%;
     --chart-grid: 217.2 32.6% 28%;
     --chart-axis: 215 20.2% 72%;
@@ -92,12 +94,12 @@
   }
 
   .dark .landing-page {
-    --landing-bg: 222.2 84% 4.9%;
-    --landing-bg-elevated: 222.2 47.4% 7.5%;
+    --landing-bg: 222 47% 6%;
+    --landing-bg-elevated: 222 42% 9%;
     --landing-foreground: 210 40% 98%;
     --landing-muted: 215 20.2% 65.1%;
     --landing-border: 217.2 32.6% 17.5%;
-    --landing-card: 222.2 47.4% 7.5%;
+    --landing-card: 222 42% 9%;
   }
 }
 
@@ -106,11 +108,35 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  ::selection {
+    @apply bg-primary/20 text-foreground;
   }
 }
 
 @layer utilities {
+  .app-bg {
+    background:
+      radial-gradient(900px 520px at 12% -10%, hsl(var(--primary) / 0.08), transparent 62%),
+      radial-gradient(760px 420px at 100% 0%, hsl(var(--landing-emerald) / 0.08), transparent 58%),
+      hsl(var(--background));
+  }
+
+  .app-surface {
+    @apply border border-border/80 bg-card/85 shadow-sm ring-1 ring-black/[0.025] backdrop-blur-xl dark:border-white/10 dark:bg-card/80 dark:ring-white/[0.035];
+  }
+
+  .app-panel {
+    @apply border border-border/70 bg-card/80 shadow-sm backdrop-blur;
+  }
+
+  .motion-safe-soft {
+    @apply transition-[transform,background-color,border-color,box-shadow,color] duration-200 ease-out;
+  }
+
   @keyframes cursor-blink {
     0%, 45% { opacity: 1; }
     50%, 100% { opacity: 0; }
@@ -133,8 +159,9 @@
   /* Landing: background and surface utilities (use inside .landing-page) */
   .landing-bg {
     background:
-      radial-gradient(ellipse 120% 80% at 50% -30%, hsl(var(--primary) / 0.08) 0%, transparent 55%),
-      linear-gradient(180deg, hsl(var(--landing-bg)) 0%, hsl(var(--landing-bg-elevated)) 52%, hsl(40 28% 97%) 100%);
+      linear-gradient(135deg, hsl(var(--primary) / 0.08) 0 1px, transparent 1px 32px),
+      radial-gradient(ellipse 105% 70% at 50% -28%, hsl(var(--primary) / 0.12) 0%, transparent 56%),
+      linear-gradient(180deg, hsl(var(--landing-bg)) 0%, hsl(var(--landing-bg-elevated)) 56%, hsl(var(--landing-bg)) 100%);
   }
 
   .landing-aurora-blobs {
@@ -164,8 +191,8 @@
   .landing-aurora-blobs::after {
     content: "";
     position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
+    border-radius: 999px;
+    filter: blur(76px);
     animation: landing-aurora-blob 22s ease-in-out infinite;
   }
 
@@ -174,7 +201,7 @@
     height: min(70vw, 520px);
     top: -15%;
     right: -10%;
-    background: radial-gradient(circle, hsl(var(--primary) / 0.22) 0%, transparent 70%);
+    background: radial-gradient(circle, hsl(var(--primary) / 0.18) 0%, transparent 70%);
     animation-delay: -4s;
   }
 
@@ -183,8 +210,19 @@
     height: min(55vw, 420px);
     bottom: 10%;
     left: -8%;
-    background: radial-gradient(circle, hsl(160 45% 42% / 0.14) 0%, transparent 72%);
+    background: radial-gradient(circle, hsl(160 45% 42% / 0.12) 0%, transparent 72%);
     animation-delay: -10s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

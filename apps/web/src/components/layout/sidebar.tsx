@@ -71,29 +71,29 @@ export function Sidebar({
     <TooltipProvider delayDuration={0}>
       <aside
         className={cn(
-          "flex h-screen flex-col border-r bg-muted/40 transition-all duration-200",
-          collapsed ? "w-16" : "w-16 lg:w-[280px]"
+          "fixed inset-x-0 bottom-0 z-40 flex h-16 w-full flex-row border-t bg-card/95 shadow-2xl shadow-black/10 backdrop-blur-xl transition-all duration-200 dark:border-white/10 lg:relative lg:inset-auto lg:h-screen lg:flex-col lg:border-r lg:border-t-0 lg:bg-card/70 lg:shadow-none",
+          collapsed ? "lg:w-16" : "lg:w-[280px]"
         )}
       >
-        <div className="flex h-14 items-center border-b px-3">
+        <div className="hidden h-16 items-center border-b px-3 lg:flex">
           <Link
             href="/dashboard"
             className="flex items-center gap-2 overflow-hidden"
           >
-            <div className="h-8 w-8 shrink-0 rounded-lg bg-primary flex items-center justify-center">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary shadow-md shadow-primary/25">
               <span className="text-sm font-bold text-primary-foreground">
                 T
               </span>
             </div>
             {!collapsed && (
-              <span className="font-semibold text-sm whitespace-nowrap">
+              <span className="text-sm font-semibold whitespace-nowrap">
                 Trosky
               </span>
             )}
           </Link>
         </div>
 
-        <nav className="flex-1 space-y-1 p-2 overflow-y-auto">
+        <nav className="flex flex-1 gap-1 overflow-x-auto overflow-y-hidden p-2 lg:block lg:space-y-1 lg:overflow-y-auto">
           {links.map((link) => {
             const isActive =
               pathname === link.href ||
@@ -111,14 +111,17 @@ export function Sidebar({
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors relative",
-                  collapsed && "justify-center px-2",
+                  "relative flex min-h-11 min-w-[4.75rem] flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 text-sm font-medium transition-[background-color,color,transform] duration-200 hover:-translate-y-0.5 lg:min-w-11 lg:flex-row lg:gap-3 lg:justify-start",
+                  collapsed && "lg:justify-center lg:px-2",
                   isActive
-                    ? "bg-primary/10 text-primary"
+                    ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25 lg:bg-primary/10 lg:text-primary lg:shadow-none"
                     : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 )}
               >
                 <link.icon className="h-4 w-4 shrink-0" />
+                <span className="max-w-16 truncate text-[10px] leading-none lg:hidden">
+                  {link.label.replace("Manage ", "").replace("Message ", "")}
+                </span>
                 {!collapsed && (
                   <>
                     <span className="truncate">{link.label}</span>
@@ -155,7 +158,7 @@ export function Sidebar({
           })}
         </nav>
 
-        <div className="border-t p-2 space-y-1">
+        <div className="hidden space-y-1 border-t p-2 lg:block">
           <Button
             variant="ghost"
             size="sm"

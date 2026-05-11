@@ -40,12 +40,12 @@ export function RateMatrix({ days, competitors, onCellClick }: RateMatrixProps) 
   }
 
   return (
-    <div className="border rounded-lg overflow-hidden">
+    <div className="app-panel overflow-hidden rounded-xl">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b bg-muted/50">
-              <th className="sticky left-0 z-10 bg-muted/50 min-w-[200px] px-4 py-3 text-left font-medium">
+            <tr className="border-b bg-muted/60">
+              <th className="sticky left-0 z-10 min-w-[200px] bg-muted px-4 py-3 text-left font-medium shadow-[1px_0_0_hsl(var(--border))]">
                 Property
               </th>
               {days.map((d) => {
@@ -55,7 +55,7 @@ export function RateMatrix({ days, competitors, onCellClick }: RateMatrixProps) 
                   <th
                     key={d.date}
                     className={cn(
-                      "min-w-[90px] px-3 py-2 text-center font-medium cursor-pointer hover:bg-accent transition-colors",
+                      "min-w-[90px] cursor-pointer px-3 py-2 text-center font-medium transition-colors hover:bg-accent",
                       isWeekend && "bg-primary/5"
                     )}
                     onClick={() => onCellClick(d.date)}
@@ -90,7 +90,7 @@ export function RateMatrix({ days, competitors, onCellClick }: RateMatrixProps) 
           <tbody>
             {/* Our Hotel Row - pinned */}
             <tr className="border-b bg-primary/5 font-medium">
-              <th scope="row" className="sticky left-0 z-10 bg-primary/5 px-4 py-3 text-left">
+              <th scope="row" className="sticky left-0 z-10 bg-primary/10 px-4 py-3 text-left shadow-[1px_0_0_hsl(var(--border))]">
                 <div className="flex items-center gap-2">
                   <div className="h-2 w-2 rounded-full bg-primary" />
                   <span className="font-semibold text-primary">Our Hotel</span>
@@ -119,15 +119,15 @@ export function RateMatrix({ days, competitors, onCellClick }: RateMatrixProps) 
 
             {/* Recommended Row */}
             <tr className="border-b bg-emerald-500/10">
-              <th scope="row" className="sticky left-0 z-10 bg-emerald-500/10 px-4 py-2 text-left">
+              <th scope="row" className="sticky left-0 z-10 bg-emerald-500/10 px-4 py-2 text-left shadow-[1px_0_0_hsl(var(--border))]">
                 <div className="flex items-center gap-2">
                   <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                  <span className="text-emerald-700 text-xs font-medium">AI Recommended</span>
+                  <span className="text-xs font-medium text-emerald-700 dark:text-emerald-300">AI Recommended</span>
                 </div>
               </th>
               {days.map((d) => (
                 <td key={d.date} className="px-3 py-2 text-center text-xs">
-                  <span className="text-emerald-700 font-medium">
+                  <span className="font-medium text-emerald-700 dark:text-emerald-300">
                     {fmt(d.recommendedRate)}
                   </span>
                   {d.confidence !== null && (
@@ -141,7 +141,7 @@ export function RateMatrix({ days, competitors, onCellClick }: RateMatrixProps) 
 
             {/* Comp Average Row */}
             <tr className="border-b bg-muted/40">
-              <th scope="row" className="sticky left-0 z-10 bg-muted/40 px-4 py-2 text-left">
+              <th scope="row" className="sticky left-0 z-10 bg-muted px-4 py-2 text-left shadow-[1px_0_0_hsl(var(--border))]">
                 <div className="flex items-center gap-2">
                   <div className="h-2 w-2 rounded-full bg-muted-foreground" />
                   <span className="text-xs font-medium text-muted-foreground">Comp Average</span>
@@ -157,7 +157,7 @@ export function RateMatrix({ days, competitors, onCellClick }: RateMatrixProps) 
             {/* Individual Competitor Rows */}
             {sortedCompetitors.map((comp) => (
               <tr key={comp.id} className="border-b hover:bg-muted/30 transition-colors">
-                <th scope="row" className="sticky left-0 z-10 bg-background px-4 py-2 text-left">
+                <th scope="row" className="sticky left-0 z-10 bg-card px-4 py-2 text-left shadow-[1px_0_0_hsl(var(--border))]">
                   <div className="flex items-center gap-2">
                     <Badge
                       variant={

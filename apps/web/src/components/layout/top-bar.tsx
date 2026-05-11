@@ -52,7 +52,7 @@ export function TopBar({
   }
 
   return (
-    <header className="flex h-14 items-center justify-between gap-4 border-b bg-background px-4 lg:px-6">
+    <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-border/70 bg-background/85 px-3 backdrop-blur-xl dark:bg-background/75 sm:px-4 lg:px-6">
       {/* Left section */}
       <div className="flex items-center gap-3 flex-1 min-w-0">
         {isAnalyst ? (
@@ -81,7 +81,7 @@ export function TopBar({
             size="sm"
             onClick={onRefresh}
             disabled={isRefreshing}
-            className="h-8 gap-1.5 text-xs"
+            className="h-9 gap-1.5 rounded-full text-xs"
           >
             <RefreshCw
               className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`}
@@ -92,7 +92,7 @@ export function TopBar({
 
         {/* Add Hotel */}
         {isAnalyst && (
-          <Button variant="outline" size="sm" className="h-8 gap-1.5" asChild>
+          <Button variant="outline" size="sm" className="h-9 gap-1.5 rounded-full" asChild>
             <Link href="/hotels/new">
               <Plus className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Add Hotel</span>
@@ -108,7 +108,7 @@ export function TopBar({
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 gap-2 pl-2 pr-3"
+              className="h-9 gap-2 rounded-full pl-1.5 pr-2 sm:pr-3"
             >
               <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10">
                 <User className="h-3.5 w-3.5 text-primary" />

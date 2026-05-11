@@ -211,72 +211,76 @@ export function OverviewDashboard({
   return (
     <div className="space-y-6">
       {/* Hotel Identity Header */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-        <div>
-          {!isAnalyst && (
-            <p className="text-xs text-muted-foreground mb-1">
-              Welcome to your property dashboard
-            </p>
-          )}
-          <h1 className="text-2xl font-bold">{hotel.name}</h1>
-          <div className="flex items-center gap-2 mt-1 flex-wrap">
-            {overviewData?.hotel.city && (
-              <Badge variant="secondary" className="text-xs gap-1">
-                <MapPin className="h-3 w-3" />
-                {overviewData.hotel.city}
-              </Badge>
-            )}
-            <span className="text-xs text-muted-foreground">
-              {hotel.roomCount} rooms
-            </span>
-            {overviewData?.hotel.lastUpdated && (
-              <span className="text-xs text-muted-foreground flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                Updated {timeAgo(overviewData.hotel.lastUpdated)}
-              </span>
-            )}
-            {overviewData?.hotel.isStale && (
-              <Badge variant="destructive" className="text-[10px] gap-1">
-                <AlertTriangle className="h-3 w-3" />
-                Stale
-              </Badge>
-            )}
+      <div className="app-surface overflow-hidden rounded-xl p-4 sm:p-5">
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+          <div>
             {!isAnalyst && (
-              <Badge variant="outline" className="text-[10px] gap-1">
-                <Lock className="h-3 w-3" />
-                Read Only
-              </Badge>
+              <p className="mb-1 text-xs text-muted-foreground">
+                Welcome to your property dashboard
+              </p>
+            )}
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              {hotel.name}
+            </h1>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              {overviewData?.hotel.city && (
+                <Badge variant="secondary" className="gap-1 text-xs">
+                  <MapPin className="h-3 w-3" />
+                  {overviewData.hotel.city}
+                </Badge>
+              )}
+              <span className="text-xs text-muted-foreground">
+                {hotel.roomCount} rooms
+              </span>
+              {overviewData?.hotel.lastUpdated && (
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Clock className="h-3 w-3" />
+                  Updated {timeAgo(overviewData.hotel.lastUpdated)}
+                </span>
+              )}
+              {overviewData?.hotel.isStale && (
+                <Badge variant="destructive" className="gap-1 text-[10px]">
+                  <AlertTriangle className="h-3 w-3" />
+                  Stale
+                </Badge>
+              )}
+              {!isAnalyst && (
+                <Badge variant="outline" className="gap-1 text-[10px]">
+                  <Lock className="h-3 w-3" />
+                  Read Only
+                </Badge>
+              )}
+            </div>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            {isAnalyst && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 gap-1.5 rounded-full text-xs"
+                  onClick={handleRefresh}
+                  disabled={isRefreshing}
+                >
+                  <RefreshCw
+                    className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`}
+                  />
+                  Refresh
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 gap-1.5 rounded-full text-xs"
+                  asChild
+                >
+                  <Link href={`/hotels/${hotel.id}/settings`}>
+                    <Pencil className="h-3.5 w-3.5" />
+                    Edit
+                  </Link>
+                </Button>
+              </>
             )}
           </div>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {isAnalyst && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 gap-1.5 text-xs"
-                onClick={handleRefresh}
-                disabled={isRefreshing}
-              >
-                <RefreshCw
-                  className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`}
-                />
-                Refresh
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 gap-1.5 text-xs"
-                asChild
-              >
-                <Link href={`/hotels/${hotel.id}/settings`}>
-                  <Pencil className="h-3.5 w-3.5" />
-                  Edit
-                </Link>
-              </Button>
-            </>
-          )}
         </div>
       </div>
 
@@ -302,7 +306,7 @@ export function OverviewDashboard({
 
       {/* Tabbed Views */}
       <Tabs value={view} onValueChange={setView}>
-        <div className="flex items-center justify-between flex-wrap gap-2">
+        <div className="flex items-center justify-between flex-wrap gap-3">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="matrix">Matrix</TabsTrigger>
@@ -314,7 +318,7 @@ export function OverviewDashboard({
               <select
                 value={advancedRange}
                 onChange={(e) => setAdvancedRange(e.target.value)}
-                className="h-8 rounded-md border bg-background px-2 text-xs"
+                className="h-9 rounded-full border bg-background/80 px-3 text-xs shadow-sm"
               >
                 <option value="7">7 days</option>
                 <option value="14">14 days</option>
@@ -324,7 +328,7 @@ export function OverviewDashboard({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-8 gap-1.5 text-xs"
+                  className="h-9 gap-1.5 rounded-full text-xs"
                   onClick={handleExportCSV}
                 >
                   <Download className="h-3.5 w-3.5" />

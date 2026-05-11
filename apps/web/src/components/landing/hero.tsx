@@ -6,9 +6,9 @@ import { ArrowRight, MessageSquareQuote, Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HeroChart } from "./hero-chart";
 
-const HEADLINE = "Price with conviction—not guesswork";
+const HEADLINE = "Trosky Revenue Intelligence";
 const SUB =
-  "Automated competitor rates across OTAs, AI-backed recommendations, and a live dashboard your owners can trust. Built for revenue teams who outgrow spreadsheets.";
+  "Automated competitor rates across OTAs, AI-backed recommendations, and a live dashboard your owners can trust. Built for hotel teams that need sharper pricing decisions without spreadsheet drag.";
 const STATS = [
   { label: "Hotels on Trosky", value: "500+", valueClass: "text-primary" },
   { label: "Rates tracked / week", value: "2.4M+", valueClass: "text-emerald-600 dark:text-emerald-400" },
@@ -19,7 +19,7 @@ export function Hero() {
   const reduced = useReducedMotion();
 
   return (
-    <section className="relative border-b border-border/60 bg-gradient-to-b from-background via-background to-muted/25 px-4 pb-16 pt-24 dark:to-muted/15 sm:px-6 sm:pb-24 sm:pt-32 lg:px-8 lg:pb-28 lg:pt-36">
+    <section className="landing-bg relative border-b border-border/60 px-4 pb-16 pt-24 sm:px-6 sm:pb-24 sm:pt-32 lg:px-8 lg:pb-28 lg:pt-36">
       <div className="landing-aurora-blobs opacity-90 dark:opacity-100" aria-hidden />
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.35] dark:opacity-[0.12] dark:mix-blend-soft-light"
@@ -40,7 +40,7 @@ export function Hero() {
             >
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card/90 px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur-sm">
                 <Zap className="h-3.5 w-3.5 text-amber-500" aria-hidden />
-                Revenue intelligence for modern hotel teams
+                Trosky Revenue Intelligence
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary">
                 <Sparkles className="h-3.5 w-3.5" aria-hidden />
@@ -49,7 +49,7 @@ export function Hero() {
             </motion.div>
 
             <motion.h1
-              className="font-landing-display text-4xl font-semibold leading-[1.08] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-[3.35rem]"
+              className="font-landing-display text-4xl font-semibold leading-[1.02] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-[4.2rem]"
               initial={reduced ? false : { opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.06, ease: [0.22, 1, 0.36, 1] }}
@@ -127,7 +127,7 @@ export function Hero() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: reduced ? 0 : 0.08 * i }}
-                  className="rounded-2xl border border-border/80 bg-card/60 p-4 shadow-sm backdrop-blur-md"
+                  className="motion-safe-soft rounded-xl border border-border/80 bg-card/70 p-4 shadow-sm backdrop-blur-md hover:-translate-y-1 hover:border-primary/25 hover:shadow-md"
                 >
                   <p className={`text-2xl font-bold tracking-tight tabular-nums ${s.valueClass}`}>
                     {s.value}
@@ -158,7 +158,7 @@ export function Hero() {
               <motion.div
                 whileHover={reduced ? undefined : { y: -3 }}
                 transition={{ type: "spring", stiffness: 280, damping: 22 }}
-                className="relative rounded-2xl border border-border/70 bg-card/95 p-1 shadow-2xl shadow-black/[0.08] ring-1 ring-black/[0.04] backdrop-blur dark:border-white/10 dark:bg-card/80 dark:shadow-black/50 dark:ring-white/[0.06]"
+                className="relative rounded-xl border border-border/70 bg-card/95 p-1 shadow-2xl shadow-black/[0.08] ring-1 ring-black/[0.04] backdrop-blur dark:border-white/10 dark:bg-card/80 dark:shadow-black/50 dark:ring-white/[0.06]"
               >
                 <HeroChart />
               </motion.div>

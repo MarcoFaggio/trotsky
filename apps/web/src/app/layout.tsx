@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
 const themeScript = `
 (() => {
   try {
@@ -15,8 +13,8 @@ const themeScript = `
 `;
 
 export const metadata: Metadata = {
-  title: "Trosky",
-  description: "AI-powered hotel revenue management",
+  title: "Trosky | Hotel Revenue Intelligence",
+  description: "Hotel revenue intelligence for rate, pace, occupancy, and inquiry workflows.",
 };
 
 export default function RootLayout({
@@ -26,7 +24,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         {children}
       </body>

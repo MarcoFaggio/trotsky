@@ -52,7 +52,7 @@ export function LandingNav() {
           <span className="flex flex-col leading-none">
             <span>Trosky</span>
             <span className="mt-0.5 text-[10px] font-normal uppercase tracking-[0.2em] text-muted-foreground">
-              Revenue OS
+              Revenue Intelligence
             </span>
           </span>
         </Link>

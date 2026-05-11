@@ -16,7 +16,7 @@ import {
 export function LandingPage() {
   return (
     <div
-      className="landing-page landing-editorial min-h-screen bg-[hsl(40_33%_98%)] font-landing-sans text-[hsl(222_47%_11%)] antialiased dark:bg-background dark:text-foreground"
+      className="landing-page landing-editorial min-h-screen bg-background font-landing-sans text-foreground antialiased"
       data-landing
     >
       <LandingNav />

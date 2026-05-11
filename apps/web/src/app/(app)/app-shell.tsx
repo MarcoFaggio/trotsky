@@ -70,7 +70,7 @@ export function AppShell({
   }, [setCollapsed]);
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden app-bg lg:flex-row flex-col">
       <Sidebar
         role={user.role as "ANALYST" | "CLIENT"}
         collapsed={collapsed}
@@ -85,8 +85,10 @@ export function AppShell({
           selectedHotelId={selectedHotelId}
           onHotelChange={handleHotelChange}
         />
-        <main className="flex-1 overflow-y-auto bg-muted/30 p-4 lg:p-6">
-          {children}
+        <main className="flex-1 overflow-y-auto p-3 pb-24 sm:p-4 sm:pb-24 lg:p-6">
+          <div className="mx-auto w-full max-w-[1500px]">
+            {children}
+          </div>
         </main>
       </div>
       <Toaster />
