@@ -8,22 +8,23 @@ Color palette, typography, chart colors, and visual guidelines.
 
 ### Semantic colors (CSS variables in `globals.css`)
 
-| Token | Usage | HSL |
+| Token | Usage | HSL / Hex |
 |-------|-------|-----|
-| `primary` | Our hotel, main CTAs, active states | 221.2 83.2% 53.3% (blue) |
-| `secondary` | Muted backgrounds, secondary buttons | 210 40% 96.1% |
-| `destructive` | Errors, delete actions | 0 84.2% 60.2% (red) |
-| `muted` | Disabled, placeholder text | 210 40% 96.1% |
-| `accent` | Hover states, subtle highlights | 210 40% 96.1% |
+| `foreground` | Primary body text, muted ink family | `#424040` / `0 2% 25.5%` |
+| `primary` | Our hotel, main CTAs, active states | `#A60101` / `0 99% 33%` |
+| `secondary` | Muted backgrounds, secondary buttons | warm red-tinted neutral |
+| `destructive` | Errors, delete actions, dark-mode primary base | `#780000` / `0 100% 23.5%` |
+| `muted` | Disabled, placeholder text | warm red-tinted neutral |
+| `accent` | Hover states, subtle highlights | warm red-tinted neutral |
 
 ### Status colors
 
 | Status | Tailwind classes | Usage |
 |--------|-----------------|-------|
-| Success / AI | `text-emerald-600`, `bg-emerald-50` | Recommended rate, AI indicators |
+| Success / AI | Emerald / teal tokens | Recommended rate, AI indicators |
 | Warning | `text-amber-800`, `bg-amber-50` | Discount warnings, event markers |
 | Error | `text-destructive`, `bg-destructive/10` | Form errors, failed states |
-| Neutral | `text-slate-500`, `text-slate-600` | Comp average, secondary data |
+| Neutral | warm graphite tokens | Comp average, secondary data |
 
 ### Calendar color cues (left border)
 
@@ -31,7 +32,7 @@ Color palette, typography, chart colors, and visual guidelines.
 |-------|---------|
 | Green (`border-l-green-400`) | Our rate roughly in line with comp avg |
 | Red (`border-l-red-400`) | Our rate notably above comp avg |
-| Blue (`border-l-blue-400`) | Our rate notably below comp avg |
+| Violet (`border-l-violet-400`) | Our rate notably below comp avg |
 
 ---
 
@@ -41,33 +42,33 @@ Color palette, typography, chart colors, and visual guidelines.
 
 | Element | Hex | Style |
 |---------|-----|-------|
-| Your Hotel | `#2563eb` | Solid, strokeWidth 2.5, dots |
-| Recommended | `#16a34a` | Dashed (6 3), strokeWidth 1.5 |
-| Comp Avg | `#64748b` | Dashed (4 4), strokeWidth 1.5 |
-| Occupancy bars | `#e2e8f0` | Opacity 0.5 |
-| Grid lines | `#f1f5f9` | strokeDasharray 3 3 |
+| Your Hotel | `#A60101` | Solid, strokeWidth 2.75, dots |
+| Recommended | teal/emerald (`hsl(164 82% 42%)`) | Solid, strokeWidth 2.35+, dots |
+| Comp Avg | warm graphite (`hsl(0 2% 48%)`) | Solid, lower opacity |
+| Occupancy bars | violet (`hsl(263 70% 64%)`) | Vertical gradient bars |
+| Grid lines | warm neutral token | Horizontal grid only where practical |
 
 ### Competitor lines (overview-graph.tsx COLORS array)
 
 ```
-#94a3b8, #a78bfa, #f97316, #14b8a6, #f43f5e, #8b5cf6, #06b6d4
+hsl(0 2% 52%), hsl(263 70% 64%), hsl(24 95% 53%), hsl(173 80% 40%), hsl(348 83% 58%), hsl(258 90% 66%), hsl(190 90% 48%)
 ```
 
 ### Matrix chart (`matrix-chart.tsx`)
 
 | Element | Hex |
 |---------|-----|
-| Our rate bars | `#2563eb` |
-| Comp avg bars | `#94a3b8` |
-| Recommended line | `#10b981` |
-| Occupancy area | `#a78bfa` (opacity 0.3) |
+| Our rate bars / line | `#A60101` |
+| Comp avg line | warm graphite |
+| Recommended line | teal/emerald |
+| Occupancy area | violet gradient |
 | Event markers | `#f59e0b` |
 
 ### Pace chart (`pace-dashboard.tsx`)
 
 | Element | Hex |
 |---------|-----|
-| OTB Rooms | `#2563eb` |
+| OTB Rooms | `#A60101` |
 | OTB LY | `#94a3b8` |
 
 ---
@@ -121,18 +122,18 @@ The landing page uses a **scoped theme** (`.landing-page` class) with its own ac
 
 | Token | Color | Usage |
 |-------|-------|-------|
-| `landing-emerald` | Emerald | Trust, AI, success |
+| `landing-emerald` | Teal/emerald | AI, success, recommendation contrast |
 | `landing-amber` | Amber | Alerts, attention |
-| `landing-sky` | Sky | Data, analytics |
+| `landing-sky` | Deep red | Data accents that should align with brand red |
 | `landing-violet` | Violet | Premium, differentiation |
 
-The hero chart uses the **app palette** (blue/emerald/slate) so it matches the real dashboard.
+The hero chart uses the **app palette** (Trosky red / teal recommendation / graphite comparison / violet occupancy) so it matches the real dashboard and the new logo.
 
 ---
 
 ## Dark mode
 
-`darkMode: ["class"]` is configured in `tailwind.config.ts` but not yet implemented. All current styles target light theme only.
+`darkMode: ["class"]` is configured in `tailwind.config.ts`. Dark mode uses a warm black base with `#780000` as the primary surface/action red and `#A60101` for chart identity.
 
 ---
 

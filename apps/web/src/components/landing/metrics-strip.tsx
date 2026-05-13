@@ -9,7 +9,7 @@ const metrics = [
     value: "500+",
     label: "Hotels Optimized",
     icon: Building2,
-    bg: "bg-[hsl(221_83%_53%)] text-white",
+    bg: "bg-primary text-primary-foreground",
   },
   {
     value: "$50M+",

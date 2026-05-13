@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
+import { TroskyMark } from "@/components/brand/trosky-logo";
 
 interface SidebarProps {
   role: "ANALYST" | "CLIENT";
@@ -78,13 +79,10 @@ export function Sidebar({
         <div className="hidden h-16 items-center border-b px-3 lg:flex">
           <Link
             href="/dashboard"
+            aria-label="Trosky dashboard"
             className="flex items-center gap-2 overflow-hidden"
           >
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary shadow-md shadow-primary/25">
-              <span className="text-sm font-bold text-primary-foreground">
-                T
-              </span>
-            </div>
+            <TroskyMark className="h-9 w-9" />
             {!collapsed && (
               <span className="text-sm font-semibold whitespace-nowrap">
                 Trosky
@@ -114,7 +112,7 @@ export function Sidebar({
                   "relative flex min-h-11 min-w-[4.75rem] flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 text-sm font-medium transition-[background-color,color,transform] duration-200 hover:-translate-y-0.5 lg:min-w-11 lg:flex-row lg:gap-3 lg:justify-start",
                   collapsed && "lg:justify-center lg:px-2",
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25 lg:bg-primary/10 lg:text-primary lg:shadow-none"
+                    ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25 lg:bg-primary/10 lg:text-primary lg:shadow-none lg:before:absolute lg:before:left-0 lg:before:top-1/2 lg:before:h-6 lg:before:w-1 lg:before:-translate-y-1/2 lg:before:rounded-r-full lg:before:bg-primary lg:before:content-['']"
                     : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 )}
               >

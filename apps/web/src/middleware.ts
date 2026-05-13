@@ -16,6 +16,11 @@ const publicPaths = [
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Public folder assets (logo, icons) must not require auth
+  if (/\.(?:png|jpe?g|gif|svg|ico|webp|woff2?)$/i.test(pathname)) {
+    return NextResponse.next();
+  }
+
   if (publicPaths.some((p) => (p === "/" ? pathname === "/" : pathname.startsWith(p)))) {
     return NextResponse.next();
   }
@@ -49,5 +54,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpe?g|gif|svg|ico|webp|woff2?)$).*)",
+  ],
 };

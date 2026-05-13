@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { TroskyMark } from "@/components/brand/trosky-logo";
 
 const demoAccounts = [
   { label: "Analyst demo", email: "analyst@example.com", password: "Password123!" },
@@ -55,15 +56,18 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 p-4 dark:from-background dark:to-secondary">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-neutral-50 via-background to-primary/5 p-4 dark:from-background dark:via-background dark:to-primary/15">
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-[linear-gradient(90deg,transparent,hsl(var(--primary)/0.14),transparent)] blur-3xl"
+        aria-hidden
+      />
       <div className="absolute right-4 top-4">
         <ThemeToggle />
       </div>
-      <Card className="w-full max-w-md">
+      <Card className="relative w-full max-w-md overflow-hidden border-border/80 bg-card/90 shadow-2xl shadow-black/[0.08] backdrop-blur-xl dark:border-white/10 dark:shadow-black/50">
+        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-primary to-landing-emerald" />
         <CardHeader className="space-y-1 text-center">
-          <div className="mx-auto mb-4 h-12 w-12 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-xl font-bold text-primary-foreground">T</span>
-          </div>
+          <TroskyMark priority className="mx-auto mb-4 h-20 w-20 sm:h-24 sm:w-24" />
           <CardTitle className="text-2xl">Trosky</CardTitle>
           <CardDescription>
             Sign in to manage your hotel pricing strategy

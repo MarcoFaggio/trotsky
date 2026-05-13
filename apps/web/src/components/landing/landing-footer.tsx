@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { BarChart3 } from "lucide-react";
+import { TroskyMark } from "@/components/brand/trosky-logo";
 
 export function LandingFooter() {
   return (
@@ -13,12 +13,10 @@ export function LandingFooter() {
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-2 font-landing-display text-lg font-semibold">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                <BarChart3 className="h-5 w-5" aria-hidden />
-              </span>
+            <motion.div className="flex items-center gap-2 font-landing-display text-lg font-semibold">
+              <TroskyMark className="h-10 w-10" />
               Trosky
-            </div>
+            </motion.div>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
               Automated competitor intelligence and AI-backed rates — so revenue teams spend less time in spreadsheets and more time winning share.
             </p>
@@ -27,17 +25,17 @@ export function LandingFooter() {
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Product</p>
             <ul className="mt-4 space-y-3 text-sm">
               <li>
-                <Link href="#platform" className="text-foreground/90 transition-colors hover:text-primary">
+                <Link href="#platform" className="relative text-foreground/90 transition-colors after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-0 after:bg-primary after:transition-all after:content-[''] hover:text-primary hover:after:w-full">
                   Platform
                 </Link>
               </li>
               <li>
-                <Link href="/inquire" className="text-foreground/90 transition-colors hover:text-primary">
+                <Link href="/inquire" className="relative text-foreground/90 transition-colors after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-0 after:bg-primary after:transition-all after:content-[''] hover:text-primary hover:after:w-full">
                   Contact / inquiry
                 </Link>
               </li>
               <li>
-                <Link href="/login" className="text-foreground/90 transition-colors hover:text-primary">
+                <Link href="/login" className="relative text-foreground/90 transition-colors after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-0 after:bg-primary after:transition-all after:content-[''] hover:text-primary hover:after:w-full">
                   Log in
                 </Link>
               </li>

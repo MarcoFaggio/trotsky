@@ -9,7 +9,7 @@ const steps = [
     title: "Quick Setup",
     body: "Connect your property and select your top 5 local competitors.",
     icon: PlugZap,
-    bg: "bg-[hsl(221_83%_53%)] text-white",
+    bg: "bg-primary text-primary-foreground",
   },
   {
     title: "Automated Data Collection",

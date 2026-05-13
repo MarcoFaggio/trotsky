@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
+import { useId, useMemo } from "react";
+import { useReducedMotion } from "framer-motion";
 import {
   ComposedChart,
   Line,
@@ -30,6 +31,9 @@ function formatDate(dateStr: string): string {
 }
 
 export function MatrixChart({ days }: MatrixChartProps) {
+  const reduced = useReducedMotion();
+  const rawId = useId();
+  const uid = useMemo(() => `matrix-${rawId.replace(/:/g, "")}`, [rawId]);
   const chartData = useMemo(
     () =>
       days.map((d) => ({
@@ -49,11 +53,25 @@ export function MatrixChart({ days }: MatrixChartProps) {
     .map((d) => ({ x: d.date, y: d.ourRate! }));
 
   return (
-    <div className="border rounded-lg p-4 bg-card">
-      <h3 className="text-sm font-medium mb-4">Rate Comparison & Occupancy</h3>
+    <div className="relative overflow-hidden rounded-lg border bg-card p-4">
+      <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary via-primary to-landing-emerald" />
+      <h3 className="relative mb-4 w-fit text-sm font-medium">
+        Rate Comparison & Occupancy
+        <span
+          className="absolute -bottom-1 left-0 h-px w-full bg-gradient-to-r from-primary/80 to-transparent"
+          aria-hidden
+        />
+      </h3>
       <ResponsiveContainer width="100%" height={300}>
         <ComposedChart data={chartData} margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
+          <defs>
+            <linearGradient id={`${uid}-occupancy`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={chartColors.occupancy} stopOpacity={0.78} />
+              <stop offset="62%" stopColor={chartColors.occupancy} stopOpacity={0.45} />
+              <stop offset="100%" stopColor={chartColors.occupancy} stopOpacity={0.18} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid stroke={chartColors.grid} strokeOpacity={0.5} vertical={false} />
           <XAxis
             dataKey="date"
             tick={{ fontSize: 11, fill: chartColors.axis }}
@@ -80,7 +98,7 @@ export function MatrixChart({ days }: MatrixChartProps) {
                 <div className="bg-popover text-popover-foreground border rounded-lg shadow-lg p-3 text-xs space-y-1">
                   <p className="font-semibold">{label}</p>
                   {data?.ourRate && (
-                    <p className="text-blue-600">
+                    <p className="text-primary">
                       Our Rate: <span className="font-medium">${data.ourRate}</span>
                     </p>
                   )}
@@ -95,7 +113,7 @@ export function MatrixChart({ days }: MatrixChartProps) {
                     </p>
                   )}
                   {data?.occupancy !== null && data?.occupancy !== undefined && (
-                    <p className="text-purple-600">
+                    <p className="text-landing-violet dark:text-violet-300">
                       Occupancy: <span className="font-medium">{data.occupancy.toFixed(1)}%</span>
                     </p>
                   )}
@@ -114,39 +132,48 @@ export function MatrixChart({ days }: MatrixChartProps) {
             type="monotone"
             dataKey="ourRate"
             stroke={chartColors.primary}
-            strokeWidth={2}
+            strokeWidth={2.5}
             name="Our Rate"
-            dot={{ r: 3 }}
+            dot={{ r: 3, fill: chartColors.primary, strokeWidth: 0 }}
             connectNulls
+            animationDuration={900}
+            isAnimationActive={!reduced}
           />
           <Line
             yAxisId="left"
             type="monotone"
             dataKey="compAvg"
             stroke={chartColors.comparison}
-            strokeWidth={2}
+            strokeWidth={1.85}
+            strokeOpacity={0.78}
             name="Comp Avg"
-            dot={{ r: 2 }}
+            dot={{ r: 2, fill: chartColors.comparison, strokeWidth: 0 }}
             connectNulls
+            animationDuration={860}
+            isAnimationActive={!reduced}
           />
           <Line
             yAxisId="left"
             type="monotone"
             dataKey="recommended"
             stroke={chartColors.recommended}
-            strokeWidth={2}
-            strokeDasharray="5 5"
+            strokeWidth={2.35}
             name="Recommended"
-            dot={{ r: 2 }}
+            dot={{ r: 2.5, fill: chartColors.recommended, strokeWidth: 0 }}
             connectNulls
+            animationDuration={980}
+            isAnimationActive={!reduced}
           />
           <Bar
             yAxisId="right"
             dataKey="occupancy"
-            fill={chartColors.occupancy}
-            opacity={0.3}
+            fill={`url(#${uid}-occupancy)`}
+            opacity={0.82}
             name="Occupancy %"
             barSize={20}
+            animationDuration={820}
+            animationEasing="ease-out"
+            isAnimationActive={!reduced}
           />
           {eventDots.map((dot, i) => (
             <ReferenceDot

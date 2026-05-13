@@ -7,84 +7,84 @@
     --font-landing-body: Manrope, Avenir Next, Segoe UI, system-ui, sans-serif;
     --font-landing-display: Fraunces, Georgia, Cambria, Times New Roman, serif;
     --background: 42 34% 98%;
-    --foreground: 222 48% 10%;
+    --foreground: 0 2% 25.5%;
     --card: 0 0% 100%;
-    --card-foreground: 222 48% 10%;
+    --card-foreground: 0 2% 25.5%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 48% 10%;
-    --primary: 221 80% 49%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 214 36% 94%;
-    --secondary-foreground: 222 45% 13%;
-    --muted: 214 34% 93%;
-    --muted-foreground: 217 16% 42%;
-    --accent: 214 38% 92%;
-    --accent-foreground: 222 45% 13%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 215 28% 87%;
-    --input: 215 28% 87%;
-    --ring: 221 80% 49%;
+    --popover-foreground: 0 2% 25.5%;
+    --primary: 0 99% 33%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 3% 94%;
+    --secondary-foreground: 0 2% 25.5%;
+    --muted: 0 3% 93%;
+    --muted-foreground: 0 2% 35%;
+    --accent: 0 4% 92%;
+    --accent-foreground: 0 2% 25.5%;
+    --destructive: 0 100% 23.5%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 4% 87%;
+    --input: 0 4% 87%;
+    --ring: 0 99% 33%;
     --radius: 0.625rem;
     --chart-grid: 214.3 31.8% 91.4%;
-    --chart-axis: 215.4 16.3% 46.9%;
-    --chart-primary: 221.2 83.2% 53.3%;
-    --chart-comparison: 215.4 16.3% 46.9%;
-    --chart-recommended: 160 84% 39%;
-    --chart-occupancy: 263 70% 72%;
+    --chart-axis: 0 2% 37%;
+    --chart-primary: 0 99% 33%;
+    --chart-comparison: 0 2% 48%;
+    --chart-recommended: 164 82% 42%;
+    --chart-occupancy: 263 70% 64%;
     --chart-warning: 38 92% 50%;
-    --chart-series-1: 215 20% 55%;
+    --chart-series-1: 0 2% 52%;
     --chart-series-2: 263 70% 64%;
     --chart-series-3: 24 95% 53%;
     --chart-series-4: 173 80% 40%;
     --chart-series-5: 348 83% 58%;
     --chart-series-6: 258 90% 66%;
     --chart-series-7: 190 90% 48%;
-    /* Landing accents */
-    --landing-emerald: 160 84% 39%;
-    --landing-amber: 38 92% 50%;
-    --landing-violet: 263 70% 50%;
-    --landing-sky: 199 89% 48%;
+    /* Landing accents — red family only */
+    --landing-emerald: 0 99% 33%;
+    --landing-amber: 0 99% 40%;
+    --landing-violet: 0 100% 24%;
+    --landing-sky: 0 100% 24%;
   }
 
   /* Landing page: light theme with white gradient */
   .landing-page {
     --landing-bg: 42 34% 98%;
     --landing-bg-elevated: 214 44% 96%;
-    --landing-foreground: 222 48% 10%;
-    --landing-muted: 217 16% 42%;
+    --landing-foreground: 0 2% 25.5%;
+    --landing-muted: 0 2% 35%;
     --landing-border: 215 28% 87%;
     --landing-card: 0 0% 100%;
   }
 
   .dark {
-    --background: 222 47% 6%;
+    --background: 0 18% 4.5%;
     --foreground: 210 40% 98%;
-    --card: 222 42% 9%;
+    --card: 0 13% 7%;
     --card-foreground: 210 40% 98%;
-    --popover: 222 42% 9%;
+    --popover: 0 13% 7%;
     --popover-foreground: 210 40% 98%;
-    --primary: 217 91% 62%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 220 29% 15%;
+    --primary: 0 100% 23.5%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 10% 13%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 220 29% 15%;
-    --muted-foreground: 216 18% 70%;
-    --accent: 219 30% 18%;
+    --muted: 0 9% 13%;
+    --muted-foreground: 0 4% 72%;
+    --accent: 0 16% 17%;
     --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 45.6%;
+    --destructive: 0 100% 23.5%;
     --destructive-foreground: 210 40% 98%;
-    --border: 219 28% 20%;
-    --input: 219 28% 20%;
-    --ring: 224.3 76.3% 48%;
-    --chart-grid: 217.2 32.6% 28%;
-    --chart-axis: 215 20.2% 72%;
-    --chart-primary: 217.2 91.2% 64%;
-    --chart-comparison: 215 20.2% 65.1%;
-    --chart-recommended: 160 84% 45%;
-    --chart-occupancy: 263 70% 65%;
+    --border: 0 13% 20%;
+    --input: 0 13% 20%;
+    --ring: 0 99% 33%;
+    --chart-grid: 0 13% 22%;
+    --chart-axis: 0 5% 74%;
+    --chart-primary: 0 99% 33%;
+    --chart-comparison: 0 3% 58%;
+    --chart-recommended: 164 82% 48%;
+    --chart-occupancy: 263 70% 66%;
     --chart-warning: 38 92% 55%;
-    --chart-series-1: 215 20.2% 65.1%;
+    --chart-series-1: 0 3% 62%;
     --chart-series-2: 263 70% 70%;
     --chart-series-3: 24 95% 60%;
     --chart-series-4: 173 80% 50%;
@@ -94,12 +94,12 @@
   }
 
   .dark .landing-page {
-    --landing-bg: 222 47% 6%;
-    --landing-bg-elevated: 222 42% 9%;
+    --landing-bg: 0 18% 4.5%;
+    --landing-bg-elevated: 0 13% 7%;
     --landing-foreground: 210 40% 98%;
-    --landing-muted: 215 20.2% 65.1%;
-    --landing-border: 217.2 32.6% 17.5%;
-    --landing-card: 222 42% 9%;
+    --landing-muted: 0 4% 72%;
+    --landing-border: 0 13% 20%;
+    --landing-card: 0 13% 7%;
   }
 }
 
@@ -121,7 +121,7 @@
   .app-bg {
     background:
       radial-gradient(900px 520px at 12% -10%, hsl(var(--primary) / 0.08), transparent 62%),
-      radial-gradient(760px 420px at 100% 0%, hsl(var(--landing-emerald) / 0.08), transparent 58%),
+      radial-gradient(760px 420px at 100% 0%, hsl(var(--primary) / 0.06), transparent 58%),
       hsl(var(--background));
   }
 
@@ -151,8 +151,8 @@
 
   /* Editorial landing palette — warm paper, ink, copper accent */
   .landing-editorial {
-    --landing-accent-warm: 32 90% 42%;
-    --landing-ink: 222 47% 11%;
+    --landing-accent-warm: 0 99% 33%;
+    --landing-ink: 0 2% 26%;
     --landing-paper: 40 33% 98%;
   }
 
@@ -210,7 +210,7 @@
     height: min(55vw, 420px);
     bottom: 10%;
     left: -8%;
-    background: radial-gradient(circle, hsl(160 45% 42% / 0.12) 0%, transparent 72%);
+    background: radial-gradient(circle, hsl(0 100% 24% / 0.12) 0%, transparent 72%);
     animation-delay: -10s;
   }
 

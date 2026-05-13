@@ -57,7 +57,7 @@ function EfficiencyDivideHeading() {
         </motion.h2>
         <motion.span
           aria-hidden
-          className="absolute -bottom-1 left-0 h-[3px] w-full rounded-full bg-gradient-to-r from-primary/50 via-primary to-emerald-500/80 shadow-none transition-[box-shadow,filter] duration-500 group-hover:shadow-[0_10px_36px_-12px_rgba(59,130,246,0.45)] dark:from-primary/60 dark:via-primary dark:to-emerald-400/90 dark:group-hover:shadow-[0_12px_40px_-14px_rgba(96,165,250,0.4)]"
+          className="absolute -bottom-1 left-0 h-[3px] w-full rounded-full bg-gradient-to-r from-primary/50 via-primary to-primary/80 shadow-none transition-[box-shadow,filter] duration-500 group-hover:shadow-[0_10px_36px_-12px_rgba(166,1,1,0.45)] dark:from-primary/60 dark:via-primary dark:to-primary/90 dark:group-hover:shadow-[0_12px_40px_-14px_rgba(120,0,0,0.4)]"
           initial={reduced ? false : { scaleX: 0, opacity: 0 }}
           whileInView={{ scaleX: 1, opacity: 1 }}
           viewport={{ once: true }}

@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { BarChart3, LogIn, Menu, MessageSquare, Sparkles, X } from "lucide-react";
+import { LogIn, Menu, MessageSquare, Sparkles, X } from "lucide-react";
+import { TroskyMark } from "@/components/brand/trosky-logo";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -43,11 +44,11 @@ export function LandingNav() {
           className="group flex items-center gap-2.5 font-landing-display text-xl font-semibold tracking-tight text-foreground"
         >
           <motion.span
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md shadow-primary/30"
+            className="flex h-9 w-9 items-center justify-center"
             whileHover={reduced ? undefined : { rotate: -6, scale: 1.05 }}
             transition={{ type: "spring", stiffness: 400, damping: 22 }}
           >
-            <BarChart3 className="h-[1.15rem] w-[1.15rem]" aria-hidden />
+            <TroskyMark priority className="h-9 w-9" />
           </motion.span>
           <span className="flex flex-col leading-none">
             <span>Trosky</span>
@@ -62,9 +63,13 @@ export function LandingNav() {
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-lg px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              className="group relative rounded-lg px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             >
               {link.label}
+              <span
+                className="absolute inset-x-3 bottom-1 h-px origin-left scale-x-0 bg-gradient-to-r from-primary via-primary/70 to-primary/40 transition-transform duration-300 group-hover:scale-x-100"
+                aria-hidden
+              />
             </Link>
           ))}
           <Link

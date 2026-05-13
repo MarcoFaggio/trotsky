@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, MessageSquareQuote, Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { TroskyMark } from "@/components/brand/trosky-logo";
 import { HeroChart } from "./hero-chart";
 
 const HEADLINE = "Trosky Revenue Intelligence";
@@ -11,8 +12,8 @@ const SUB =
   "Automated competitor rates across OTAs, AI-backed recommendations, and a live dashboard your owners can trust. Built for hotel teams that need sharper pricing decisions without spreadsheet drag.";
 const STATS = [
   { label: "Hotels on Trosky", value: "500+", valueClass: "text-primary" },
-  { label: "Rates tracked / week", value: "2.4M+", valueClass: "text-emerald-600 dark:text-emerald-400" },
-  { label: "Avg. time saved", value: "10h+", valueClass: "text-amber-600 dark:text-amber-400" },
+  { label: "Rates tracked / week", value: "2.4M+", valueClass: "text-primary" },
+  { label: "Avg. time saved", value: "10h+", valueClass: "text-primary/80" },
 ];
 
 export function Hero() {
@@ -35,11 +36,20 @@ export function Hero() {
             <motion.div
               initial={reduced ? false : { opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="mb-7"
+            >
+              <TroskyMark priority className="h-24 w-24 sm:h-28 sm:w-28" />
+            </motion.div>
+
+            <motion.div
+              initial={reduced ? false : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, delay: reduced ? 0 : 0.08, ease: [0.22, 1, 0.36, 1] }}
               className="mb-6 inline-flex flex-wrap items-center gap-2"
             >
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card/90 px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur-sm">
-                <Zap className="h-3.5 w-3.5 text-amber-500" aria-hidden />
+                <Zap className="h-3.5 w-3.5 text-primary" aria-hidden />
                 Trosky Revenue Intelligence
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary">
@@ -152,7 +162,7 @@ export function Hero() {
               className="relative order-first mx-auto w-full max-w-lg lg:order-none lg:max-w-none"
             >
               <div
-                className="absolute -inset-3 rounded-3xl bg-gradient-to-br from-primary/25 via-primary/5 to-emerald-500/20 blur-2xl dark:from-primary/30 dark:via-transparent dark:to-emerald-500/25"
+                className="absolute -inset-3 rounded-3xl bg-gradient-to-br from-primary/25 via-primary/5 to-primary/15 blur-2xl dark:from-primary/30 dark:via-transparent dark:to-primary/20"
                 aria-hidden
               />
               <motion.div

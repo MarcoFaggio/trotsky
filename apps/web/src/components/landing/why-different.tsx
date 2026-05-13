@@ -14,7 +14,7 @@ const features = [
     title: "OTA Intelligence",
     body: "Automated daily rate scraping across Expedia, Booking.com, and direct channels. No more manual refresh.",
     icon: LayoutDashboard,
-    iconBg: "bg-[hsl(221_83%_53%)] text-white",
+    iconBg: "bg-primary text-primary-foreground",
     size: "large" as const,
     badge: "Automated",
   },

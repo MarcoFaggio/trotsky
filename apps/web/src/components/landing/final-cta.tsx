@@ -10,7 +10,7 @@ export function FinalCta() {
   const reduced = useReducedMotion();
 
   return (
-    <SectionWrapper className="relative overflow-hidden bg-gradient-to-br from-primary/12 via-background to-emerald-500/10 px-4 py-20 dark:from-primary/10 dark:via-background dark:to-emerald-500/[0.07] sm:px-6 sm:py-28 lg:px-8">
+    <SectionWrapper className="relative overflow-hidden bg-gradient-to-br from-primary/12 via-background to-primary/10 px-4 py-20 dark:from-primary/10 dark:via-background dark:to-primary/[0.07] sm:px-6 sm:py-28 lg:px-8">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/15 via-transparent to-transparent dark:from-primary/20" />
       <motion.div
         initial={reduced ? false : { opacity: 0, y: 20 }}

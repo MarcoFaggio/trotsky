@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@hotel-pricing/db";
+import { TroskyMark } from "@/components/brand/trosky-logo";
 import { PublicInquiryForm } from "@/components/inquiries/public-inquiry-form";
 
 export const dynamic = "force-dynamic";
@@ -16,9 +17,7 @@ export default async function PublicInquiryPage() {
       <div className="mx-auto grid min-h-screen max-w-6xl gap-10 px-6 py-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-10">
         <section className="space-y-8">
           <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold">
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              T
-            </span>
+            <TroskyMark className="h-8 w-8" />
             Trosky
           </Link>
           <div className="space-y-4">
@@ -49,7 +48,8 @@ export default async function PublicInquiryPage() {
           </div>
         </section>
 
-        <section className="rounded-lg border bg-card p-5 shadow-sm md:p-7">
+        <section className="relative overflow-hidden rounded-lg border bg-card p-5 shadow-sm md:p-7">
+          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-primary to-landing-emerald" />
           <div className="mb-6">
             <h2 className="text-xl font-semibold">Send an inquiry</h2>
             <p className="mt-1 text-sm text-muted-foreground">

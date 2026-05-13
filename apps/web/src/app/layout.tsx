@@ -15,6 +15,10 @@ const themeScript = `
 export const metadata: Metadata = {
   title: "Trosky | Hotel Revenue Intelligence",
   description: "Hotel revenue intelligence for rate, pace, occupancy, and inquiry workflows.",
+  icons: {
+    icon: "/trosky-image.png",
+    apple: "/trosky-image.png",
+  },
 };
 
 export default function RootLayout({

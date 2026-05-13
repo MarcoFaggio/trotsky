@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo } from "react";
+import { useReducedMotion } from "framer-motion";
 import {
   ComposedChart,
   Line,
@@ -66,6 +67,9 @@ export function OverviewGraph({
   onRangeChange,
   onDateClick,
 }: OverviewGraphProps) {
+  const reduced = useReducedMotion();
+  const rawId = useId();
+  const uid = useMemo(() => `overview-${rawId.replace(/:/g, "")}`, [rawId]);
   const chartData = useMemo(
     () =>
       graphData.dates.map((date, i) => {
@@ -111,7 +115,13 @@ export function OverviewGraph({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <h3 className="text-sm font-semibold">Competitive Rate Comparison</h3>
+        <h3 className="relative w-fit text-sm font-semibold">
+          Competitive Rate Comparison
+          <span
+            className="absolute -bottom-1 left-0 h-px w-full bg-gradient-to-r from-primary via-primary to-landing-emerald"
+            aria-hidden
+          />
+        </h3>
         <Tabs
           value={String(graphRange)}
           onValueChange={(v) => onRangeChange(parseInt(v))}
@@ -139,7 +149,21 @@ export function OverviewGraph({
               if (data?.activeLabel) onDateClick?.(data.activeLabel);
             }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
+            <defs>
+              <linearGradient id={`${uid}-occupancy`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={chartColors.occupancy} stopOpacity={0.9} />
+                <stop offset="55%" stopColor={chartColors.occupancy} stopOpacity={0.62} />
+                <stop offset="100%" stopColor={chartColors.occupancy} stopOpacity={0.28} />
+              </linearGradient>
+              <filter id={`${uid}-primary-glow`} x="-45%" y="-45%" width="190%" height="190%">
+                <feGaussianBlur stdDeviation="1.8" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            <CartesianGrid stroke={chartColors.grid} strokeOpacity={0.52} vertical={false} />
             <XAxis
               dataKey="dateLabel"
               tick={{ fontSize: 11, fill: chartColors.axis }}
@@ -163,17 +187,20 @@ export function OverviewGraph({
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend
-              wrapperStyle={{ fontSize: 11 }}
+              wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
               iconSize={8}
             />
 
             <Bar
               yAxisId="occ"
               dataKey="Occupancy"
-              fill={chartColors.occupancy}
-              opacity={0.5}
-              radius={[2, 2, 0, 0]}
+              fill={`url(#${uid}-occupancy)`}
+              opacity={0.86}
+              radius={[4, 4, 0, 0]}
               barSize={graphRange > 14 ? 8 : 16}
+              animationDuration={900}
+              animationEasing="ease-out"
+              isAnimationActive={!reduced}
             />
 
             <Line
@@ -181,10 +208,13 @@ export function OverviewGraph({
               type="monotone"
               dataKey="Your Hotel"
               stroke={chartColors.primary}
-              strokeWidth={2.5}
-              dot={{ r: 3, fill: chartColors.primary }}
+              strokeWidth={2.75}
+              dot={{ r: 3, fill: chartColors.primary, strokeWidth: 0 }}
               activeDot={{ r: 5, stroke: chartColors.surface, strokeWidth: 2 }}
               connectNulls
+              animationDuration={1050}
+              isAnimationActive={!reduced}
+              filter={`url(#${uid}-primary-glow)`}
             />
 
             <Line
@@ -192,10 +222,12 @@ export function OverviewGraph({
               type="monotone"
               dataKey="Comp Avg"
               stroke={chartColors.comparison}
-              strokeWidth={1.5}
-              strokeDasharray="4 4"
-              dot={false}
+              strokeWidth={1.85}
+              strokeOpacity={0.78}
+              dot={{ r: 2, fill: chartColors.comparison, strokeWidth: 0 }}
               connectNulls
+              animationDuration={1000}
+              isAnimationActive={!reduced}
             />
 
             <Line
@@ -203,10 +235,11 @@ export function OverviewGraph({
               type="monotone"
               dataKey="Recommended"
               stroke={chartColors.recommended}
-              strokeWidth={1.5}
-              strokeDasharray="6 3"
-              dot={false}
+              strokeWidth={2.35}
+              dot={{ r: 2.5, fill: chartColors.recommended, strokeWidth: 0 }}
               connectNulls
+              animationDuration={1150}
+              isAnimationActive={!reduced}
             />
 
             {graphData.competitors.map((comp, i) => (
@@ -218,8 +251,9 @@ export function OverviewGraph({
                 stroke={chartColors.series[i % chartColors.series.length]}
                 strokeWidth={1}
                 dot={false}
-                opacity={0.6}
+                opacity={0.48}
                 connectNulls
+                isAnimationActive={!reduced}
               />
             ))}
           </ComposedChart>

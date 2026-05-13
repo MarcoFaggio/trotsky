@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useId, useMemo, useState } from "react";
 import {
   ComposedChart,
   Line,
@@ -9,9 +9,9 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from "recharts";
+import { useReducedMotion } from "framer-motion";
 import { useChartThemeColors } from "./use-chart-theme-colors";
 
 /**
@@ -74,6 +74,7 @@ const ANIM_MS = 1100;
 
 export function HeroChart() {
   const [graphRange, setGraphRange] = useState<7 | 14 | 30>(14);
+  const reduced = useReducedMotion();
   const c = useChartThemeColors();
 
   const chartData = useMemo(
@@ -83,7 +84,8 @@ export function HeroChart() {
 
   const barSize = graphRange > 14 ? 7 : 12;
 
-  const uid = useMemo(() => `hc-${Math.random().toString(36).slice(2, 9)}`, []);
+  const rawId = useId();
+  const uid = useMemo(() => `hc-${rawId.replace(/:/g, "")}`, [rawId]);
 
   return (
     <div
@@ -91,8 +93,12 @@ export function HeroChart() {
       key={c.tick}
     >
       <div className="mb-3 flex flex-col gap-3 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="text-sm font-semibold leading-tight text-foreground sm:text-base">
+        <h3 className="group relative w-fit text-sm font-semibold leading-tight text-foreground sm:text-base">
           Competitive Rate Comparison
+          <span
+            className="absolute -bottom-1 left-0 h-px w-full origin-left scale-x-75 bg-gradient-to-r from-primary via-primary/70 to-primary/40 opacity-80 transition-transform duration-300 group-hover:scale-x-100"
+            aria-hidden
+          />
         </h3>
         <div
           className="flex shrink-0 rounded-lg border border-border/80 bg-muted/50 p-0.5 dark:bg-muted/30"
@@ -183,8 +189,6 @@ export function HeroChart() {
 
             <Tooltip content={<ChartTooltip />} cursor={{ stroke: c.grid, strokeOpacity: 0.5 }} />
 
-            <Legend wrapperStyle={{ fontSize: 10, paddingTop: 8 }} iconSize={8} />
-
             <Bar
               yAxisId="occ"
               dataKey="Occupancy"
@@ -194,6 +198,7 @@ export function HeroChart() {
               name="Occupancy"
               animationDuration={ANIM_MS}
               animationEasing="ease-out"
+              isAnimationActive={!reduced}
               filter={`url(#${uid}-barShadow)`}
             />
 
@@ -208,6 +213,7 @@ export function HeroChart() {
               connectNulls
               name="Your Hotel"
               animationDuration={ANIM_MS + 200}
+              isAnimationActive={!reduced}
               filter={`url(#${uid}-glowPrimary)`}
             />
 
@@ -222,6 +228,7 @@ export function HeroChart() {
               connectNulls
               name="Comp avg"
               animationDuration={ANIM_MS + 150}
+              isAnimationActive={!reduced}
             />
 
             <Line
@@ -229,15 +236,34 @@ export function HeroChart() {
               type="monotone"
               dataKey="Recommended"
               stroke={c.recommended}
-              strokeWidth={2.25}
+              strokeWidth={2.55}
               dot={{ r: 2.5, fill: c.recommended, strokeWidth: 0 }}
               connectNulls
               name="AI recommended"
               animationDuration={ANIM_MS + 300}
+              isAnimationActive={!reduced}
               filter={`url(#${uid}-glowRec)`}
             />
           </ComposedChart>
         </ResponsiveContainer>
+      </div>
+
+      <div className="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-2 text-[10px] font-medium leading-none sm:text-[11px]">
+        {[
+          { label: "Occupancy", color: c.occupancy, kind: "bar" },
+          { label: "Your Hotel", color: c.primary, kind: "line" },
+          { label: "Comp avg", color: c.comparison, kind: "line" },
+          { label: "AI recommended", color: c.recommended, kind: "line" },
+        ].map((item) => (
+          <span key={item.label} className="inline-flex items-center gap-1.5 text-muted-foreground">
+            <span
+              className={item.kind === "bar" ? "h-2.5 w-4 rounded-sm" : "h-0.5 w-4 rounded-full"}
+              style={{ backgroundColor: item.color }}
+              aria-hidden
+            />
+            <span style={{ color: item.color }}>{item.label}</span>
+          </span>
+        ))}
       </div>
 
       <p className="mt-2 text-center text-[10px] leading-snug text-muted-foreground sm:text-[11px]">
