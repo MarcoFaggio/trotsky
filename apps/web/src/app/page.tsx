@@ -1,21 +1,8 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { jwtVerify } from "jose";
-import { Fraunces, DM_Sans } from "next/font/google";
 import { LandingPage } from "@/components/landing/landing-page";
 import { jwtAccessSecretBytes } from "@/lib/jwt-secrets";
-
-const landingDisplay = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-landing-display",
-  display: "swap",
-});
-
-const landingSans = DM_Sans({
-  subsets: ["latin"],
-  variable: "--font-landing-body",
-  display: "swap",
-});
 
 export const metadata = {
   title: "Trosky Analytics – Automated Hotel Rate Tracking & Market Intelligence",
@@ -34,9 +21,5 @@ export default async function Home() {
       // Token invalid or expired; show landing
     }
   }
-  return (
-    <div className={`${landingDisplay.variable} ${landingSans.variable}`}>
-      <LandingPage />
-    </div>
-  );
+  return <LandingPage />;
 }

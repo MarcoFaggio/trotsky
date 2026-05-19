@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --font-landing-body: Manrope, Avenir Next, Segoe UI, system-ui, sans-serif;
+    --font-landing-body: "DM Sans", Manrope, Avenir Next, Segoe UI, system-ui, sans-serif;
     --font-landing-display: Fraunces, Georgia, Cambria, Times New Roman, serif;
     --background: 42 34% 98%;
     --foreground: 0 2% 25.5%;

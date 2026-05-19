@@ -11,9 +11,11 @@ const DEFAULTS = {
   axis: "hsl(0 2% 37%)",
 } as const;
 
+type ChartThemeColors = Record<keyof typeof DEFAULTS, string>;
+
 /** Resolve Tailwind HSL tokens for SVG defs; updates when `.dark` toggles. */
 export function useChartThemeColors() {
-  const [colors, setColors] = useState(DEFAULTS);
+  const [colors, setColors] = useState<ChartThemeColors>(DEFAULTS);
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
