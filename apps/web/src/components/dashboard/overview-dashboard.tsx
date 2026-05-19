@@ -307,7 +307,7 @@ export function OverviewDashboard({
       {/* Tabbed Views */}
       <Tabs value={view} onValueChange={setView}>
         <div className="flex items-center justify-between flex-wrap gap-3">
-          <TabsList data-tour="dashboard-views">
+          <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="matrix">Matrix</TabsTrigger>
             <TabsTrigger value="calendar">Calendar</TabsTrigger>
@@ -341,13 +341,11 @@ export function OverviewDashboard({
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-6 mt-4">
-          <div data-tour="dashboard-kpis">
           <SevenDayCards
             rates={overviewData?.sevenDayRates || []}
             loading={overviewLoading}
             onDateClick={setSelectedDate}
           />
-          </div>
 
           <OverviewGraph
             graphData={

@@ -26,17 +26,16 @@ type OnboardingTourProps = {
   children: React.ReactNode;
 };
 
+function isDashboardPath(pathname: string) {
+  return pathname === "/dashboard" || pathname.startsWith("/dashboard/");
+}
+
 export function OnboardingTour({ role, children }: OnboardingTourProps) {
   const pathname = usePathname();
   const hasAutoStarted = useRef(false);
+  const onDashboard = isDashboardPath(pathname);
 
-  const includeDashboardSteps =
-    pathname === "/dashboard" || pathname.startsWith("/dashboard/");
-
-  const steps = useMemo(
-    () => buildOnboardingSteps({ role, includeDashboardSteps }),
-    [role, includeDashboardSteps]
-  );
+  const steps = useMemo(() => buildOnboardingSteps({ role }), [role]);
 
   const markComplete = useCallback(() => {
     try {
@@ -73,7 +72,7 @@ export function OnboardingTour({ role, children }: OnboardingTourProps) {
   }, [on, markComplete]);
 
   useEffect(() => {
-    if (hasAutoStarted.current) return;
+    if (hasAutoStarted.current || onDashboard) return;
     hasAutoStarted.current = true;
 
     try {
@@ -84,7 +83,7 @@ export function OnboardingTour({ role, children }: OnboardingTourProps) {
 
     const timer = window.setTimeout(() => controls.start(), 1200);
     return () => window.clearTimeout(timer);
-  }, [controls]);
+  }, [controls, onDashboard]);
 
   return (
     <OnboardingProvider value={{ startTour }}>
