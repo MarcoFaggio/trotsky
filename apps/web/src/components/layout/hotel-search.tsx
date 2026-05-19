@@ -111,7 +111,7 @@ export function HotelSearch({ onSelect }: HotelSearchProps) {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-sm">
+    <div ref={containerRef} data-tour="hotel-search" className="relative w-full max-w-sm">
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input

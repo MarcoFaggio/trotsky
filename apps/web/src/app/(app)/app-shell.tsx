@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { OnboardingTour } from "@/components/layout/onboarding-tour";
 import { Sidebar } from "@/components/layout/sidebar";
 import { TopBar } from "@/components/layout/top-bar";
 import { Toaster } from "@/components/ui/toaster";
@@ -70,6 +71,7 @@ export function AppShell({
   }, [setCollapsed]);
 
   return (
+    <OnboardingTour role={user.role as "ANALYST" | "CLIENT"}>
     <div className="flex h-screen overflow-hidden app-bg lg:flex-row flex-col">
       <Sidebar
         role={user.role as "ANALYST" | "CLIENT"}
@@ -85,7 +87,10 @@ export function AppShell({
           selectedHotelId={selectedHotelId}
           onHotelChange={handleHotelChange}
         />
-        <main className="flex-1 overflow-y-auto p-3 pb-24 sm:p-4 sm:pb-24 lg:p-6">
+        <main
+          data-tour="main-content"
+          className="flex-1 overflow-y-auto p-3 pb-24 sm:p-4 sm:pb-24 lg:p-6"
+        >
           <div className="mx-auto w-full max-w-[1500px]">
             {children}
           </div>
@@ -93,5 +98,6 @@ export function AppShell({
       </div>
       <Toaster />
     </div>
+    </OnboardingTour>
   );
 }

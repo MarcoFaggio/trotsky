@@ -216,6 +216,7 @@ See [Deploying to Vercel](docs/DEPLOY.md) for step-by-step deployment instructio
 | [Analyst & client user guide](docs/USER-GUIDE-ANALYST-AND-CLIENT.md) | Sidebar, permissions, `/inquiries` by role, public `/inquire` |
 | [AI inquiry layer](docs/AI-INQUIRY-LAYER.md) | Inquiry domain model, flows, phases, AI/heuristic direction |
 | [Tech & UX hardening](docs/TECH-UX-HARDENING.md) | Production hardening checklist, UX acceptance criteria, quality gates |
+| [Feature & UX audit](docs/FEATURE-UX-AUDIT.md) | Unique feature inventory, quality score, and prioritized frontend strengthening backlog |
 | [Product documentation](docs/PRODUCT-DOCUMENTATION.md) | Full spec: roles, auth flows, user flows, feature reference, data model, business rules, glossary |
 | [Dashboard guide](docs/DASHBOARD-GUIDE.md) | Screen-by-screen walkthrough of dashboard UI |
 | [Deploy guide](docs/DEPLOY.md) | Vercel + database + worker deployment |

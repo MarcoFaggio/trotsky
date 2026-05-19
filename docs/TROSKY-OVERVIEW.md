@@ -106,6 +106,7 @@ This section records major themes shipped in the Trosky repo (landing, auth, dat
 | [PRODUCT-DOCUMENTATION.md](./PRODUCT-DOCUMENTATION.md) | Full product spec |
 | [AI-INQUIRY-LAYER.md](./AI-INQUIRY-LAYER.md) | Inquiry product & technical design |
 | [TECH-UX-HARDENING.md](./TECH-UX-HARDENING.md) | Production hardening, security, reliability, and UX standards |
+| [FEATURE-UX-AUDIT.md](./FEATURE-UX-AUDIT.md) | Unique feature inventory and prioritized frontend strengthening backlog |
 | [API.md](./API.md) | HTTP routes and server actions index |
 | [DEPLOY.md](./DEPLOY.md) | Production deployment |
 | [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) | Common failures (DB, EMFILE, etc.) |

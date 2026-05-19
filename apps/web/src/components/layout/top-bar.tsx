@@ -10,9 +10,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { HotelSearch } from "./hotel-search";
-import { Plus, RefreshCw, User, LogOut, Clock } from "lucide-react";
+import { Plus, RefreshCw, User, LogOut, Clock, Compass } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useOnboarding } from "./onboarding-context";
 
 interface TopBarProps {
   user: { email: string; role: string; name?: string };
@@ -45,6 +46,7 @@ export function TopBar({
   onRefresh,
 }: TopBarProps) {
   const isAnalyst = user.role === "ANALYST";
+  const { startTour } = useOnboarding();
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -53,23 +55,23 @@ export function TopBar({
 
   return (
     <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-border/70 bg-background/85 px-3 backdrop-blur-xl dark:bg-background/75 sm:px-4 lg:px-6">
-      {/* Left section */}
-      <div className="flex items-center gap-3 flex-1 min-w-0">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
         {isAnalyst ? (
           <HotelSearch onSelect={onHotelChange} />
         ) : (
-          <div className="text-sm font-medium text-foreground truncate">
+          <div
+            data-tour="hotel-name"
+            className="truncate text-sm font-medium text-foreground"
+          >
             {hotels.find((h) => h.id === selectedHotelId)?.name ||
               "Your Hotel"}
           </div>
         )}
       </div>
 
-      {/* Right section */}
-      <div className="flex items-center gap-2 shrink-0">
-        {/* Last updated + refresh */}
+      <div className="flex shrink-0 items-center gap-2">
         {lastUpdated && (
-          <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
+          <div className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
             <Clock className="h-3 w-3" />
             <span>Updated {timeAgo(lastUpdated)}</span>
           </div>
@@ -90,7 +92,6 @@ export function TopBar({
           </Button>
         )}
 
-        {/* Add Hotel */}
         {isAnalyst && (
           <Button variant="outline" size="sm" className="h-9 gap-1.5 rounded-full" asChild>
             <Link href="/hotels/new">
@@ -102,12 +103,13 @@ export function TopBar({
 
         <ThemeToggle />
 
-        {/* User menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
               size="sm"
+              aria-label="Open user menu"
+              data-tour="user-menu"
               className="h-9 gap-2 rounded-full pl-1.5 pr-2 sm:pr-3"
             >
               <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10">
@@ -115,7 +117,7 @@ export function TopBar({
               </div>
               <Badge
                 variant={isAnalyst ? "default" : "secondary"}
-                className="text-[10px] px-1.5 py-0"
+                className="px-1.5 py-0 text-[10px]"
               >
                 {user.role}
               </Badge>
@@ -129,7 +131,17 @@ export function TopBar({
               <p className="text-xs text-muted-foreground">{user.email}</p>
             </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.preventDefault();
+                startTour();
+              }}
+            >
+              <Compass className="mr-2 h-4 w-4" />
+              Product tour
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout} className="text-destructive">
               <LogOut className="mr-2 h-4 w-4" />
               Sign Out
             </DropdownMenuItem>

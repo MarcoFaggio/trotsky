@@ -32,24 +32,24 @@ interface SidebarProps {
 }
 
 const analystLinks = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/portfolio", label: "Portfolio", icon: Briefcase },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, tour: "nav-dashboard" },
+  { href: "/portfolio", label: "Portfolio", icon: Briefcase, tour: "nav-portfolio" },
   { href: "/hotels", label: "Manage Hotels", icon: Hotel },
   { href: "/events", label: "Events", icon: Calendar },
   { href: "/occupancy", label: "Occupancy", icon: BarChart3 },
   { href: "/pace", label: "Pace / OTB", icon: TrendingUp },
   { href: "/promotions", label: "Promotions", icon: Megaphone },
-  { href: "/inquiries", label: "Inquiries", icon: Inbox },
+  { href: "/inquiries", label: "Inquiries", icon: Inbox, tour: "nav-inquiries" },
   { href: "/messages", label: "Messages", icon: MessageSquare },
   { href: "/admin/scrapes", label: "Scrape Admin", icon: Settings },
 ];
 
 const clientLinks = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, tour: "nav-dashboard" },
   { href: "/events", label: "Events", icon: Calendar },
   { href: "/promotions", label: "Promotions", icon: Megaphone },
-  { href: "/inquiries", label: "Inquiries", icon: Inbox },
-  { href: "/messages", label: "Message Trosky", icon: MessageSquare },
+  { href: "/inquiries", label: "Inquiries", icon: Inbox, tour: "nav-inquiries" },
+  { href: "/messages", label: "Message Trosky", icon: MessageSquare, tour: "nav-messages" },
   { href: "/pace", label: "Pace / OTB", icon: TrendingUp },
 ];
 
@@ -91,7 +91,10 @@ export function Sidebar({
           </Link>
         </div>
 
-        <nav className="flex flex-1 gap-1 overflow-x-auto overflow-y-hidden p-2 lg:block lg:space-y-1 lg:overflow-y-auto">
+        <nav
+          data-tour="sidebar"
+          className="flex flex-1 gap-1 overflow-x-auto overflow-y-hidden p-2 lg:block lg:space-y-1 lg:overflow-y-auto"
+        >
           {links.map((link) => {
             const isActive =
               pathname === link.href ||
@@ -108,6 +111,7 @@ export function Sidebar({
               <Link
                 key={link.href}
                 href={link.href}
+                data-tour={link.tour}
                 className={cn(
                   "relative flex min-h-11 min-w-[4.75rem] flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 text-sm font-medium transition-[background-color,color,transform] duration-200 hover:-translate-y-0.5 lg:min-w-11 lg:flex-row lg:gap-3 lg:justify-start",
                   collapsed && "lg:justify-center lg:px-2",
