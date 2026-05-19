@@ -117,3 +117,4 @@ Hotel teams respond from **`/inquiries`** after the lead appears.
 - [TROSKY-OVERVIEW.md](./TROSKY-OVERVIEW.md) — product and architecture summary  
 - [AI-INQUIRY-LAYER.md](./AI-INQUIRY-LAYER.md) — inquiry domain and roadmap  
 - [PRODUCT-DOCUMENTATION.md](./PRODUCT-DOCUMENTATION.md) — full route and feature reference  
+- [TECH-UX-HARDENING.md](./TECH-UX-HARDENING.md) — release hardening and UX acceptance criteria  

@@ -14,7 +14,8 @@ Complete product documentation for **Trosky**: user flows, features, data model,
 6. [Feature and page reference](#6-feature-and-page-reference)
 7. [Data model and entities](#7-data-model-and-entities)
 8. [Business rules and calculations](#8-business-rules-and-calculations)
-9. [Glossary](#9-glossary)
+9. [Quality, hardening, and UX standards](#9-quality-hardening-and-ux-standards)
+10. [Glossary](#10-glossary)
 
 ---
 
@@ -106,7 +107,7 @@ To add a user today: run a script or insert into `User` and, for clients, into `
 3. **Login page** shows:
    - Email and password fields.
    - “Sign In” button.
-   - Demo account hints (e.g. analyst@example.com / Password123!).
+   - Demo account shortcuts only when `NEXT_PUBLIC_SHOW_DEMO_CREDENTIALS=true`.
 4. **User submits** email + password.
 5. **Client** sends `POST /api/auth/login` with `{ email, password }`.
 6. **Server**:
@@ -154,7 +155,7 @@ To add a user today: run a script or insert into `User` and, for clients, into `
 | `/occupancy` | Bulk occupancy entry | Yes | No |
 | `/events` | Events (and related UX per build) | Yes | Yes (scoped) |
 | `/pace` | Pace / OTB dashboard | Yes, any hotel | Yes, assigned hotel |
-| `/promotions` | Promotions list and CRUD | Yes | No |
+| `/promotions` | Promotions list and CRUD/view | Manage all | View assigned hotels |
 | `/portfolio` | Cross-hotel portfolio (analyst) | Yes | No |
 | `/messages` | Messaging | Yes | Yes (scoped) |
 | `/admin/scrapes` | Scrape runs and “Run now” | Yes | No |
@@ -287,7 +288,7 @@ To add a user today: run a script or insert into `User` and, for clients, into `
 - **Actions**: Sign In (submit to `POST /api/auth/login`).
 - **Validation**: Client-side required; server Zod (email format, password min length).
 - **Rate limit**: 5 attempts / 15 min per IP (server).
-- **Demo hint**: Text showing analyst@example.com and client@example.com with Password123!.
+- **Demo hint**: Optional shortcuts for analyst@example.com and client@example.com when `NEXT_PUBLIC_SHOW_DEMO_CREDENTIALS=true`.
 - **Post-success**: Redirect to `/dashboard`.
 
 ### 6.2 App shell (layout after login)
@@ -330,10 +331,10 @@ To add a user today: run a script or insert into `User` and, for clients, into `
 - Chart: OTB rooms vs OTB LY rooms (next 30 days); tooltip with pace %.
 - Table: Date, OTB Rooms, OTB LY, Pace %.
 
-### 6.8 Promotions page (`/promotions`) — Analyst only
+### 6.8 Promotions page (`/promotions`)
 
-- List of promotions (title, hotel, date range, description, Active/Inactive); Delete per row.
-- Add Promotion: dialog (Hotel, Title, Description, Start date, End date, Terms) → create.
+- **Analyst:** List all promotions (title, hotel, date range, description, Active/Inactive); delete per row; add promotion via dialog (Hotel, Title, Description, Start date, End date, Terms).
+- **Client:** View promotions scoped to hotels they can access. Create/delete controls are hidden and server-side actions remain analyst-only.
 
 ### 6.9 Hotels list (`/hotels`) — Analyst only
 
@@ -391,6 +392,11 @@ To add a user today: run a script or insert into `User` and, for clients, into `
 - **DiscountMix** — hotelId, date, planId, sharePercent. Unique (hotelId, date, planId). Sum of sharePercent for a hotel/date should be 100 for full mix.
 - **ScrapeRun** — startedAt, finishedAt, status (PENDING | RUNNING | COMPLETED | FAILED), mode (MOCK | REAL), summaryJson. Has many DailyRate, ReviewSnapshot, ScrapeError.
 - **ScrapeError** — runId, contextJson, message, createdAt.
+- **ExternalSignal** — Imported market signal (concert, sports, festival, convention, severe weather, transport disruption, calamity, or other) with source identity, time range, geography, severity, confidence, status, and raw hash.
+- **HotelSignalImpact** — Per-hotel, per-date interpretation of an ExternalSignal: relevance score, impact basis points, match reason, suppression metadata, and suppressing user.
+- **MessageThread** — Hotel-scoped collaboration thread between clients and analysts.
+- **Message** — Message in a MessageThread, with sender and read timestamp.
+- **SecurityEvent** — Lightweight audit event for notable access or public-capture events.
 
 ### 7.1a Inquiry-related entities
 
@@ -444,7 +450,7 @@ Same “our rate” is used in matrix, calendar, summary cards, day detail, and 
 
 - **Rate plans**: e.g. BAR (0% discount), AAA (10%), Senior (15%). Each plan has discountPercent.
 - **Discount mix**: Per hotel per date, share % per plan (sum = 100). **ADR** = Σ (plan_rate × sharePercent/100), where plan_rate = BAR_rate × (1 − discountPercent/100).
-- **Warning**: If ADR is more than N% below BAR (default 12%) or total discount share above threshold (default 35%), show discount warning in Day Detail and optionally on dashboard. Thresholds from env (DISCOUNT_ADR_THRESHOLD, DISCOUNT_SHARE_THRESHOLD).
+- **Warning**: If ADR is more than N% below BAR (default 12%) or total discount share above threshold (default 35%), show discount warning in Day Detail and optionally on dashboard. Client-side thresholds are `NEXT_PUBLIC_DISCOUNT_ADR_THRESHOLD` and `NEXT_PUBLIC_DISCOUNT_SHARE_THRESHOLD`.
 
 ### 8.6 Events and promotions
 
@@ -453,7 +459,45 @@ Same “our rate” is used in matrix, calendar, summary cards, day detail, and 
 
 ---
 
-## 9. Glossary
+## 9. Quality, hardening, and UX standards
+
+Use this section as the product-level acceptance bar. The deeper release checklist lives in [TECH-UX-HARDENING.md](./TECH-UX-HARDENING.md).
+
+### 9.1 Security and access-control invariants
+
+- All non-public routes require a valid JWT. Public routes are limited to `/`, `/login`, `/inquire`, auth endpoints, health, and public inquiry capture.
+- Analyst-only actions must call `requireAnalyst()` server-side even when analyst-only UI controls are hidden.
+- Client data must always be scoped by `HotelAccess`, including server actions, page queries, top-bar selectors, messages, events, promotions, and inquiries.
+- Public inquiry capture must keep the honeypot, Zod validation, hotel-active check, rate limiting, and generic error handling.
+- Secrets are mandatory in production: `JWT_SECRET`, `JWT_REFRESH_SECRET`, and `DATABASE_URL`. Redis is optional for browsing, but required for queues and shared rate limiting.
+
+### 9.2 Reliability and operations standards
+
+- The web app must remain useful without the worker: browsing, dashboards from existing data, login, inquiries, messages, and read-only pages should still load.
+- Queue-dependent controls should fail clearly when `REDIS_URL` or the worker is missing.
+- Every data-changing action should revalidate affected routes and queue recommendation recompute when it changes recommendation inputs.
+- Migrations are the source of truth for production schema. Avoid `db push` in production except as an explicit emergency recovery step.
+- Scrape and signal schedules should be configured through env (`SCRAPE_CRON`, `SIGNAL_CRON`, `HOTEL_GEO_CRON`) rather than hard-coded in deployment docs.
+
+### 9.3 UX standards
+
+- Role clarity: clients should never see controls that will fail with `FORBIDDEN`; if a client can navigate to a page, provide a useful scoped read-only state.
+- Empty states should explain what is missing and whether the user can act. Analyst empty states can invite creation; client empty states should avoid suggesting unavailable actions.
+- Forms should keep labels visible, preserve native input types for dates/numbers/email, and show a clear success or error state after submit.
+- Data-heavy pages should preserve scanability: stable table/card dimensions, concise metric labels, badges for status/priority, and no hidden meaning that relies on color alone.
+- Mobile navigation must stay reachable and not hide critical actions behind hover-only interactions.
+
+### 9.4 Inquiry workflow acceptance criteria
+
+- A public `/inquire` submission creates exactly one Inquiry, a guest message, and a system trace message when analysis runs or is skipped.
+- `INQUIRY_PUBLIC_AI_ANALYSIS=false` must still create a usable lead with a summary from the guest message.
+- `INQUIRY_UI_ANALYZE=false` must hide/disable the Analyze path without breaking inquiry detail.
+- AI/heuristic output can suggest intent, status, priority, missing fields, and next action, but staff controls remain authoritative.
+- RFP/proposal records must be tied to the same hotel as the inquiry and remain inside `HotelAccess` scope.
+
+---
+
+## 10. Glossary
 
 - **ADR** — Average daily rate (revenue per occupied room).
 - **BAR** — Best available rate (often the base rate plan with 0% discount).

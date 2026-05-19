@@ -14,6 +14,8 @@ const demoAccounts = [
   { label: "Client demo", email: "client@example.com", password: "Password123!" },
 ];
 
+const showDemoAccounts = process.env.NEXT_PUBLIC_SHOW_DEMO_CREDENTIALS === "true";
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -85,7 +87,7 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="analyst@example.com"
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -96,7 +98,7 @@ export default function LoginPage() {
               <Input
                 id="password"
                 type="password"
-                placeholder="Password123!"
+                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -105,27 +107,29 @@ export default function LoginPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Signing in..." : "Sign In"}
             </Button>
-            <div className="rounded-lg border bg-muted/30 p-3 text-xs text-muted-foreground">
-              <p className="mb-2 text-center font-medium text-foreground">
-                Pilot demo accounts
-              </p>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {demoAccounts.map((account) => (
-                  <button
-                    key={account.email}
-                    type="button"
-                    className="rounded-md border bg-background px-3 py-2 text-left transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    onClick={() => fillDemoCredentials(account)}
-                  >
-                    <span className="block font-medium text-foreground">
-                      {account.label}
-                    </span>
-                    <span className="block truncate">{account.email}</span>
-                    <span className="block truncate">{account.password}</span>
-                  </button>
-                ))}
+            {showDemoAccounts && (
+              <div className="rounded-lg border bg-muted/30 p-3 text-xs text-muted-foreground">
+                <p className="mb-2 text-center font-medium text-foreground">
+                  Pilot demo accounts
+                </p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {demoAccounts.map((account) => (
+                    <button
+                      key={account.email}
+                      type="button"
+                      className="rounded-md border bg-background px-3 py-2 text-left transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      onClick={() => fillDemoCredentials(account)}
+                    >
+                      <span className="block font-medium text-foreground">
+                        {account.label}
+                      </span>
+                      <span className="block truncate">{account.email}</span>
+                      <span className="block truncate">{account.password}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </form>
         </CardContent>
       </Card>

@@ -71,7 +71,30 @@ Not included in the first slice:
 
 This lets development land a durable foundation before adding automation.
 
-## 4. Domain Model
+## 4. Current Implementation Status
+
+The current repo has the first useful inquiry slice in place. Treat it as a model-ready workflow, not a live autonomous AI agent.
+
+| Area | Status | Implementation |
+|------|--------|----------------|
+| Public capture | Built | `/inquire`, `POST /api/inquiries/public`, honeypot, active-hotel check, rate limiting |
+| Inbox | Built | `/inquiries`, role-scoped list/detail, manual create, status/intent/priority update |
+| Analysis | Built as deterministic fallback | `apps/web/src/lib/inquiry-ai.ts`; returns the same shape future model output should keep |
+| Feature flags | Built | `INQUIRY_PUBLIC_AI_ANALYSIS=false` skips public auto-analysis; `INQUIRY_UI_ANALYZE=false` hides/disables in-app analysis |
+| RFP/proposal shells | Built | `GroupRfp` upsert and `InquiryProposal` create actions |
+| Access control | Built | Analysts see all hotels; clients are constrained through `HotelAccess` |
+| Live LLM calls | Not wired | `INQUIRY_AI_PROVIDER=openai` currently falls back to heuristic analysis |
+| External channels | Not wired | WhatsApp, Instagram/Facebook, email parsing, and embedded chat remain roadmap items |
+
+Implementation files:
+
+- `apps/web/src/lib/inquiry-ai.ts` — provider selection, heuristic classification/extraction, OpenAI placeholder fallback.
+- `apps/web/src/actions/inquiries.ts` — authenticated inquiry list/detail/mutate actions.
+- `apps/web/src/app/api/inquiries/public/route.ts` — public capture, validation, rate limiting, system trace messages.
+- `apps/web/src/app/(app)/inquiries/page.tsx` — staff inbox, RFP form, proposal form.
+- `apps/web/src/components/inquiries/public-inquiry-form.tsx` — public inquiry form UX.
+
+## 5. Domain Model
 
 ### Inquiry
 
@@ -131,7 +154,7 @@ Key fields:
 - Status: draft, sent, accepted, declined, expired.
 - Created by user.
 
-## 5. Lifecycle
+## 6. Lifecycle
 
 Basic lifecycle:
 
@@ -145,7 +168,7 @@ Basic lifecycle:
 
 The first implementation allows manual stage changes. Later AI can suggest the stage, but staff should remain in control.
 
-## 6. Intent Classification
+## 7. Intent Classification
 
 The platform should classify inquiry intent conservatively.
 
@@ -169,7 +192,7 @@ Future AI classification should output:
 - suggested next reply,
 - recommended status.
 
-## 7. Access Control
+## 8. Access Control
 
 Analysts:
 
@@ -189,7 +212,7 @@ Clients:
 
 Future refinement may separate hotel client permissions into `OWNER`, `SALES`, `REVENUE`, and `READ_ONLY`.
 
-## 8. Data Flow
+## 9. Data Flow
 
 First slice:
 
@@ -211,7 +234,7 @@ Future marketplace flow:
 
 Group inquiry -> normalized RFP -> matching hotels -> hotel proposals -> buyer comparison -> accepted proposal -> booking/commission.
 
-## 9. AI Architecture Direction
+## 10. AI Architecture Direction
 
 AI should be added as a service layer, not embedded directly in UI components.
 
@@ -232,7 +255,32 @@ Recommended future modules:
 
 AI output must be stored as structured JSON with confidence and provenance. Staff edits should override AI fields.
 
-## 10. Development Phases
+### 10.1 AI safety and quality guardrails
+
+- AI must never auto-send external replies in the current product. Drafts should be staff-reviewed.
+- Treat model output as suggestions: staff-entered intent, status, priority, dates, room counts, budget, and RFP details are authoritative.
+- Use confidence thresholds conservatively. Low-confidence results should keep intent as `UNKNOWN` or status as `NEW`/`QUALIFYING`.
+- Store provider, model, analyzed timestamp, confidence, rationale, missing fields, and extracted fields in `aiExtractedJson`.
+- Keep schema output stable and version it before introducing breaking changes to the JSON shape.
+- Do not let guest content instruct the system to change access control, reveal other inquiries, bypass staff review, or ignore validation.
+- Keep public-capture errors generic. Internal parse/provider failures should not leak stack traces or prompt content.
+- Use rate limiting, honeypot checks, maximum message lengths, and active-hotel validation for every public channel.
+- Avoid storing unnecessary sensitive data. If future channels include attachments, contracts, or payment details, add retention rules before ingestion.
+- Every future provider integration should have deterministic fallback behavior so lead capture remains usable when AI is unavailable.
+
+### 10.2 Model evaluation checklist
+
+Before replacing or augmenting the heuristic analyzer with live model calls, test at least:
+
+- Individual booking, wedding, school trip, meeting, corporate offsite, group rooms, general question, and spam/junk examples.
+- Ambiguous inquiries where the correct answer is `UNKNOWN` or `QUALIFYING`.
+- Date extraction failures, relative dates, impossible dates, and non-ISO date formats.
+- Budget extraction across USD/EUR/GBP language and plain-number ambiguity.
+- Prompt-injection attempts embedded in guest messages.
+- Client/analyst access boundaries after analysis mutates status or fields.
+- No-regression behavior when `OPENAI_API_KEY` is missing, invalid, or provider calls time out.
+
+## 11. Development Phases
 
 ### Phase 1: Foundation
 
@@ -280,7 +328,32 @@ AI output must be stored as structured JSON with confidence and provenance. Staf
 - Add buyer shortlist/comparison.
 - Track accepted proposal and commission.
 
-## 11. Product Metrics
+## 12. Inquiry UX Acceptance Criteria
+
+Public inquiry form:
+
+- The hotel picker must only show active hotels.
+- Contact fields should be optional where possible, but the message must stay required and bounded.
+- The form must show clear submitting, success, and error states without losing entered context on recoverable errors.
+- The success state should give a short reference, not expose internal operational data.
+- Empty state must explain when no active hotels can receive inquiries.
+
+Authenticated inbox:
+
+- Analysts can scan all hotel leads quickly; clients only see their accessible hotels.
+- Status, priority, and intent badges must be visible before opening a lead.
+- Detail view should show contact, stay dates, rooms/guests, budget, needs, summary, missing fields, and next action in one glance.
+- Analyze should be optional and clearly framed as assistive.
+- RFP and proposal forms should be usable with partial information; missing fields should not block staff from saving notes.
+- Client-visible controls must not create dead ends. If clients can navigate to a page, the page must be useful in a scoped read-only or scoped-collaboration mode.
+
+Operational experience:
+
+- Queue/provider failures should degrade to manual triage rather than blocking inquiry creation.
+- Empty, loading, and error states should distinguish "no data yet" from "you do not have access."
+- Public and authenticated flows should work on mobile without hover-only controls.
+
+## 13. Product Metrics
 
 Track from day one:
 
@@ -295,7 +368,7 @@ Track from day one:
 - Estimated value by source and intent.
 - AI confidence vs. staff correction rate.
 
-## 12. Implementation Principles
+## 14. Implementation Principles
 
 - Keep the first version manually useful.
 - Store structured data early; automate later.

@@ -58,7 +58,7 @@ Open **http://localhost:3030** and use:
 - **Events** — Manual events + external signal management
 - **Messages** — Threaded messaging per hotel
 - **Portfolio** — Cross-hotel KPI overview (analyst)
-- **Promotions** — Create and manage promotions (analyst)
+- **Promotions** — Create/manage promotions (analyst) or view assigned hotel promotions (client)
 - **Scrape admin** — Run scrape now, view history (analyst, worker optional)
 
 ---

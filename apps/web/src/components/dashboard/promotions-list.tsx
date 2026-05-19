@@ -26,9 +26,14 @@ interface Promotion {
 interface PromotionsListProps {
   promotions: Promotion[];
   hotels: { id: string; name: string }[];
+  isAnalyst: boolean;
 }
 
-export function PromotionsList({ promotions: initialPromos, hotels }: PromotionsListProps) {
+export function PromotionsList({
+  promotions: initialPromos,
+  hotels,
+  isAnalyst,
+}: PromotionsListProps) {
   const [promotions, setPromotions] = useState(initialPromos);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -87,54 +92,60 @@ export function PromotionsList({ promotions: initialPromos, hotels }: Promotions
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Promotions</h1>
-          <p className="text-muted-foreground">Manage hotel promotions and special offers</p>
+          <p className="text-muted-foreground">
+            {isAnalyst
+              ? "Manage hotel promotions and special offers"
+              : "View active and upcoming promotions for your hotel"}
+          </p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button><Plus className="mr-2 h-4 w-4" />Add Promotion</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create Promotion</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Hotel</Label>
-                <Select value={form.hotelId} onValueChange={(v) => setForm({ ...form, hotelId: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {hotels.map((h) => (<SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Title</Label>
-                <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+        {isAnalyst && (
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button><Plus className="mr-2 h-4 w-4" />Add Promotion</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create Promotion</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Start Date</Label>
-                  <Input type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} />
+                  <Label>Hotel</Label>
+                  <Select value={form.hotelId} onValueChange={(v) => setForm({ ...form, hotelId: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {hotels.map((h) => (<SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>End Date</Label>
-                  <Input type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })} />
+                  <Label>Title</Label>
+                  <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
                 </div>
+                <div className="space-y-2">
+                  <Label>Description</Label>
+                  <Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Start Date</Label>
+                    <Input type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>End Date</Label>
+                    <Input type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })} />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Terms</Label>
+                  <Input value={form.terms} onChange={(e) => setForm({ ...form, terms: e.target.value })} />
+                </div>
+                <Button onClick={handleCreate} disabled={saving} className="w-full">
+                  {saving ? "Creating..." : "Create Promotion"}
+                </Button>
               </div>
-              <div className="space-y-2">
-                <Label>Terms</Label>
-                <Input value={form.terms} onChange={(e) => setForm({ ...form, terms: e.target.value })} />
-              </div>
-              <Button onClick={handleCreate} disabled={saving} className="w-full">
-                {saving ? "Creating..." : "Create Promotion"}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       <div className="space-y-3">
@@ -155,16 +166,20 @@ export function PromotionsList({ promotions: initialPromos, hotels }: Promotions
                   </p>
                   {p.description && <p className="text-xs text-muted-foreground">{p.description}</p>}
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => handleDelete(p.id)}>
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
+                {isAnalyst && (
+                  <Button variant="ghost" size="icon" onClick={() => handleDelete(p.id)}>
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                )}
               </CardContent>
             </Card>
           );
         })}
         {promotions.length === 0 && (
           <div className="text-center py-12 text-muted-foreground">
-            No promotions yet. Create your first promotion.
+            {isAnalyst
+              ? "No promotions yet. Create your first promotion."
+              : "No promotions are available for your hotel yet."}
           </div>
         )}
       </div>

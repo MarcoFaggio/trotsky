@@ -29,7 +29,7 @@ This guide covers deploying the web app to Vercel, setting up a production datab
 
 ### Redis (optional but recommended)
 
-Needed for "Run scrape now", "Refresh", and scheduled scrapes.
+Needed for "Run scrape now", "Refresh", scheduled scrapes, recommendation queues, and shared rate limits across server instances.
 
 1. Sign up at [upstash.com](https://upstash.com)
 2. Create a Redis database, copy the URL:
@@ -70,7 +70,13 @@ Settings → Environment Variables → add for **Production** (and Preview if de
 | `DATABASE_URL` | Your Postgres connection string | Yes |
 | `JWT_SECRET` | `openssl rand -hex 32` output | Yes |
 | `JWT_REFRESH_SECRET` | Another `openssl rand -hex 32` output | Yes |
-| `REDIS_URL` | Your Upstash Redis URL | No |
+| `REDIS_URL` | Your Upstash Redis URL | No, but recommended |
+| `INQUIRY_AI_PROVIDER` | `heuristic` unless live AI is implemented | No |
+| `INQUIRY_PUBLIC_AI_ANALYSIS` | `false` only if public capture should skip auto-analysis | No |
+| `INQUIRY_UI_ANALYZE` | `false` only if the Analyze control should be disabled | No |
+| `NEXT_PUBLIC_DISCOUNT_ADR_THRESHOLD` | ADR warning threshold, default `12` | No |
+| `NEXT_PUBLIC_DISCOUNT_SHARE_THRESHOLD` | Discount share warning threshold, default `35` | No |
+| `NEXT_PUBLIC_SHOW_DEMO_CREDENTIALS` | `true` only for demo environments | No |
 
 Save and **Redeploy** (Deployments → ... → Redeploy).
 
@@ -83,16 +89,11 @@ From your local machine, with the **same** `DATABASE_URL` as Vercel:
 ```bash
 # Set production DATABASE_URL in your .env
 pnpm --filter @hotel-pricing/db exec prisma generate
-pnpm --filter @hotel-pricing/db exec prisma migrate deploy
+pnpm db:migrate:deploy
 pnpm db:seed
 ```
 
-If `migrate deploy` fails on an empty DB, use `prisma db push` instead:
-
-```bash
-pnpm --filter @hotel-pricing/db exec prisma db push
-pnpm db:seed
-```
+`migrate deploy` should be the normal production path, including for an empty database. Avoid `prisma db push` in production because it bypasses migration history; reserve it for a deliberate emergency recovery where data loss and schema drift have been assessed.
 
 After this, open your Vercel URL and log in with **analyst@example.com / Password123!**
 
@@ -107,8 +108,9 @@ The worker (`apps/worker`) processes scrape jobs and recomputes recommendations.
 1. New project → deploy from repo
 2. Set root directory to repo root
 3. Add env vars: `DATABASE_URL`, `REDIS_URL` (same values as Vercel)
-4. Build: `pnpm install && pnpm --filter @hotel-pricing/worker build`
-5. Start: `node apps/worker/dist/index.js`
+4. Optional schedule env: `SCRAPE_CRON` (default `0 */2 * * *`), `SIGNAL_CRON` (default `15 */6 * * *`), `HOTEL_GEO_CRON` (default `45 2 * * *`)
+5. Build: `pnpm install && pnpm --filter @hotel-pricing/worker build`
+6. Start: `node apps/worker/dist/index.js`
 
 ### Render
 
@@ -133,12 +135,15 @@ Everything works except "Run scrape now" and "Refresh" — they'll return a mess
 - [ ] PostgreSQL created and `DATABASE_URL` set in Vercel
 - [ ] `JWT_SECRET` and `JWT_REFRESH_SECRET` set in Vercel (long random strings)
 - [ ] (Optional) Redis created and `REDIS_URL` set in Vercel
+- [ ] Production rate limiting strategy confirmed (`REDIS_URL` set for shared limits, or accepted in-memory fallback)
 - [ ] Root Directory set to `apps/web`
 - [ ] Build/Install commands left empty (using vercel.json)
 - [ ] Redeployed after adding env vars
 - [ ] Migrations and seed run against production DB
 - [ ] Login works at Vercel URL
 - [ ] (Optional) Worker deployed elsewhere with same DATABASE_URL and REDIS_URL
+- [ ] Public `/inquire` tested for success, validation error, and rate-limit behavior
+- [ ] Analyst and client smoke tests pass: dashboard, promotions, inquiries, messages, and logout
 
 ---
 

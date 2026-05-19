@@ -55,8 +55,10 @@ Returns current user info from JWT.
 
 **Success (200):**
 ```json
-{ "id": "uuid", "email": "analyst@example.com", "role": "ANALYST" }
+{ "user": { "id": "uuid", "email": "analyst@example.com", "role": "ANALYST" } }
 ```
+
+**Errors:** 401 with `{ "user": null }` when no valid access token is present.
 
 ### Health
 
@@ -93,6 +95,25 @@ Creates an **`Inquiry`** for a hotel from the public **`/inquire`** form (no aut
 | 429 | Rate limit (per IP; key `public-inquiry:<ip>`) |
 | 500 | Server error |
 
+### Hotel search
+
+#### `GET /api/v1/hotels/search?query=hotel`
+
+Search active hotels by name, city, or PMS name. Analyst only.
+
+**Success (200):**
+```json
+{
+  "results": [
+    { "id": "uuid", "name": "Demo Hotel", "city": "Dublin", "pmsName": "demo", "thumbnailUrl": null }
+  ]
+}
+```
+
+Returns an empty result set when `query` is missing or shorter than two characters. Response is privately cacheable for 10 minutes.
+
+**Errors:** 401 (no session), 403 (not analyst).
+
 ### Dashboard data
 
 #### `GET /api/v1/dashboard/[hotelId]?range=14`
@@ -117,6 +138,19 @@ Queue a scrape refresh job for a hotel. Analyst only.
 
 **Errors:** 401, 403 (not analyst), 404 (hotel not found), 503 (Redis not configured).
 
+### Scraping
+
+#### `POST /api/scrape`
+
+Queue a portfolio scrape job. Analyst only.
+
+**Success (200):**
+```json
+{ "jobId": "123", "message": "Scrape job queued" }
+```
+
+**Errors:** 403 (missing session or not analyst), 503 (Redis not configured), 500 (queue error).
+
 ---
 
 ## Server actions
@@ -139,7 +173,8 @@ Server actions are called directly from React components. They enforce auth via 
 
 | Action | Auth | Description |
 |--------|------|-------------|
-| `getOverviewData(hotelId, range)` | Hotel access | Full dashboard data for date range |
+| `getDashboardData(hotelId, startDate, endDate)` | Hotel access | Full dashboard day rows for an explicit date range |
+| `getHotelSummary(hotelId)` | Hotel access | Compact hotel summary for cards/header surfaces |
 
 ### Occupancy & pricing (`actions/occupancy.ts`)
 
@@ -161,7 +196,7 @@ Server actions are called directly from React components. They enforce auth via 
 | Action | Auth | Description |
 |--------|------|-------------|
 | `getRatePlans(hotelId)` | Hotel access | List rate plans for hotel |
-| `createRatePlan(data)` | Hotel access | Create rate plan (code, name, discount %) |
+| `createRatePlan(data)` | Analyst | Create rate plan (code, name, discount %) |
 | `updateRatePlan(data)` | Analyst | Update rate plan fields |
 | `getDiscountMix(hotelId, date)` | Hotel access | Discount mix for hotel + date |
 | `saveDiscountMix(data)` | Analyst | Replace discount mix for hotel + date |
@@ -188,11 +223,11 @@ Server actions are called directly from React components. They enforce auth via 
 
 | Action | Auth | Description |
 |--------|------|-------------|
-| `getThreads(hotelId?)` | Any user | Message threads for accessible hotels |
-| `createThread(data)` | Any user | Start a new thread |
-| `getMessages(threadId)` | Any user | Messages in a thread |
-| `sendMessage(data)` | Any user | Send a message in a thread |
+| `getThreadsForUser()` | Any user | Message threads for accessible hotels |
+| `getThread(threadId)` | Thread/hotel access | Thread detail plus messages; marks unread messages read |
+| `sendMessage(data)` | Hotel access | Send a message; creates the thread when `threadId` is omitted |
 | `resolveThread(threadId)` / `reopenThread(threadId)` | Analyst | Change thread status |
+| `getUnreadCount()` | Any user | Count unread messages in accessible threads |
 
 ### Inquiries (`actions/inquiries.ts`)
 
@@ -227,6 +262,6 @@ API routes return JSON with an `error` field and appropriate HTTP status codes.
 | Endpoint | Limit | Window |
 |----------|-------|--------|
 | `POST /api/auth/login` | 5 attempts | 15 minutes per IP |
-| `POST /api/inquiries/public` | Configured in `rate-limiter` | Per IP (`public-inquiry:*`) |
+| `POST /api/inquiries/public` | 5 attempts | 15 minutes per IP (`public-inquiry:*`) |
 
-Rate limiting is in-memory (resets on deploy).
+Rate limiting uses Redis when `REDIS_URL` is set, which keeps limits shared across instances. Without Redis, it falls back to in-memory limits that reset on deploy.

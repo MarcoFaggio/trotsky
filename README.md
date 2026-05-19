@@ -74,16 +74,20 @@ Copy `.env.example` to `.env` and configure:
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `DATABASE_URL` | Yes | PostgreSQL connection string |
-| `REDIS_URL` | No | Redis URL — needed for scrape/refresh jobs |
+| `REDIS_URL` | No | Redis URL — needed for scrape/refresh jobs and shared rate limits across deployed instances |
 | `JWT_SECRET` | Yes | Access token signing key. **Must be set in production** (app will crash without it) |
 | `JWT_REFRESH_SECRET` | Yes | Refresh token signing key. **Must be set in production** |
 | `SCRAPE_MODE` | No | `mock` (default) or `real` (uses Playwright) |
-| `OPENAI_API_KEY` | No | For AI-powered rate explanations and inquiry analysis |
-| `ANTHROPIC_API_KEY` | No | Alternative AI provider |
+| `SCRAPE_CRON` | No | Worker scrape schedule, default `0 */2 * * *` |
+| `SIGNAL_CRON` | No | Worker external-signal ingestion schedule, default `15 */6 * * *` |
+| `HOTEL_GEO_CRON` | No | Worker hotel geocoding schedule, default `45 2 * * *` |
+| `OPENAI_API_KEY` | No | Reserved for future live inquiry AI calls; current provider falls back to heuristic analysis |
 | `INQUIRY_AI_PROVIDER` | No | `heuristic` by default; placeholder for future `openai` inquiry analysis |
 | `INQUIRY_AI_MODEL` | No | Placeholder model name for future inquiry analysis, e.g. `gpt-4o-mini` |
-| `DISCOUNT_ADR_THRESHOLD` | No | ADR warning threshold % below BAR (default: 12) |
-| `DISCOUNT_SHARE_THRESHOLD` | No | Discount share warning threshold % (default: 35) |
+| `INQUIRY_PUBLIC_AI_ANALYSIS` | No | Set to `false` to skip automatic analysis on public inquiry capture |
+| `INQUIRY_UI_ANALYZE` | No | Set to `false` to hide/disable the in-app Analyze action |
+| `NEXT_PUBLIC_DISCOUNT_ADR_THRESHOLD` | No | Client-side ADR warning threshold % below BAR (default: 12) |
+| `NEXT_PUBLIC_DISCOUNT_SHARE_THRESHOLD` | No | Client-side discount share warning threshold % (default: 35) |
 | `NEXT_PUBLIC_SHOW_DEMO_CREDENTIALS` | No | Set to `true` to show demo login credentials |
 
 **Security note:** In production, `JWT_SECRET` and `JWT_REFRESH_SECRET` must be long random strings (e.g. `openssl rand -hex 32`). The app throws on startup if these are missing in production.
@@ -158,7 +162,7 @@ Without the worker, "Run scrape now" and "Refresh" return an error; everything e
 | `/events` | All | Events + external signal management |
 | `/inquiries` | All | Inquiry inbox — **analyst:** all hotels; **client:** assigned hotels only |
 | `/messages` | All | Threaded messaging per hotel |
-| `/promotions` | Analyst | Promotion CRUD |
+| `/promotions` | All | Promotion view for assigned hotels; analyst-only create/delete |
 | `/portfolio` | Analyst | Cross-hotel KPI overview |
 | `/admin/scrapes` | Analyst | Scrape run history + manual trigger |
 
@@ -174,7 +178,7 @@ Access is enforced at three levels: middleware (JWT), server actions (RBAC helpe
 
 ---
 
-## Data model (18 entities)
+## Data model
 
 **Core:** User, Hotel, HotelAccess, Competitor, HotelCompetitor, HotelListing, CompetitorListing
 
@@ -182,7 +186,11 @@ Access is enforced at three levels: middleware (JWT), server actions (RBAC helpe
 
 **Operations:** OccupancyEntry, Event, Promotion, RatePlan, DiscountMix
 
-**Pipeline:** ScrapeRun, ScrapeError, ExternalSignal, HotelSignalImpact
+**Pipeline:** ScrapeRun, ScrapeError, ExternalSignal, HotelSignalImpact, SecurityEvent
+
+**Collaboration:** MessageThread, Message
+
+**Inquiries:** Inquiry, InquiryMessage, GroupRfp, InquiryProposal
 
 See [Product documentation](docs/PRODUCT-DOCUMENTATION.md) for full entity descriptions and relationships.
 
@@ -207,6 +215,7 @@ See [Deploying to Vercel](docs/DEPLOY.md) for step-by-step deployment instructio
 | [Trosky overview](docs/TROSKY-OVERVIEW.md) | What the product is, architecture, inquiry slice, recent ship themes |
 | [Analyst & client user guide](docs/USER-GUIDE-ANALYST-AND-CLIENT.md) | Sidebar, permissions, `/inquiries` by role, public `/inquire` |
 | [AI inquiry layer](docs/AI-INQUIRY-LAYER.md) | Inquiry domain model, flows, phases, AI/heuristic direction |
+| [Tech & UX hardening](docs/TECH-UX-HARDENING.md) | Production hardening checklist, UX acceptance criteria, quality gates |
 | [Product documentation](docs/PRODUCT-DOCUMENTATION.md) | Full spec: roles, auth flows, user flows, feature reference, data model, business rules, glossary |
 | [Dashboard guide](docs/DASHBOARD-GUIDE.md) | Screen-by-screen walkthrough of dashboard UI |
 | [Deploy guide](docs/DEPLOY.md) | Vercel + database + worker deployment |

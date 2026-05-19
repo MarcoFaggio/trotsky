@@ -7,13 +7,13 @@ This document explains every part of the Trosky UI and how the pieces fit togeth
 ## 1. Login & roles
 
 **Login page (`/login`)**  
-- Email + password. Demo users: **analyst@example.com** and **client@example.com** (password: **Password123!**).
+- Email + password. Demo shortcuts appear only when `NEXT_PUBLIC_SHOW_DEMO_CREDENTIALS=true`; seeded demo users are **analyst@example.com** and **client@example.com** (password: **Password123!**).
 - Session: short-lived access token + refresh token (stored in httpOnly cookies). Idle timeout is effectively ~30 min via token expiry.
 - Login is rate-limited (5 attempts per 15 minutes per IP).
 
 **Two roles**  
 - **ANALYST** — Full access: all hotels, create/edit hotels, competitors, occupancy, promotions, scrape admin, price overrides, events.
-- **CLIENT** — Read-only access to **one assigned hotel** only. No edit buttons, no Hotels/Promotions/Occupancy/Admin in the sidebar.
+- **CLIENT** — Read-only access to assigned hotel(s). No edit buttons, no Hotels/Occupancy/Admin in the sidebar; Promotions is visible as a scoped read-only page.
 
 ---
 
@@ -24,12 +24,12 @@ This document explains every part of the Trosky UI and how the pieces fit togeth
 - **Hotels** — List of all hotels (analyst only).
 - **Occupancy** — Bulk occupancy entry (analyst only).
 - **Pace / OTB** — Pace vs last year and STR-like index (both roles, scoped to allowed hotels).
-- **Promotions** — CRUD for promotions (analyst only).
+- **Promotions** — Analysts create/delete promotions; clients view promotions for their assigned hotel(s).
 - **Scrape Admin** — Run scrape now, view runs/errors (analyst only).
 - **Sign Out** at the bottom.
 
 **Top bar**  
-- **Hotel selector** — Dropdown to pick the “current” hotel. Analysts see all active hotels; clients see only their assigned one. Used for context when you open a hotel or go to Pace.
+- **Hotel selector** — Dropdown/search to pick the “current” hotel. Analysts see all active hotels; clients see only assigned hotels. Used for context when you open a hotel or go to Pace.
 - **User badge** — Role (ANALYST / CLIENT) and email.
 
 ---
@@ -45,7 +45,7 @@ This document explains every part of the Trosky UI and how the pieces fit togeth
 - Clicking a card goes to that hotel’s **Hotel dashboard** (`/hotels/[id]`).
 
 **Client view**  
-- Redirects straight to the **Hotel dashboard** of their single assigned hotel (no multi-hotel list).
+- Redirects to an assigned **Hotel dashboard** (no portfolio-wide list).
 
 ---
 
@@ -225,18 +225,22 @@ Data comes from the same occupancy/OTB entries you edit on the Occupancy page.
 
 ---
 
-## 10. Promotions page (`/promotions`) — Analyst only
+## 10. Promotions page (`/promotions`)
 
 **Purpose**  
-Create and manage promotions (date-range offers) per hotel.
+Create, manage, or view promotions (date-range offers) per hotel.
 
-**List**  
+**Analyst list**  
 - Each row: promotion **title**, **hotel name**, **start – end date**, **description**, Active/Inactive badge (based on whether today is inside the range).  
 - **Delete** (trash) per row.
 
 **Add Promotion**  
 - Dialog: Hotel, Title, Description, Start date, End date, Terms.  
 - Saves and shows in the list; promotions that cover a given date appear in the Day Detail modal and can be used in logic (e.g. recommendation or alerts).
+
+**Client view**  
+- Shows only promotions attached to hotels the client can access.
+- Create and delete controls are hidden; server-side mutation actions remain analyst-only.
 
 ---
 

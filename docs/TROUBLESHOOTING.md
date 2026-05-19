@@ -120,6 +120,14 @@ pnpm db:seed
 
 The worker isn't deployed. The worker is a separate long-running process — it can't run on Vercel. Deploy it on Railway, Render, or a VPS. See [Deploy guide](DEPLOY.md#6-worker-deployment-optional).
 
+### Public inquiry returns "Too many inquiry submissions"
+
+The public inquiry endpoint is rate-limited by IP.
+
+- In production, set `REDIS_URL` so limits are shared across server instances.
+- In local/dev without Redis, limits are in-memory and reset when the web process restarts.
+- If this happens during testing, wait for the 15-minute window or restart the local dev process.
+
 ---
 
 ## Data issues

@@ -2,6 +2,8 @@
 
 This document describes **what Trosky is**, **who it is for**, how the **system is structured**, and **what has shipped recently**. Use it as the high-level entry point; deeper behavior lives in [PRODUCT-DOCUMENTATION.md](./PRODUCT-DOCUMENTATION.md), [AI-INQUIRY-LAYER.md](./AI-INQUIRY-LAYER.md), and [USER-GUIDE-ANALYST-AND-CLIENT.md](./USER-GUIDE-ANALYST-AND-CLIENT.md).
 
+For production readiness and experience standards, use [TECH-UX-HARDENING.md](./TECH-UX-HARDENING.md) as the quality gate before demos, releases, and larger feature work.
+
 ---
 
 ## What Trosky is
@@ -103,6 +105,7 @@ This section records major themes shipped in the Trosky repo (landing, auth, dat
 | [USER-GUIDE-ANALYST-AND-CLIENT.md](./USER-GUIDE-ANALYST-AND-CLIENT.md) | Day-to-day usage by role |
 | [PRODUCT-DOCUMENTATION.md](./PRODUCT-DOCUMENTATION.md) | Full product spec |
 | [AI-INQUIRY-LAYER.md](./AI-INQUIRY-LAYER.md) | Inquiry product & technical design |
+| [TECH-UX-HARDENING.md](./TECH-UX-HARDENING.md) | Production hardening, security, reliability, and UX standards |
 | [API.md](./API.md) | HTTP routes and server actions index |
 | [DEPLOY.md](./DEPLOY.md) | Production deployment |
 | [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) | Common failures (DB, EMFILE, etc.) |

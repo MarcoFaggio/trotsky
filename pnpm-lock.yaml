@@ -188,6 +188,9 @@ importers:
       '@types/bcryptjs':
         specifier: ^3.0.0
         version: 3.0.0
+      '@types/node':
+        specifier: ^20.11.0
+        version: 20.19.35
       argon2:
         specifier: ^0.40.0
         version: 0.40.3
