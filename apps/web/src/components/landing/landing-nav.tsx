@@ -41,17 +41,17 @@ export function LandingNav() {
       <nav className="mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="group flex items-center gap-2.5 font-landing-display text-xl font-semibold tracking-tight text-foreground"
+          className="group flex min-w-0 items-center gap-2.5 font-landing-display text-xl font-semibold tracking-tight text-foreground"
         >
           <motion.span
-            className="flex h-9 w-9 items-center justify-center"
+            className="flex h-10 w-10 shrink-0 items-center justify-center sm:h-11 sm:w-11"
             whileHover={reduced ? undefined : { rotate: -6, scale: 1.05 }}
             transition={{ type: "spring", stiffness: 400, damping: 22 }}
           >
-            <TroskyMark priority className="h-9 w-9" />
+            <TroskyMark priority className="h-9 w-9 sm:h-10 sm:w-10" />
           </motion.span>
-          <span className="flex flex-col leading-none">
-            <span>Trosky</span>
+          <span className="hidden min-w-0 flex-col leading-none sm:flex">
+            <span className="truncate">Trosky</span>
             <span className="mt-0.5 text-[10px] font-normal uppercase tracking-[0.2em] text-muted-foreground">
               Revenue Intelligence
             </span>

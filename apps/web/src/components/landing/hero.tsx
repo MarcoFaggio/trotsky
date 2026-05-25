@@ -39,7 +39,10 @@ export function Hero() {
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="mb-7"
             >
-              <TroskyMark priority className="h-24 w-24 sm:h-28 sm:w-28" />
+              <TroskyMark
+                priority
+                className="h-24 w-24 rounded-2xl p-2 sm:h-28 sm:w-28 sm:p-2.5"
+              />
             </motion.div>
 
             <motion.div

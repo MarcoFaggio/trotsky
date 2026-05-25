@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@hotel-pricing/db";
-import { AppShell } from "./app-shell";
+import { TroskyShell } from "@/components/trosky";
 
 export default async function AppLayout({
   children,
@@ -62,7 +62,7 @@ export default async function AppLayout({
   });
 
   return (
-    <AppShell
+    <TroskyShell
       user={{
         email: user.email,
         role: user.role,
@@ -73,6 +73,6 @@ export default async function AppLayout({
       upcomingEvents={upcomingEvents}
     >
       {children}
-    </AppShell>
+    </TroskyShell>
   );
 }

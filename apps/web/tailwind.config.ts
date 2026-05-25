@@ -6,6 +6,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        trosky: {
+          red: "hsl(var(--trosky-red))",
+          "red-dark": "hsl(var(--trosky-red-dark))",
+          soft: "hsl(var(--trosky-red-soft))",
+          ink: "hsl(var(--trosky-ink))",
+          muted: "hsl(var(--trosky-muted))",
+          border: "hsl(var(--trosky-border))",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -47,6 +55,8 @@ const config: Config = {
         },
       },
       fontFamily: {
+        trosky: ["var(--font-trosky)", "system-ui", "sans-serif"],
+        sans: ["var(--font-trosky)", "system-ui", "sans-serif"],
         "landing-display": [
           "var(--font-landing-display)",
           "Georgia",
@@ -55,6 +65,7 @@ const config: Config = {
         "landing-sans": ["var(--font-landing-body)", "system-ui", "sans-serif"],
       },
       borderRadius: {
+        "2xl": "1rem",
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",

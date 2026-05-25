@@ -16,9 +16,9 @@ export default async function PublicInquiryPage() {
     <main className="min-h-screen bg-background">
       <div className="mx-auto grid min-h-screen max-w-6xl gap-10 px-6 py-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-10">
         <section className="space-y-8">
-          <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold">
-            <TroskyMark className="h-8 w-8" />
-            Trosky
+          <Link href="/" className="inline-flex min-w-0 items-center gap-2.5 text-sm font-semibold">
+            <TroskyMark className="h-9 w-9" />
+            <span className="truncate text-trosky-ink dark:text-foreground">Trosky</span>
           </Link>
           <div className="space-y-4">
             <p className="text-sm font-medium uppercase tracking-[0.18em] text-muted-foreground">

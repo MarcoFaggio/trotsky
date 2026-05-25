@@ -6,12 +6,25 @@ Color palette, typography, chart colors, and visual guidelines.
 
 ## Color palette
 
+### Trosky cockpit tokens (`globals.css`)
+
+| Token | Hex | Usage |
+|-------|-----|-------|
+| `--trosky-red` | `#D5171E` | Primary brand, urgent CTAs, active nav accent |
+| `--trosky-red-dark` | `#A80E15` | Hover on primary actions |
+| `--trosky-red-soft` | `#F6F1F1` | Soft panels, active nav background (desktop) |
+| `--trosky-ink` | `#0E1523` | Headings, primary text in app |
+| `--trosky-muted` | `#657681` | Captions, secondary labels |
+| `--trosky-border` | `#DAD9DB` | Card and shell borders |
+
+Reusable UI: `apps/web/src/components/trosky/` (`TroskyShell`, `TroskyPageHeader`, `TroskyMetricCard`, etc.).
+
 ### Semantic colors (CSS variables in `globals.css`)
 
 | Token | Usage | HSL / Hex |
 |-------|-------|-----|
-| `foreground` | Primary body text, muted ink family | `#424040` / `0 2% 25.5%` |
-| `primary` | Our hotel, main CTAs, active states | `#A60101` / `0 99% 33%` |
+| `foreground` | Primary body text | maps to `--trosky-ink` |
+| `primary` | Our hotel, main CTAs, active states | `#D5171E` / `358 81% 46%` |
 | `secondary` | Muted backgrounds, secondary buttons | warm red-tinted neutral |
 | `destructive` | Errors, delete actions, dark-mode primary base | `#780000` / `0 100% 23.5%` |
 | `muted` | Disabled, placeholder text | warm red-tinted neutral |

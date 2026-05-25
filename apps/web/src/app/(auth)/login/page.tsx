@@ -69,7 +69,10 @@ export default function LoginPage() {
       <Card className="relative w-full max-w-md overflow-hidden border-border/80 bg-card/90 shadow-2xl shadow-black/[0.08] backdrop-blur-xl dark:border-white/10 dark:shadow-black/50">
         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-primary to-landing-emerald" />
         <CardHeader className="space-y-1 text-center">
-          <TroskyMark priority className="mx-auto mb-4 h-20 w-20 sm:h-24 sm:w-24" />
+          <TroskyMark
+            priority
+            className="mx-auto mb-4 h-20 w-20 rounded-2xl p-2 sm:h-24 sm:w-24 sm:p-2.5"
+          />
           <CardTitle className="text-2xl">Trosky</CardTitle>
           <CardDescription>
             Sign in to manage your hotel pricing strategy

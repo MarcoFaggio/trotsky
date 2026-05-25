@@ -36,7 +36,7 @@ echo "Seeding demo data..."
 pnpm db:seed
 
 echo ""
-echo "Starting web app at http://localhost:3000"
+echo "Starting web app at http://localhost:3030"
 echo "Log in with: analyst@example.com / Password123!"
 echo ""
 pnpm --filter @hotel-pricing/web dev

@@ -13,9 +13,9 @@ export function LandingFooter() {
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
-            <motion.div className="flex items-center gap-2 font-landing-display text-lg font-semibold">
+            <motion.div className="flex min-w-0 items-center gap-2.5 font-landing-display text-lg font-semibold">
               <TroskyMark className="h-10 w-10" />
-              Trosky
+              <span className="truncate">Trosky</span>
             </motion.div>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
               Automated competitor intelligence and AI-backed rates — so revenue teams spend less time in spreadsheets and more time winning share.

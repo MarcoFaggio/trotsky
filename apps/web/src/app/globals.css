@@ -4,31 +4,41 @@
 
 @layer base {
   :root {
+    /* Trosky brand — red-and-white revenue cockpit */
+    --trosky-red: 358 81% 46%; /* #D5171E */
+    --trosky-red-dark: 357 85% 36%; /* #A80E15 */
+    --trosky-red-soft: 0 33% 95%; /* #F6F1F1 */
+    --trosky-ink: 221 43% 10%; /* #0E1523 */
+    --trosky-muted: 206 12% 45%; /* #657681 */
+    --trosky-border: 270 3% 85%; /* #DAD9DB */
+
+    --font-trosky: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+      "Segoe UI", Roboto, sans-serif;
     --font-landing-body: "DM Sans", Manrope, Avenir Next, Segoe UI, system-ui, sans-serif;
     --font-landing-display: Fraunces, Georgia, Cambria, Times New Roman, serif;
-    --background: 42 34% 98%;
-    --foreground: 0 2% 25.5%;
+    --background: 0 33% 98%;
+    --foreground: 221 43% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 0 2% 25.5%;
+    --card-foreground: 221 43% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 2% 25.5%;
-    --primary: 0 99% 33%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 3% 94%;
-    --secondary-foreground: 0 2% 25.5%;
-    --muted: 0 3% 93%;
-    --muted-foreground: 0 2% 35%;
-    --accent: 0 4% 92%;
-    --accent-foreground: 0 2% 25.5%;
-    --destructive: 0 100% 23.5%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 4% 87%;
-    --input: 0 4% 87%;
-    --ring: 0 99% 33%;
-    --radius: 0.625rem;
+    --popover-foreground: 221 43% 10%;
+    --primary: 358 81% 46%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 33% 95%;
+    --secondary-foreground: 221 43% 10%;
+    --muted: 0 20% 96%;
+    --muted-foreground: 206 12% 45%;
+    --accent: 0 33% 95%;
+    --accent-foreground: 221 43% 10%;
+    --destructive: 357 85% 36%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 270 3% 85%;
+    --input: 270 3% 85%;
+    --ring: 358 81% 46%;
+    --radius: 1rem;
     --chart-grid: 214.3 31.8% 91.4%;
     --chart-axis: 0 2% 37%;
-    --chart-primary: 0 99% 33%;
+    --chart-primary: 358 81% 46%;
     --chart-comparison: 0 2% 48%;
     --chart-recommended: 164 82% 42%;
     --chart-occupancy: 263 70% 64%;
@@ -41,10 +51,10 @@
     --chart-series-6: 258 90% 66%;
     --chart-series-7: 190 90% 48%;
     /* Landing accents — red family only */
-    --landing-emerald: 0 99% 33%;
-    --landing-amber: 0 99% 40%;
-    --landing-violet: 0 100% 24%;
-    --landing-sky: 0 100% 24%;
+    --landing-emerald: 358 81% 46%;
+    --landing-amber: 38 92% 50%;
+    --landing-violet: 357 85% 36%;
+    --landing-sky: 357 85% 36%;
   }
 
   /* Landing page: light theme with white gradient */
@@ -58,28 +68,29 @@
   }
 
   .dark {
-    --background: 0 18% 4.5%;
-    --foreground: 210 40% 98%;
-    --card: 0 13% 7%;
-    --card-foreground: 210 40% 98%;
-    --popover: 0 13% 7%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 0 100% 23.5%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 10% 13%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 0 9% 13%;
-    --muted-foreground: 0 4% 72%;
-    --accent: 0 16% 17%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 100% 23.5%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 0 13% 20%;
-    --input: 0 13% 20%;
-    --ring: 0 99% 33%;
+    --trosky-red-soft: 221 20% 14%;
+    --background: 221 43% 6%;
+    --foreground: 0 20% 98%;
+    --card: 221 35% 9%;
+    --card-foreground: 0 20% 98%;
+    --popover: 221 35% 9%;
+    --popover-foreground: 0 20% 98%;
+    --primary: 358 75% 52%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 221 25% 14%;
+    --secondary-foreground: 0 20% 98%;
+    --muted: 221 20% 14%;
+    --muted-foreground: 206 12% 65%;
+    --accent: 221 25% 16%;
+    --accent-foreground: 0 20% 98%;
+    --destructive: 357 85% 40%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 221 18% 18%;
+    --input: 221 18% 18%;
+    --ring: 358 75% 52%;
     --chart-grid: 0 13% 22%;
     --chart-axis: 0 5% 74%;
-    --chart-primary: 0 99% 33%;
+    --chart-primary: 358 81% 46%;
     --chart-comparison: 0 3% 58%;
     --chart-recommended: 164 82% 48%;
     --chart-occupancy: 263 70% 66%;
@@ -123,6 +134,28 @@
       radial-gradient(900px 520px at 12% -10%, hsl(var(--primary) / 0.08), transparent 62%),
       radial-gradient(760px 420px at 100% 0%, hsl(var(--primary) / 0.06), transparent 58%),
       hsl(var(--background));
+  }
+
+  /* Authenticated Trosky cockpit */
+  .trosky-cockpit-bg {
+    background:
+      radial-gradient(ellipse 80% 50% at 0% -8%, hsl(var(--trosky-red) / 0.06), transparent 55%),
+      radial-gradient(ellipse 60% 40% at 100% 0%, hsl(var(--trosky-red-soft) / 0.9), transparent 50%),
+      hsl(0 0% 100%);
+  }
+
+  .dark .trosky-cockpit-bg {
+    background:
+      radial-gradient(ellipse 70% 45% at 0% -5%, hsl(var(--trosky-red) / 0.12), transparent 55%),
+      hsl(var(--background));
+  }
+
+  .trosky-main-scroll {
+    scrollbar-gutter: stable;
+  }
+
+  .trosky-app :where(h1, h2, h3, h4, p, span, a, button, label, td, th) {
+    overflow-wrap: anywhere;
   }
 
   .app-surface {
