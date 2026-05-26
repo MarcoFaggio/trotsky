@@ -2,7 +2,9 @@
 
 **Trosky** is hotel revenue intelligence software: competitive rate tracking from OTAs (scraped or mock), occupancy and pace views, events and promotions on the calendar, AI-assisted rate recommendations, and an **inquiry inbox** so planners and guests can submit leads (`/inquire`) while analysts and hotel clients triage them in-app (`/inquiries`).
 
-**Who uses it:** **Analysts** (Trosky / revenue team — full portfolio, scrapes, settings). **Clients** (hotel stakeholders — assigned hotels, read-only pricing cockpit plus inquiries for their properties). See [docs/TROSKY-OVERVIEW.md](docs/TROSKY-OVERVIEW.md) and [docs/USER-GUIDE-ANALYST-AND-CLIENT.md](docs/USER-GUIDE-ANALYST-AND-CLIENT.md).
+**Who uses it:** **Analysts** (Trosky / revenue team — full portfolio, scrapes, settings). **Clients** (hotel stakeholders — assigned hotels, read-only pricing cockpit plus inquiries for their properties).
+
+**Action-first MVP:** Command centre, revenue actions queue, rate calendar, and evidence drawer for worker-generated pricing/event/demand actions (seed demo data labelled and hidden in production unless `TROSKY_DEMO_MODE=true`). See [docs/REVENUE-ACTION-SYSTEM.md](docs/REVENUE-ACTION-SYSTEM.md), [docs/TROSKY-OVERVIEW.md](docs/TROSKY-OVERVIEW.md), and [docs/USER-GUIDE-ANALYST-AND-CLIENT.md](docs/USER-GUIDE-ANALYST-AND-CLIENT.md).
 
 ## Quick start
 
@@ -88,7 +90,10 @@ Copy `.env.example` to `.env` and configure:
 | `INQUIRY_UI_ANALYZE` | No | Set to `false` to hide/disable the in-app Analyze action |
 | `NEXT_PUBLIC_DISCOUNT_ADR_THRESHOLD` | No | Client-side ADR warning threshold % below BAR (default: 12) |
 | `NEXT_PUBLIC_DISCOUNT_SHARE_THRESHOLD` | No | Client-side discount share warning threshold % (default: 35) |
-| `NEXT_PUBLIC_SHOW_DEMO_CREDENTIALS` | No | Set to `true` to show demo login credentials |
+| `NEXT_PUBLIC_SHOW_DEMO_CREDENTIALS` | No | Set to `true` to show demo login credentials on `/login` |
+| `TROSKY_DEMO_MODE` | No | `true` = show seed/demo RevenueActions; `false` = hide; unset = visible in dev, hidden in production |
+
+**Demo data:** Seed actions must not be treated as live hotel intelligence. In production keep `TROSKY_DEMO_MODE` unset or `false` unless this deploy is an intentional demo tenant. Details: [docs/REVENUE-ACTION-SYSTEM.md](docs/REVENUE-ACTION-SYSTEM.md).
 
 **Security note:** In production, `JWT_SECRET` and `JWT_REFRESH_SECRET` must be long random strings (e.g. `openssl rand -hex 32`). The app throws on startup if these are missing in production.
 
@@ -153,7 +158,9 @@ Without the worker, "Run scrape now" and "Refresh" return an error; everything e
 | `/` | Public | Marketing landing (redirects to `/dashboard` if valid session cookie) |
 | `/login` | Public | Email/password login |
 | `/inquire` | Public | Guest/planner inquiry form → creates lead + heuristic analysis |
-| `/dashboard` | All | Multi-hotel overview (analyst) or redirect to assigned hotel (client) |
+| `/dashboard` | All | **Command centre** — prioritized revenue actions, metrics, rate chart |
+| `/actions` | All | Revenue actions triage (analyst workflow; client read-only) |
+| `/rate-calendar` | All | Calendar of day status from live rates + actions |
 | `/hotels` | Analyst | Hotel list + create |
 | `/hotels/[id]` | All | Hotel dashboard — rate matrix, calendar, summary cards |
 | `/hotels/[id]/settings` | Analyst | Hotel config — general, competitors, rate plans |
@@ -182,7 +189,7 @@ Access is enforced at three levels: middleware (JWT), server actions (RBAC helpe
 
 **Core:** User, Hotel, HotelAccess, Competitor, HotelCompetitor, HotelListing, CompetitorListing
 
-**Rates:** DailyRate, ReviewSnapshot, PriceOverride, Recommendation
+**Rates:** DailyRate, ReviewSnapshot, PriceOverride, Recommendation, **RevenueAction**
 
 **Operations:** OccupancyEntry, Event, Promotion, RatePlan, DiscountMix
 
@@ -212,8 +219,9 @@ See [Deploying to Vercel](docs/DEPLOY.md) for step-by-step deployment instructio
 
 | Document | What it covers |
 |----------|---------------|
-| [Trosky overview](docs/TROSKY-OVERVIEW.md) | What the product is, architecture, inquiry slice, recent ship themes |
-| [Analyst & client user guide](docs/USER-GUIDE-ANALYST-AND-CLIENT.md) | Sidebar, permissions, `/inquiries` by role, public `/inquire` |
+| [Trosky overview](docs/TROSKY-OVERVIEW.md) | What the product is, architecture, recent ship themes |
+| [Revenue action system](docs/REVENUE-ACTION-SYSTEM.md) | Command centre, actions, calendar, demo mode, filtering |
+| [Analyst & client user guide](docs/USER-GUIDE-ANALYST-AND-CLIENT.md) | Sidebar, permissions, revenue actions, `/inquiries` |
 | [AI inquiry layer](docs/AI-INQUIRY-LAYER.md) | Inquiry domain model, flows, phases, AI/heuristic direction |
 | [Tech & UX hardening](docs/TECH-UX-HARDENING.md) | Production hardening checklist, UX acceptance criteria, quality gates |
 | [Feature & UX audit](docs/FEATURE-UX-AUDIT.md) | Unique feature inventory, quality score, and prioritized frontend strengthening backlog |

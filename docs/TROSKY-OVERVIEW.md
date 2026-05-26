@@ -47,8 +47,13 @@ Both roles share the **same app shell** (sidebar, hotel selector where applicabl
 | Marketing / landing | Public | `/` (logged-out users; logged-in users with valid session redirect to `/dashboard`) |
 | Login | Public | `/login` |
 | Public inquiry form | Public (guests / planners) | `/inquire` → `POST /api/inquiries/public` |
-| Dashboard & hotel cockpit | Authenticated | `/dashboard`, `/hotels/[id]`, `/pace`, `/events`, `/promotions`, … |
+| Command centre | Authenticated | `/dashboard` — prioritized **RevenueActions**, metrics, rate chart |
+| Revenue actions | Authenticated | `/actions` — full triage queue (analyst workflow; client read-only) |
+| Rate calendar | Authenticated | `/rate-calendar` — day-level urgency from actions + rates |
+| Hotel cockpit (matrix/calendar) | Authenticated | `/hotels/[id]`, `/pace`, `/events`, `/promotions`, … |
 | Inquiry inbox | Authenticated | `/inquiries` (same route; **scope** differs by role) |
+
+**Action-first flow:** Analysts and clients land on the command centre, open **evidence** from an action card, and use **Revenue actions** for full filtering. See [REVENUE-ACTION-SYSTEM.md](./REVENUE-ACTION-SYSTEM.md).
 
 ---
 
@@ -65,35 +70,41 @@ Live OpenAI (or similar) calls are **placeholders** until explicitly wired; the 
 
 ## Recent engineering work (summary)
 
-This section records major themes shipped in the Trosky repo (landing, auth, data, tooling). For file-level history, use `git log`.
+This section records major themes shipped in the Trosky repo. For file-level history, use `git log`.
 
-### Revenue cockpit & data
+### Action-first revenue MVP
 
-- Prisma migrations including **daily rate uniqueness** and **inquiry / AI inquiry layer** tables.
-- Shared schemas/types extended for inquiries and analysis payloads.
-- Worker jobs aligned with scrapes and recommendation recompute where touched.
+- **`RevenueAction`** model and workflow: `PRICE_CHANGE`, `EVENT_PRICING`, `WATCH_DEMAND`, plus seed types for demos.
+- **Command centre** (`/dashboard`), **Revenue actions** (`/actions`), **Rate calendar** (`/rate-calendar`), **evidence drawer** (insight panel).
+- Worker-generated live actions (`RECOMMENDATION`, `EVENT_DEMAND`); seed rows labelled **Demo data**.
+- **Production/demo separation:** `TROSKY_DEMO_MODE` + server-side `filterActionsForDemoMode()` — see [REVENUE-ACTION-SYSTEM.md](./REVENUE-ACTION-SYSTEM.md).
 
-### Web app — marketing & UX
+### UX polish & theming
 
-- **Landing page** refresh: hero with competitive-rate **chart preview** (theme-aware colors, gradient bars, solid grid/lines, motion), **comparison** section (“efficiency divide”) with animated underlines, **CTAs** and **mobile** layout polish, **dark mode** tuning.
-- Chart colors resolved from CSS variables (`use-chart-theme-colors`) so SVG matches light/dark theme.
-- **Middleware** allows Next.js internals under `/_next/` early so dev assets are not accidentally gated.
+- Command centre: scope/freshness header, live vs demo strip, role-specific empties, mutation error copy.
+- Action cards: human urgency/confidence labels, client read-only notes, evidence-first CTAs.
+- **Dark mode** across authenticated app: semantic surfaces in `globals.css` and `trosky-primitives` (`bg-card`, `border-border`).
+- **Product tour** (~40 steps): sidebar, command centre, actions, calendar, theme toggle; versioned in `localStorage`.
 
-### Inquiry feature (frontend + backend)
+### Revenue cockpit & data (legacy + ongoing)
 
-- **`/inquire`** public page and form; **`/inquiries`** authenticated inbox for **analysts** (all hotels) and **clients** (assigned hotels only).
-- Server actions: list, detail, create, update status, messages, RFP/proposal shells, **analyzeInquiry**.
-- Public API **`POST /api/inquiries/public`** with validation and rate limiting.
+- Prisma migrations including **daily rate uniqueness**, **inquiry layer**, and **RevenueAction** tables.
+- Hotel dashboard matrix/calendar/day detail remain the deep-dive pricing cockpit at `/hotels/[id]`.
+
+### Inquiry feature
+
+- **`/inquire`** public form; **`/inquiries`** inbox (analyst: all hotels; client: assigned only).
+- Heuristic analysis (`INQUIRY_AI_PROVIDER=heuristic`); model-ready JSON shape.
 
 ### Tooling & ops
 
-- Root **`pnpm`** scripts use **`pnpm exec dotenv -e .env`** so `db:migrate:deploy`, `db:seed`, etc. load `.env` reliably across environments.
-- **`scripts/dev-local.sh`** — macOS-friendly dev (ulimit, Docker, Next).
-- **`scripts/cleanup-macos-appledouble.py`** — removes `._*` AppleDouble files on external volumes.
+- Web dev on **port 3030**; `pnpm dev` with polling for external drives.
+- **`pnpm cleanup:appledouble`** / `scripts/cleanup-macos-appledouble.py` — remove macOS `._*` files (important on T7/USB before `next dev` / `next build`).
+- Root **`pnpm exec dotenv -e .env`** for migrate/seed; **`scripts/dev-local.sh`** for macOS ulimit + Docker.
 
 ### Documentation
 
-- This overview, **USER-GUIDE-ANALYST-AND-CLIENT**, README updates, PRODUCT-DOCUMENTATION and API updates for inquiries and public routes.
+- [REVENUE-ACTION-SYSTEM.md](./REVENUE-ACTION-SYSTEM.md), [TECH-UX-HARDENING.md](./TECH-UX-HARDENING.md), deploy/demo env notes in [DEPLOY.md](./DEPLOY.md) and `.env.example`.
 
 ---
 
@@ -105,6 +116,7 @@ This section records major themes shipped in the Trosky repo (landing, auth, dat
 | [USER-GUIDE-ANALYST-AND-CLIENT.md](./USER-GUIDE-ANALYST-AND-CLIENT.md) | Day-to-day usage by role |
 | [PRODUCT-DOCUMENTATION.md](./PRODUCT-DOCUMENTATION.md) | Full product spec |
 | [AI-INQUIRY-LAYER.md](./AI-INQUIRY-LAYER.md) | Inquiry product & technical design |
+| [REVENUE-ACTION-SYSTEM.md](./REVENUE-ACTION-SYSTEM.md) | RevenueActions, demo mode, surfaces, filtering |
 | [TECH-UX-HARDENING.md](./TECH-UX-HARDENING.md) | Production hardening, security, reliability, and UX standards |
 | [FEATURE-UX-AUDIT.md](./FEATURE-UX-AUDIT.md) | Unique feature inventory and prioritized frontend strengthening backlog |
 | [API.md](./API.md) | HTTP routes and server actions index |

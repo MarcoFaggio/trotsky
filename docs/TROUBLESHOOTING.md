@@ -73,10 +73,37 @@ Local dev uses a **fixed port (3030)** — open **http://localhost:3030**. If yo
 Another process is using the dev port:
 
 ```bash
-lsof -ti:3030 | xargs kill
+lsof -ti:3030 | xargs kill -9
 ```
 
 Or change the port in `apps/web/package.json` (`next dev -p …`).
+
+### `Cannot find module './4308.js'` (or similar webpack chunk)
+
+Stale or corrupted **`.next`** cache — common after interrupted builds or editing on an **external drive** (T7/USB).
+
+```bash
+lsof -ti:3030 | xargs kill -9 2>/dev/null
+cd /path/to/Trotsky
+pnpm cleanup:appledouble
+rm -rf apps/web/.next
+pnpm --filter @hotel-pricing/web dev
+```
+
+Do not run `next build` and `next dev` against the same `.next` folder at the same time. If it persists, run a clean `pnpm --filter @hotel-pricing/web exec next build` once, then restart dev.
+
+### Demo actions missing locally (or visible in production)
+
+Controlled by **`TROSKY_DEMO_MODE`** (server-side, not `NEXT_PUBLIC_`):
+
+| Setting | Effect |
+|---------|--------|
+| Unset + `NODE_ENV=development` | Demo/seed actions **visible** |
+| `TROSKY_DEMO_MODE=false` | Demo actions **hidden** everywhere |
+| `TROSKY_DEMO_MODE=true` | Demo actions **visible** (labelled) |
+| Production, unset or `false` | Demo actions **hidden** |
+
+See [REVENUE-ACTION-SYSTEM.md](REVENUE-ACTION-SYSTEM.md).
 
 ---
 
@@ -157,10 +184,15 @@ Check Hotel Settings → ensure competitors have valid weights and min/max rates
 
 ## macOS-specific
 
-### `._*` files appearing
+### `._*` files appearing (AppleDouble)
 
-These are macOS resource fork files. They're in `.gitignore` and harmless. To clean them up locally:
+macOS creates resource-fork sidecar files on external volumes. They can confuse Next/webpack and cause missing-chunk errors.
+
+**Preferred cleanup:**
 
 ```bash
-find . -name "._*" -not -path "*/node_modules/*" -not -path "*/.next/*" -delete
+pnpm cleanup:appledouble
+# same as: python3 scripts/cleanup-macos-appledouble.py .
 ```
+
+Run after copying the repo to a USB drive or before `next dev` / `next build` if you see odd module errors. Then remove `.next` and restart dev (see webpack chunk section above).

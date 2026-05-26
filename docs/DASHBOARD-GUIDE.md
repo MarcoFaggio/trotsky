@@ -20,8 +20,10 @@ This document explains every part of the Trosky UI and how the pieces fit togeth
 ## 2. App shell (after login)
 
 **Sidebar (left)**  
-- **Dashboard** — Multi-hotel overview (analyst) or redirect to your hotel (client).
-- **Hotels** — List of all hotels (analyst only).
+- **Command centre** (`/dashboard`) — Prioritized revenue actions, metrics, 14-day rate vs comp chart.
+- **Revenue actions** (`/actions`) — Full triage queue with category filters.
+- **Rate calendar** (`/rate-calendar`) — Day-level urgent / watch / opportunity / healthy from rates + actions.
+- **Hotels** — List of all hotels (analyst only); hotel cockpit at `/hotels/[id]` (matrix + calendar).
 - **Occupancy** — Bulk occupancy entry (analyst only).
 - **Pace / OTB** — Pace vs last year and STR-like index (both roles, scoped to allowed hotels).
 - **Promotions** — Analysts create/delete promotions; clients view promotions for their assigned hotel(s).
@@ -34,26 +36,65 @@ This document explains every part of the Trosky UI and how the pieces fit togeth
 
 ---
 
-## 3. Dashboard (`/dashboard`)
+## 3. Command centre (`/dashboard`)
 
-**Analyst view**  
-- **Summary cards** (top): Total hotels, average “today” rate across hotels, average occupancy today, count of recommendations today.
-- **Hotel cards** (grid): One card per active hotel with:
-  - Hotel name, “Active” badge.
-  - Today’s **rate**, **occupancy %**, and **recommended rate** (AI).
-  - Room count and competitor count.
-- Clicking a card goes to that hotel’s **Hotel dashboard** (`/hotels/[id]`).
+The default landing experience after login (action-first MVP).
 
-**Client view**  
-- Redirects to an assigned **Hotel dashboard** (no portfolio-wide list).
+**Analyst**  
+- **Scope:** Portfolio or single hotel (hotel selector / scope badge).
+- **Metrics:** Estimated upside, urgent action/date counts, pending actions, parity/event counts — prefer **live** worker actions when both live and demo exist.
+- **Status strip:** “System-generated” vs “Demo data” when applicable (demo only visible when `TROSKY_DEMO_MODE` allows).
+- **Highest priority:** Top live action (demo ranked below live).
+- **Action queue:** Up to seven cards; **View evidence** opens the insight drawer.
+- **Rate chart:** 14-day your rate vs comp median for chart hotel.
+- **Workflow:** Accept / reject / snooze / complete on cards (analyst only). Accept = intent only, not PMS push.
+
+**Client**  
+- Same command centre for assigned hotel(s); read-only workflow; evidence drawer without mutate controls.
+
+**Empty state:** “Trosky has not found active revenue actions…” — not “demo hidden” (analysts may see a separate subtle line when seed rows exist but demo mode is off).
+
+See [REVENUE-ACTION-SYSTEM.md](./REVENUE-ACTION-SYSTEM.md) for demo/production rules.
 
 ---
 
-## 4. Hotel dashboard (`/hotels/[id]`)
+## 4. Revenue actions (`/actions`)
+
+Full list for the selected hotel.
+
+- **Filters:** Active, Pricing, Events, Watch, Archived; **Demo / beta** only when demo mode is enabled.
+- **Hotel selector** (analyst, multiple hotels).
+- **Cards:** Urgency, confidence, stay date, source badge (live vs **Demo data**).
+- **Evidence drawer** from any card.
+
+---
+
+## 5. Rate calendar (`/rate-calendar`)
+
+Month-style view of upcoming stay dates.
+
+- **Day cards:** Status (urgent, watch, opportunity, healthy, no data), your rate, comp reference, gap, top action title.
+- **View evidence** per day when an action applies (live actions only affect status when demo mode is off).
+- Summary counts: urgent / watch / healthy / opportunity days.
+
+---
+
+## 6. Evidence drawer (insight panel)
+
+Opened from command centre, actions, or calendar.
+
+- **Sections:** Summary, rates/delta, comp context, event/watch callouts, explanation, freshness.
+- **Demo callout** when the row is seed/demo.
+- **Raw JSON** (analyst only, when permitted).
+- Hidden demo actions return **not found** when demo mode is disabled (direct links included).
+
+---
+
+## 7. Hotel dashboard (`/hotels/[id]`)
 
 This is the main “revenue” view for one property. It has: summary cards, two view modes (Rate Matrix and Calendar), and the Day Detail modal.
 
-### 4.1 Summary cards (top of hotel dashboard)
+### 7.1 Summary cards (top of hotel dashboard)
 
 One row of cards for **today** (start of the selected date range):
 
@@ -71,7 +112,7 @@ One row of cards for **today** (start of the selected date range):
 **Discount warning**  
 - If the system detects ADR too far below BAR or discount share above threshold, a **Discount warning** card/badge can appear (also reflected in the Day Detail modal).
 
-### 4.2 View toggle: Rate Matrix vs Calendar
+### 7.2 View toggle: Rate Matrix vs Calendar
 
 - **Rate Matrix** — Predictive Minds–style grid + chart.
 - **Calendar** — ChoiceMAX-style month grid; click a day → Day Detail modal.
@@ -82,7 +123,7 @@ One row of cards for **today** (start of the selected date range):
 
 ---
 
-## 5. Rate Matrix view (Predictive Minds style)
+## 8. Rate Matrix view (Predictive Minds style)
 
 **Purpose**  
 Compare our rate and competitors day-by-day and see the AI recommendation and occupancy in one place.
@@ -115,7 +156,7 @@ Compare our rate and competitors day-by-day and see the AI recommendation and oc
 
 ---
 
-## 6. Calendar view (ChoiceMAX style)
+## 9. Calendar view (ChoiceMAX style)
 
 **Purpose**  
 Month-at-a-glance with rate and occupancy; drill into any day for full detail.
@@ -137,7 +178,7 @@ Month-at-a-glance with rate and occupancy; drill into any day for full detail.
 
 ---
 
-## 7. Day Detail modal (ChoiceMAX-inspired)
+## 10. Day Detail modal (ChoiceMAX-inspired)
 
 **Purpose**  
 Single-day deep dive: pricing, competitors, occupancy, OTB, ADR/revenue, events/promotions, and (for analysts) edits.
@@ -181,7 +222,7 @@ Single-day deep dive: pricing, competitors, occupancy, OTB, ADR/revenue, events/
 
 ---
 
-## 8. Occupancy page (`/occupancy`) — Analyst only
+## 11. Occupancy page (`/occupancy`) — Analyst only
 
 **Purpose**  
 Bulk enter or edit occupancy and last-year data for the next 30 days.
@@ -201,7 +242,7 @@ Weekend rows can be lightly styled. Data from here feeds the dashboard summary, 
 
 ---
 
-## 9. Pace / OTB page (`/pace`)
+## 12. Pace / OTB page (`/pace`)
 
 **Purpose**  
 See booking pace vs last year and a simple STR-like performance index.
@@ -225,7 +266,7 @@ Data comes from the same occupancy/OTB entries you edit on the Occupancy page.
 
 ---
 
-## 10. Promotions page (`/promotions`)
+## 13. Promotions page (`/promotions`)
 
 **Purpose**  
 Create, manage, or view promotions (date-range offers) per hotel.
@@ -244,7 +285,7 @@ Create, manage, or view promotions (date-range offers) per hotel.
 
 ---
 
-## 11. Hotels list & settings (Analyst only)
+## 14. Hotels list & settings (Analyst only)
 
 **Hotels list (`/hotels`)**  
 - Cards: hotel name, PMS name or address, status (Active/Inactive), room count, competitor count, listing count.  
@@ -262,7 +303,7 @@ Create, manage, or view promotions (date-range offers) per hotel.
 
 ---
 
-## 12. Scrape Admin (`/admin/scrapes`) — Analyst only
+## 15. Scrape Admin (`/admin/scrapes`) — Analyst only
 
 **Purpose**  
 Trigger a scrape run and see history.
@@ -278,7 +319,7 @@ Trigger a scrape run and see history.
 
 ---
 
-## 13. How the data fits together
+## 16. How the data fits together
 
 - **Hotels & competitors** — One hotel has many competitors (with weights) and OTA listings (Expedia required, Booking optional).  
 - **Daily rates** — Stored per listing per date (our hotel + each competitor); source = scrape run or mock.  
@@ -291,7 +332,7 @@ Trigger a scrape run and see history.
 
 ---
 
-## 14. What you have now (summary)
+## 17. What you have now (summary)
 
 You have a single **Trosky** app where:
 

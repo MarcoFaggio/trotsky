@@ -1,6 +1,6 @@
 # Trosky Feature & UX Audit
 
-Date: 2026-05-19
+Date: 2026-05-19 (updated 2026-05-26 for action-first MVP and demo-mode hardening)
 
 Scope: current Trosky product surface, with emphasis on unique software value, frontend quality, onboarding, accessibility, responsiveness, theming, and technical hardening.
 
@@ -12,7 +12,8 @@ Trosky is strongest when it explains why a hotel should care about a date.
 
 | Feature | Why It Is Distinctive | Current Surface |
 |---------|------------------------|-----------------|
-| Revenue cockpit | Combines our rate, comp average, recommendation, occupancy, pace, events, promos, and alerts instead of splitting them across tools. | `/dashboard`, `/hotels/[id]` |
+| Revenue action queue | Prioritized pricing/event/demand work with evidence drawer and analyst workflow — action-first landing. | `/dashboard`, `/actions`, `/rate-calendar` |
+| Revenue cockpit | Combines our rate, comp average, recommendation, occupancy, pace, events, promos, and alerts instead of splitting them across tools. | `/hotels/[id]` (matrix/calendar) |
 | Rate matrix + calendar | Gives both analyst-grade grid comparison and calendar-style date scanning. | Matrix/Calendar tabs |
 | Day detail modal | One-date operating view: price, comp set, occupancy, ADR/revenue, events, promotions, discount warnings, overrides. | Dashboard date click |
 | AI-ready inquiry layer | Public demand capture becomes structured lead, intent, missing fields, RFP details, and proposal shell. | `/inquire`, `/inquiries` |
@@ -29,7 +30,7 @@ Trosky is strongest when it explains why a hotel should care about a date.
 | 1 | Accessibility | 2/4 | Several forms use visible labels that are not programmatically associated with controls. |
 | 2 | Performance | 3/4 | Build is healthy; chart-heavy routes are acceptable but could use focused route/component optimization. |
 | 3 | Responsive Design | 3/4 | Mobile shell is deliberate; dense forms and tables need more mobile-specific refinement. |
-| 4 | Theming | 3/4 | Token system is strong, but semantic colors are still hard-coded in many feature components. |
+| 4 | Theming | 3/4 | Dark mode and semantic tokens improved on Trosky shell; some legacy screens may still hard-code light-only colors. |
 | 5 | Anti-Patterns | 3/4 | App screens are mostly operational and distinctive; landing still leans on gradient/glass/card patterns. |
 | **Total** | | **14/20** | **Good: strong product foundation, with accessibility and design-system consistency as the main strengthening path.** |
 

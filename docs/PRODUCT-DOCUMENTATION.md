@@ -32,6 +32,7 @@ Complete product documentation for **Trosky**: user flows, features, data model,
 - **Promotions and events** — Date-range promotions and single-day events, shown on matrix/calendar and in day detail.
 - **Discount control** — Rate plans (BAR, AAA, etc.), discount mix per date, ADR-based warnings when discount impact is high.
 - **Scraping** — Mock or real (Playwright) OTA scrapers; admin can run a scrape and see runs/errors.
+- **Revenue actions (action-first)** — Command centre, **`/actions`** triage, **`/rate-calendar`**, and evidence drawer for worker-generated pricing/event/demand actions; seed demo rows labelled and hidden in production unless `TROSKY_DEMO_MODE=true` (see [REVENUE-ACTION-SYSTEM.md](./REVENUE-ACTION-SYSTEM.md)).
 - **Inquiry capture & inbox** — Public **`/inquire`** form; authenticated **`/inquiries`** for triage; heuristic (model-ready) analysis on create/re-analyze (see [AI-INQUIRY-LAYER.md](./AI-INQUIRY-LAYER.md)).
 
 ### 1.2 Who uses it
@@ -146,7 +147,9 @@ To add a user today: run a script or insert into `User` and, for clients, into `
 | `/login` | Login page | Allowed (usually redirect if already logged in) | Same |
 | `/` | Landing (logged out) or redirect | Logged out: landing; logged in: redirect to `/dashboard` | Same |
 | `/inquire` | Public inquiry form | Public | Public |
-| `/dashboard` | Overview or redirect | Multi-hotel dashboard | Redirect to `/hotels/[assignedId]` |
+| `/dashboard` | Command centre (revenue actions, metrics, chart) | Yes — portfolio or hotel scope | Yes — assigned hotel scope |
+| `/actions` | Revenue actions triage queue | Yes — workflow mutations | Yes — read-only |
+| `/rate-calendar` | Day-level action/rate calendar | Yes | Yes — read-only evidence |
 | `/inquiries` | Inquiry inbox & detail | Yes — **all** hotels | Yes — **assigned** hotels only |
 | `/hotels` | Hotel list | Yes | No (403/redirect) |
 | `/hotels/new` | Create hotel form | Yes | No |
@@ -510,6 +513,8 @@ Use this section as the product-level acceptance bar. The deeper release checkli
 - **Price override** — Analyst-set rate for a hotel/date that overrides the scraped “our rate” everywhere.
 - **Rate plan** — Named rate type (BAR, AAA, Senior, etc.) with an optional discount % off BAR.
 - **Recommendation** — AI-suggested price for a hotel/date from competitor anchor, occupancy, pace, events, and guardrails.
+- **Revenue action** — A prioritized workflow item (e.g. price change, event pricing, watch demand) with evidence, urgency, and status; may be **live** (worker) or **demo** (seed). See [REVENUE-ACTION-SYSTEM.md](./REVENUE-ACTION-SYSTEM.md).
+- **Demo mode** — `TROSKY_DEMO_MODE` controls whether seed/demo revenue actions appear on user-facing surfaces; production defaults to hidden.
 - **Scrape run** — One execution of the scraping pipeline (mock or real) producing DailyRate and ReviewSnapshot and optionally ScrapeErrors.
 - **STLY** — Same time last year (comparison metrics).
 - **STR-like** — Similar to STR (Smith Travel Research) reporting; here, ADR index vs comp set (our ADR / comp avg ADR × 100).
@@ -517,4 +522,4 @@ Use this section as the product-level acceptance bar. The deeper release checkli
 
 ---
 
-This document describes **Trosky** as implemented: authentication (login, session, logout), user roles (Analyst vs Client), every route and who can access it, step-by-step user flows for analysts and clients, and a full feature and data reference. User provisioning is via seed or future admin (no self-service signup). For dashboard-level detail of each screen component, see **DASHBOARD-GUIDE.md**.
+This document describes **Trosky** as implemented: authentication (login, session, logout), user roles (Analyst vs Client), every route and who can access it, step-by-step user flows for analysts and clients, and a full feature and data reference. User provisioning is via seed or future admin (no self-service signup). For screen-level detail see **DASHBOARD-GUIDE.md**; for revenue actions and demo/production rules see **REVENUE-ACTION-SYSTEM.md**.

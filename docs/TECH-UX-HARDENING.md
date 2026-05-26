@@ -10,6 +10,8 @@ Use this document as the release-quality checklist for Trosky. It turns the prod
 - **Graceful AI posture:** Inquiry analysis is deterministic by default and shaped like future model output.
 - **Queue isolation:** The web app can run without the worker; Redis-backed jobs power scrapes and recomputation when available.
 - **Structured data foundation:** Prisma models capture rates, occupancy, events, promotions, signals, messages, inquiries, RFPs, and proposals.
+- **Action-first revenue MVP:** Command centre, `/actions`, `/rate-calendar`, and evidence drawer around `RevenueAction` rows (live worker output + labelled seed demo).
+- **Production/demo separation:** Seed actions hidden in production unless `TROSKY_DEMO_MODE=true`; server-side filtering on all user-facing action surfaces (see [REVENUE-ACTION-SYSTEM.md](./REVENUE-ACTION-SYSTEM.md)).
 
 ## 2. Security Hardening
 
@@ -49,6 +51,7 @@ Use this document as the release-quality checklist for Trosky. It turns the prod
 - Production schema changes should use Prisma migrations and `pnpm db:migrate:deploy`.
 - Avoid `prisma db push` in production except for a deliberate emergency recovery.
 - Seed data is useful for demos, but production demo credentials should be rotated or disabled before real customer use.
+- **RevenueAction demo rows** must not appear on production dashboards unless `TROSKY_DEMO_MODE=true`. Treat demo metrics and calendar urgency as non-authoritative when demo mode is on.
 - Backups and restore drills should exist before storing real hotel/client inquiry data.
 
 ### 3.3 Worker and queues
@@ -104,6 +107,18 @@ Use this document as the release-quality checklist for Trosky. It turns the prod
 - Calendar and matrix cues should have text/badges in addition to color.
 - Export actions should be visible only where allowed and should export the current scoped data.
 
+### 5.5 Action-first surfaces (command centre, actions, rate calendar)
+
+- **Command centre** (`/dashboard`): Shows scoped active actions, metrics (prefer live-only when both live and demo exist), freshness line, highest-priority block, and rate vs comp chart. Empty state must not imply fake urgency when only hidden demo rows exist.
+- **Revenue actions** (`/actions`): Category filters (Active, Pricing, Events, Watch, Archived); **Demo / beta** only when `TROSKY_DEMO_MODE` allows. Demo rows show **Demo data** badges via `getRevenueActionSourceMeta`.
+- **Rate calendar** (`/rate-calendar`): Day status (urgent / watch / opportunity / healthy) must reflect **live** actions only when demo mode is off.
+- **Evidence drawer:** Demo callouts when visible; `not_found` when demo is hidden (including for analysts). Clients remain read-only with clear footer copy.
+- **Dark mode:** Authenticated shell uses semantic tokens (`bg-card`, `border-border`, Trosky primitives) — avoid hardcoded `bg-white` on operational surfaces.
+
+### 5.6 Onboarding tour
+
+- Product tour (Joyride) covers sidebar, command centre, revenue actions, rate calendar, and theme toggle. Version stored in `localStorage` (`trosky:onboardingComplete:version`). Re-run after major navigation changes by bumping tour version in code.
+
 ## 6. Release Checklist
 
 Before a demo or production release:
@@ -118,6 +133,10 @@ Before a demo or production release:
 - [ ] Worker is either deployed and healthy or explicitly out of scope for the release.
 - [ ] Production env includes required secrets and database URL.
 - [ ] Public demo credentials are hidden unless intentionally enabled.
+- [ ] `TROSKY_DEMO_MODE` is unset or `false` in production (unless this deploy is an intentional demo tenant).
+- [ ] Command centre, `/actions`, and `/rate-calendar` show live worker actions after scrape + recompute; no seed-only urgency in production.
+- [ ] Direct URL to a seed action evidence drawer returns not found when demo mode is off.
+- [ ] `pnpm cleanup:appledouble` run on external-disk checkouts before release builds (macOS T7/USB).
 
 ## 7. Priority Backlog
 

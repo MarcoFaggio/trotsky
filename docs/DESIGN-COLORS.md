@@ -19,6 +19,12 @@ Color palette, typography, chart colors, and visual guidelines.
 
 Reusable UI: `apps/web/src/components/trosky/` (`TroskyShell`, `TroskyPageHeader`, `TroskyMetricCard`, etc.).
 
+### Dark mode (authenticated app)
+
+- `.dark` in `globals.css` overrides Trosky cockpit tokens and maps semantic shadcn variables (`background`, `card`, `border`, `muted-foreground`, etc.).
+- Prefer **semantic classes** in components: `bg-card`, `border-border`, `text-muted-foreground` — avoid hardcoded `bg-white` on operational surfaces.
+- Shared patterns: `apps/web/src/components/trosky/trosky-primitives.ts` (`troskySurfaces`).
+
 ### Semantic colors (CSS variables in `globals.css`)
 
 | Token | Usage | HSL / Hex |

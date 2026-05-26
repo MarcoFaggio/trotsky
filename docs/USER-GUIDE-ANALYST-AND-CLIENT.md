@@ -25,17 +25,19 @@ Trosky **revenue team**: full portfolio visibility, configuration, scraping, and
 
 ### Sidebar (typical order)
 
-Dashboard · Portfolio · Manage Hotels · Events · Occupancy · Pace · Promotions · **Inquiries** · Messages · Scrape Admin  
+Command centre · **Revenue actions** · **Rate calendar** · Portfolio · Manage Hotels · Events · Occupancy · Pace · Promotions · **Inquiries** · Messages · Scrape Admin  
 
-*(Exact labels match the app; Promotions/Messages may vary slightly.)*
+*(Exact labels match the app.)*
 
 ### What you can do
 
 | Area | Actions |
 |------|---------|
-| **Portfolio / Dashboard** | Multi-hotel KPIs; open any hotel card → hotel dashboard. |
-| **Manage Hotels** | List, create hotel, open **`/hotels/new`**, edit **`/hotels/[id]/settings`** (general, competitors, rate plans). |
-| **Hotel dashboard** | Rate matrix, calendar, day detail, **price overrides**, export CSV. |
+| **Command centre** | Prioritized revenue actions, metrics, rate chart; workflow on action cards. |
+| **Revenue actions** | Full triage queue; filters; accept/reject/snooze/complete. |
+| **Rate calendar** | Day-level urgency from rates + actions; open evidence per day. |
+| **Portfolio / Hotels** | Multi-hotel KPIs; hotel cockpit at **`/hotels/[id]`** (matrix, calendar, overrides). |
+| **Manage Hotels** | List, create hotel, **`/hotels/new`**, **`/hotels/[id]/settings`**. |
 | **Occupancy** | Bulk edit next ~30 days for any hotel. |
 | **Events / Promotions** | Create and manage across hotels you manage. |
 | **Pace** | OTB vs last year, ADR index — any hotel. |
@@ -61,7 +63,7 @@ Use this inbox when **guests submit `/inquire`** or when leads are entered manua
 
 ### Sidebar (order in app)
 
-Dashboard · Events · Promotions · **Inquiries** · **Message Trosky** · Pace / OTB  
+Command centre · **Revenue actions** · **Rate calendar** · Events · Promotions · **Inquiries** · **Message Trosky** · Pace / OTB  
 
 You do **not** see: Portfolio, Manage Hotels, Occupancy, Scrape Admin.
 
@@ -69,8 +71,10 @@ You do **not** see: Portfolio, Manage Hotels, Occupancy, Scrape Admin.
 
 | Area | Detail |
 |------|--------|
-| **Dashboard** | Redirects to **your** hotel dashboard (`/hotels/[id]`). |
-| **Hotel dashboard** | View matrix, calendar, day detail — **no** overrides, **no** occupancy edits, **no** add-event from analyst-only controls. |
+| **Command centre** | Your hotel’s prioritized actions; **read-only** workflow; open **evidence** on any card. |
+| **Revenue actions** | View and filter actions for your hotel; no accept/reject/snooze. |
+| **Rate calendar** | See which dates need attention; evidence drawer read-only. |
+| **Hotel dashboard** (`/hotels/[id]`) | Matrix, calendar, day detail — **no** overrides or analyst edits. |
 | **Events / Promotions** | **View** what Trosky/analysts configured (per product rules — confirm in-app). |
 | **Pace** | Your hotel only (or selectable among hotels you access). |
 | **Messages** | Contact Trosky / threads for your hotel. |
@@ -102,6 +106,7 @@ Hotel teams respond from **`/inquiries`** after the lead appears.
 
 | Capability | Analyst | Client |
 |------------|---------|--------|
+| Command centre / revenue actions / rate calendar | Yes (workflow on actions) | Yes (read-only) |
 | Portfolio / all hotels | Yes | No |
 | Hotel settings, competitors, scrapes | Yes | No |
 | Bulk occupancy | Yes | No |
@@ -115,6 +120,7 @@ Hotel teams respond from **`/inquiries`** after the lead appears.
 ## Related docs
 
 - [TROSKY-OVERVIEW.md](./TROSKY-OVERVIEW.md) — product and architecture summary  
+- [REVENUE-ACTION-SYSTEM.md](./REVENUE-ACTION-SYSTEM.md) — revenue actions, demo mode, evidence drawer  
 - [AI-INQUIRY-LAYER.md](./AI-INQUIRY-LAYER.md) — inquiry domain and roadmap  
 - [PRODUCT-DOCUMENTATION.md](./PRODUCT-DOCUMENTATION.md) — full route and feature reference  
 - [TECH-UX-HARDENING.md](./TECH-UX-HARDENING.md) — release hardening and UX acceptance criteria  
