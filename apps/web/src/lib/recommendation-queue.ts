@@ -1,6 +1,8 @@
 import { Queue } from "bullmq";
 import Redis from "ioredis";
 
+/** Price-change RevenueActions are upserted in the worker after recompute (see revenue-action-builder). */
+
 export async function queueRecommendationRecompute(
   hotelId: string,
   trigger: string

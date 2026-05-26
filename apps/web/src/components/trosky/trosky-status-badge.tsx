@@ -8,8 +8,8 @@ const troskyStatusBadgeVariants = cva(
     variants: {
       variant: {
         neutral:
-          "border-trosky-border bg-white text-trosky-muted dark:border-white/15 dark:bg-card dark:text-muted-foreground",
-        info: "border-trosky-border bg-trosky-soft text-trosky-ink dark:border-white/15",
+          "border-border bg-muted/60 text-muted-foreground",
+        info: "border-border bg-accent text-accent-foreground",
         success:
           "border-emerald-200/80 bg-emerald-50 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300",
         warning:

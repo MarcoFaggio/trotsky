@@ -54,14 +54,14 @@ export function TopBar({
   }
 
   return (
-    <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-trosky-border bg-white/90 px-3 backdrop-blur-md dark:border-white/10 dark:bg-card/90 sm:px-4 lg:px-6">
+    <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-border bg-card/90 px-3 backdrop-blur-md sm:px-4 lg:px-6">
       <div className="flex min-w-0 flex-1 items-center gap-3 overflow-hidden">
         {isAnalyst ? (
           <HotelSearch onSelect={onHotelChange} />
         ) : (
           <div
             data-tour="hotel-name"
-            className="truncate text-sm font-medium text-trosky-ink"
+            className="truncate text-sm font-medium text-foreground"
           >
             {hotels.find((h) => h.id === selectedHotelId)?.name ||
               "Your Hotel"}
@@ -71,7 +71,7 @@ export function TopBar({
 
       <div className="flex shrink-0 items-center gap-2">
         {lastUpdated && (
-          <div className="hidden items-center gap-1.5 text-xs text-trosky-muted sm:flex">
+          <div className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
             <Clock className="h-3 w-3" />
             <span>Updated {timeAgo(lastUpdated)}</span>
           </div>
@@ -81,6 +81,7 @@ export function TopBar({
           <Button
             variant="ghost"
             size="sm"
+            data-tour="top-bar-refresh"
             onClick={onRefresh}
             disabled={isRefreshing}
             className="h-9 gap-1.5 rounded-full text-xs"
@@ -95,6 +96,7 @@ export function TopBar({
         {isAnalyst && (
           <Button
             size="sm"
+            data-tour="top-bar-add-hotel"
             className="h-9 gap-1.5 rounded-full bg-trosky-red text-white hover:bg-trosky-red-dark"
             asChild
           >
@@ -116,12 +118,12 @@ export function TopBar({
               data-tour="user-menu"
               className="h-9 gap-2 rounded-full pl-1.5 pr-2 sm:pr-3"
             >
-              <div className="flex h-7 w-7 items-center justify-center rounded-full border border-trosky-border bg-trosky-soft">
-                <User className="h-3.5 w-3.5 text-trosky-muted" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-full border border-border bg-muted">
+                <User className="h-3.5 w-3.5 text-muted-foreground" />
               </div>
               <Badge
                 variant="secondary"
-                className="max-w-[5.5rem] truncate border-trosky-border bg-trosky-soft px-1.5 py-0 text-[10px] font-medium text-trosky-ink"
+                className="max-w-[5.5rem] truncate px-1.5 py-0 text-[10px] font-medium"
               >
                 {user.role}
               </Badge>

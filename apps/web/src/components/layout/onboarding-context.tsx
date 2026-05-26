@@ -4,6 +4,8 @@ import { createContext, useContext } from "react";
 
 type OnboardingContextValue = {
   startTour: () => void;
+  isTransitioning: boolean;
+  transitionMessage: string | null;
 };
 
 const OnboardingContext = createContext<OnboardingContextValue | null>(null);

@@ -111,7 +111,9 @@ export function RateMatrix({ days, competitors, onCellClick }: RateMatrixProps) 
                     {fmt(d.ourRate)}
                   </span>
                   {d.overrideRate && (
-                    <div className="text-[10px] text-amber-600 font-normal">override</div>
+                    <div className="text-[10px] font-normal text-amber-600 dark:text-amber-400">
+                      override
+                    </div>
                   )}
                 </td>
               ))}

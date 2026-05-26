@@ -118,7 +118,9 @@ export function MatrixChart({ days }: MatrixChartProps) {
                     </p>
                   )}
                   {data?.hasEvent && (
-                    <p className="text-amber-600 font-medium">Event day</p>
+                    <p className="font-medium text-amber-600 dark:text-amber-400">
+                      Event day
+                    </p>
                   )}
                 </div>
               );

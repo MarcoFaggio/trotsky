@@ -75,11 +75,14 @@ export function TroskyShell({
   }, [setCollapsed]);
 
   return (
-    <OnboardingTour role={user.role as "ANALYST" | "CLIENT"}>
+    <OnboardingTour
+      role={user.role as "ANALYST" | "CLIENT"}
+      hotelId={selectedHotelId}
+    >
       <div
         className={cn(
           "trosky-app font-trosky flex h-screen min-h-0 flex-col overflow-hidden lg:flex-row",
-          "trosky-cockpit-bg text-trosky-ink"
+          "trosky-cockpit-bg text-foreground"
         )}
       >
         <Sidebar

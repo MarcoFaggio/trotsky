@@ -5,6 +5,8 @@ import {
   toDateString,
 } from "@hotel-pricing/shared";
 import pino from "pino";
+import { upsertDemandAndEventActionsForHotel } from "../services/demand-action-builder";
+import { upsertPriceChangeActionsForHotel } from "../services/revenue-action-builder";
 
 const logger = pino({ name: "recommendations" });
 
@@ -175,6 +177,34 @@ export async function recomputeRecommendationsProcessor(data: { hotelId?: string
       } catch (err: any) {
         logger.error({ error: err.message, hotelId: hotel.id, date: date.toISOString() }, "Failed to compute recommendation");
       }
+    }
+
+    try {
+      await upsertPriceChangeActionsForHotel({
+        hotelId: hotel.id,
+        recomputeWindowStart: today,
+        recomputeWindowEnd: endDate,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      logger.error(
+        { error: message, hotelId: hotel.id },
+        "Failed to upsert price change actions from recommendations"
+      );
+    }
+
+    try {
+      await upsertDemandAndEventActionsForHotel({
+        hotelId: hotel.id,
+        recomputeWindowStart: today,
+        recomputeWindowEnd: endDate,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      logger.error(
+        { error: message, hotelId: hotel.id },
+        "Failed to upsert event and demand actions"
+      );
     }
 
     logger.info({ hotelId: hotel.id }, "Recommendations recomputed");

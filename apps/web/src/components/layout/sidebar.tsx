@@ -11,8 +11,10 @@ import {
   Settings,
   LogOut,
   Calendar,
+  CalendarRange,
   MessageSquare,
   Inbox,
+  ListChecks,
   ChevronLeft,
   ChevronRight,
   Briefcase,
@@ -33,24 +35,38 @@ interface SidebarProps {
 
 const analystLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, tour: "nav-dashboard" },
+  {
+    href: "/rate-calendar",
+    label: "Rate Calendar",
+    icon: CalendarRange,
+    tour: "nav-rate-calendar",
+  },
   { href: "/portfolio", label: "Portfolio", icon: Briefcase, tour: "nav-portfolio" },
-  { href: "/hotels", label: "Manage Hotels", icon: Hotel },
-  { href: "/events", label: "Events", icon: Calendar },
-  { href: "/occupancy", label: "Occupancy", icon: BarChart3 },
-  { href: "/pace", label: "Pace / OTB", icon: TrendingUp },
-  { href: "/promotions", label: "Promotions", icon: Megaphone },
+  { href: "/hotels", label: "Manage Hotels", icon: Hotel, tour: "nav-hotels" },
+  { href: "/events", label: "Events", icon: Calendar, tour: "nav-events" },
+  { href: "/occupancy", label: "Occupancy", icon: BarChart3, tour: "nav-occupancy" },
+  { href: "/pace", label: "Pace / OTB", icon: TrendingUp, tour: "nav-pace" },
+  { href: "/promotions", label: "Promotions", icon: Megaphone, tour: "nav-promotions" },
+  { href: "/actions", label: "Revenue Actions", icon: ListChecks, tour: "nav-actions" },
   { href: "/inquiries", label: "Inquiries", icon: Inbox, tour: "nav-inquiries" },
-  { href: "/messages", label: "Messages", icon: MessageSquare },
-  { href: "/admin/scrapes", label: "Scrape Admin", icon: Settings },
+  { href: "/messages", label: "Messages", icon: MessageSquare, tour: "nav-messages" },
+  { href: "/admin/scrapes", label: "Scrape Admin", icon: Settings, tour: "nav-scrapes" },
 ];
 
 const clientLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, tour: "nav-dashboard" },
-  { href: "/events", label: "Events", icon: Calendar },
-  { href: "/promotions", label: "Promotions", icon: Megaphone },
+  {
+    href: "/rate-calendar",
+    label: "Rate Calendar",
+    icon: CalendarRange,
+    tour: "nav-rate-calendar",
+  },
+  { href: "/events", label: "Events", icon: Calendar, tour: "nav-events" },
+  { href: "/promotions", label: "Promotions", icon: Megaphone, tour: "nav-promotions" },
+  { href: "/actions", label: "Revenue Actions", icon: ListChecks, tour: "nav-actions" },
   { href: "/inquiries", label: "Inquiries", icon: Inbox, tour: "nav-inquiries" },
   { href: "/messages", label: "Message Trosky", icon: MessageSquare, tour: "nav-messages" },
-  { href: "/pace", label: "Pace / OTB", icon: TrendingUp },
+  { href: "/pace", label: "Pace / OTB", icon: TrendingUp, tour: "nav-pace" },
 ];
 
 export function Sidebar({
@@ -72,11 +88,11 @@ export function Sidebar({
     <TooltipProvider delayDuration={0}>
       <aside
         className={cn(
-          "fixed inset-x-0 bottom-0 z-40 flex h-16 w-full flex-row border-t border-trosky-border bg-white/95 shadow-lg shadow-trosky-ink/5 backdrop-blur-xl transition-all duration-200 dark:border-white/10 dark:bg-card/95 lg:relative lg:inset-auto lg:h-screen lg:flex-col lg:border-r lg:border-t-0 lg:bg-white lg:shadow-none dark:lg:bg-card",
+          "fixed inset-x-0 bottom-0 z-40 flex h-16 w-full flex-row border-t border-border bg-card/95 shadow-lg shadow-black/10 backdrop-blur-xl transition-all duration-200 lg:relative lg:inset-auto lg:h-screen lg:flex-col lg:border-r lg:border-t-0 lg:shadow-none",
           collapsed ? "lg:w-16" : "lg:w-[280px]"
         )}
       >
-        <div className="hidden h-16 items-center border-b border-trosky-border px-3 lg:flex dark:border-white/10">
+        <div className="hidden h-16 items-center border-b border-border px-3 lg:flex">
           <Link
             href="/dashboard"
             aria-label="Trosky dashboard"
@@ -84,7 +100,7 @@ export function Sidebar({
           >
             <TroskyMark className="h-9 w-9 shrink-0" />
             {!collapsed && (
-              <span className="truncate text-sm font-semibold tracking-tight text-trosky-ink dark:text-foreground">
+              <span className="truncate text-sm font-semibold tracking-tight text-foreground">
                 Trosky
               </span>
             )}
@@ -116,8 +132,8 @@ export function Sidebar({
                   "relative flex min-h-11 min-w-[4.75rem] flex-col items-center justify-center gap-1 rounded-2xl px-3 py-2 text-sm font-medium transition-[background-color,color,transform] duration-200 lg:min-w-11 lg:flex-row lg:gap-3 lg:justify-start",
                   collapsed && "lg:justify-center lg:px-2",
                   isActive
-                    ? "bg-trosky-red text-white shadow-sm shadow-trosky-red/20 lg:bg-trosky-soft lg:text-trosky-ink lg:shadow-none lg:before:absolute lg:before:left-0 lg:before:top-1/2 lg:before:h-7 lg:before:w-1 lg:before:-translate-y-1/2 lg:before:rounded-r-full lg:before:bg-trosky-red lg:before:content-[''] dark:lg:bg-trosky-red/15 dark:lg:text-foreground"
-                    : "text-trosky-muted hover:bg-trosky-soft hover:text-trosky-ink dark:hover:bg-accent"
+                    ? "bg-trosky-red text-white shadow-sm shadow-trosky-red/20 lg:bg-trosky-red/10 lg:text-foreground lg:shadow-none lg:before:absolute lg:before:left-0 lg:before:top-1/2 lg:before:h-7 lg:before:w-1 lg:before:-translate-y-1/2 lg:before:rounded-r-full lg:before:bg-trosky-red lg:before:content-['']"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
                 )}
               >
                 <link.icon className="h-4 w-4 shrink-0" />
@@ -160,12 +176,12 @@ export function Sidebar({
           })}
         </nav>
 
-        <div className="hidden space-y-1 border-t border-trosky-border p-2 lg:block dark:border-white/10">
+        <div className="hidden space-y-1 border-t border-border p-2 lg:block">
           <Button
             variant="ghost"
             size="sm"
             className={cn(
-              "w-full rounded-xl text-trosky-muted hover:bg-trosky-soft hover:text-trosky-ink",
+              "w-full rounded-xl text-muted-foreground hover:bg-accent hover:text-foreground",
               collapsed ? "justify-center px-2" : "justify-start gap-3"
             )}
             onClick={onToggle}
@@ -183,7 +199,7 @@ export function Sidebar({
             variant="ghost"
             size="sm"
             className={cn(
-              "w-full rounded-xl text-trosky-muted hover:bg-trosky-soft hover:text-trosky-ink",
+              "w-full rounded-xl text-muted-foreground hover:bg-accent hover:text-foreground",
               collapsed ? "justify-center px-2" : "justify-start gap-3"
             )}
             onClick={handleLogout}

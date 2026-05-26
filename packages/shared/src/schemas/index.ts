@@ -262,6 +262,36 @@ export const searchHotelSchema = z.object({
   query: z.string().min(2).max(100),
 });
 
+export const revenueActionIdSchema = z.object({
+  actionId: z.string().min(1),
+});
+
+export const rejectRevenueActionSchema = z.object({
+  actionId: z.string().min(1),
+  reason: z.string().max(2000).optional(),
+});
+
+export const snoozeRevenueActionSchema = z.object({
+  actionId: z.string().min(1),
+  until: z.union([z.string().datetime(), z.coerce.date()]),
+});
+
+export const revenueActionFiltersSchema = z.object({
+  status: z
+    .enum(["PENDING", "ACCEPTED", "REJECTED", "SNOOZED", "COMPLETED", "EXPIRED"])
+    .optional(),
+  type: z
+    .enum([
+      "PRICE_CHANGE",
+      "EVENT_PRICING",
+      "WATCH_DEMAND",
+      "PARITY_FIX",
+      "STRATEGY_REVIEW",
+      "INQUIRY_REVIEW",
+    ])
+    .optional(),
+});
+
 export type CreateHotelExtendedInput = z.infer<typeof createHotelExtendedSchema>;
 export type MessageInput = z.infer<typeof messageSchema>;
 export type SearchHotelInput = z.infer<typeof searchHotelSchema>;
@@ -272,3 +302,4 @@ export type InquiryMessageInput = z.infer<typeof inquiryMessageSchema>;
 export type GroupRfpInput = z.infer<typeof groupRfpSchema>;
 export type InquiryProposalInput = z.infer<typeof inquiryProposalSchema>;
 export type PublicInquiryInput = z.infer<typeof publicInquirySchema>;
+export type RevenueActionFiltersInput = z.infer<typeof revenueActionFiltersSchema>;

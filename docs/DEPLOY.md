@@ -77,6 +77,9 @@ Settings → Environment Variables → add for **Production** (and Preview if de
 | `NEXT_PUBLIC_DISCOUNT_ADR_THRESHOLD` | ADR warning threshold, default `12` | No |
 | `NEXT_PUBLIC_DISCOUNT_SHARE_THRESHOLD` | Discount share warning threshold, default `35` | No |
 | `NEXT_PUBLIC_SHOW_DEMO_CREDENTIALS` | `true` only for demo environments | No |
+| `TROSKY_DEMO_MODE` | `true` for demo/staging tenants; omit or `false` in production | No |
+
+**Demo data:** Seed/demo RevenueActions are hidden in production unless `TROSKY_DEMO_MODE=true`. In local development they are visible by default. Set `TROSKY_DEMO_MODE=false` locally to verify production-like behaviour. Demo data must never be treated as live hotel intelligence.
 
 Save and **Redeploy** (Deployments → ... → Redeploy).
 

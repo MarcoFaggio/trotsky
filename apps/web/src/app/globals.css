@@ -68,7 +68,10 @@
   }
 
   .dark {
-    --trosky-red-soft: 221 20% 14%;
+    --trosky-ink: 0 15% 96%;
+    --trosky-muted: 206 10% 62%;
+    --trosky-border: 221 16% 22%;
+    --trosky-red-soft: 221 22% 14%;
     --background: 221 43% 6%;
     --foreground: 0 20% 98%;
     --card: 221 35% 9%;
@@ -133,6 +136,13 @@
     background:
       radial-gradient(900px 520px at 12% -10%, hsl(var(--primary) / 0.08), transparent 62%),
       radial-gradient(760px 420px at 100% 0%, hsl(var(--primary) / 0.06), transparent 58%),
+      hsl(var(--background));
+  }
+
+  .dark .app-bg {
+    background:
+      radial-gradient(900px 520px at 12% -10%, hsl(var(--primary) / 0.14), transparent 62%),
+      radial-gradient(760px 420px at 100% 0%, hsl(var(--primary) / 0.08), transparent 58%),
       hsl(var(--background));
   }
 

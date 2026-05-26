@@ -125,6 +125,37 @@ enum InquiryProposalStatus {
   EXPIRED
 }
 
+enum RevenueActionType {
+  PRICE_CHANGE
+  EVENT_PRICING
+  WATCH_DEMAND
+  PARITY_FIX
+  STRATEGY_REVIEW
+  INQUIRY_REVIEW
+}
+
+enum RevenueActionStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  SNOOZED
+  COMPLETED
+  EXPIRED
+}
+
+enum ActionUrgency {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ActionConfidence {
+  LOW
+  MEDIUM
+  HIGH
+}
+
 model User {
   id                      String              @id @default(cuid())
   email                   String              @unique
@@ -141,6 +172,7 @@ model User {
   assignedInquiries       Inquiry[]           @relation("assignedInquiries")
   inquiryMessages         InquiryMessage[]
   inquiryProposals        InquiryProposal[]
+  decidedRevenueActions   RevenueAction[]     @relation("decidedRevenueActions")
 }
 
 model Hotel {
@@ -185,6 +217,7 @@ model Hotel {
   signalImpacts    HotelSignalImpact[]
   inquiries        Inquiry[]
   inquiryProposals InquiryProposal[]
+  revenueActions   RevenueAction[]
 }
 
 model HotelAccess {
@@ -584,4 +617,40 @@ model InquiryProposal {
 
   @@index([inquiryId])
   @@index([hotelId, status])
+}
+
+model RevenueAction {
+  id                       String              @id @default(cuid())
+  hotelId                  String
+  actionKey                String
+  type                     RevenueActionType
+  status                   RevenueActionStatus @default(PENDING)
+  title                    String
+  summary                  String
+  reason                   String?
+  urgency                  ActionUrgency
+  confidence               ActionConfidence
+  stayDate                 DateTime?           @db.Date
+  currentValueCents        Int?
+  recommendedValueCents    Int?
+  estimatedUpsideLowCents  Int?
+  estimatedUpsideHighCents Int?
+  evidenceJson             Json?
+  source                   String?
+  sourceEntityId           String?
+  createdAt                DateTime            @default(now())
+  updatedAt                DateTime            @updatedAt
+  lastEvaluatedAt          DateTime?
+  expiresAt                DateTime?
+  decidedById              String?
+  decidedAt                DateTime?
+  decisionNote             String?
+  snoozedUntil             DateTime?
+  hotel                    Hotel               @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  decidedBy                User?               @relation("decidedRevenueActions", fields: [decidedById], references: [id])
+
+  @@unique([hotelId, actionKey])
+  @@index([hotelId, status])
+  @@index([hotelId, stayDate])
+  @@index([hotelId, type])
 }

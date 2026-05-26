@@ -3,10 +3,11 @@ import { cn } from "@/lib/utils";
 /** Shared surface + layout classes for the Trosky cockpit design layer */
 export const troskySurfaces = {
   card:
-    "rounded-2xl border border-trosky-border bg-white shadow-sm dark:border-white/10 dark:bg-card",
+    "rounded-2xl border border-border bg-card text-card-foreground shadow-sm",
   panel:
-    "rounded-2xl border border-trosky-border/90 bg-white/95 dark:border-white/10 dark:bg-card/90",
-  mutedPanel: "rounded-2xl border border-trosky-border bg-trosky-soft",
+    "rounded-2xl border border-border/90 bg-card/95 text-card-foreground shadow-sm",
+  mutedPanel:
+    "rounded-2xl border border-border bg-muted/40 text-foreground",
 } as const;
 
 export function troskyTextClamp(className?: string) {

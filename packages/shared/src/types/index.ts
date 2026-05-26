@@ -347,3 +347,203 @@ export interface InquiryDetail extends InquirySummary {
   groupRfp: GroupRfpSummary | null;
   proposals: InquiryProposalSummary[];
 }
+
+export type RevenueActionType =
+  | "PRICE_CHANGE"
+  | "EVENT_PRICING"
+  | "WATCH_DEMAND"
+  | "PARITY_FIX"
+  | "STRATEGY_REVIEW"
+  | "INQUIRY_REVIEW";
+
+export type RevenueActionStatus =
+  | "PENDING"
+  | "ACCEPTED"
+  | "REJECTED"
+  | "SNOOZED"
+  | "COMPLETED"
+  | "EXPIRED";
+
+export type ActionUrgency = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+
+export type ActionConfidence = "LOW" | "MEDIUM" | "HIGH";
+
+export interface RevenueCommandCentreMetrics {
+  estimatedUpsideLowCents: number;
+  estimatedUpsideHighCents: number;
+  urgentActionCount: number;
+  urgentDateCount: number;
+  pendingActionCount: number;
+  parityIssueCount: number;
+  eventActionCount: number;
+}
+
+export interface RevenueCommandCentreRatePoint {
+  date: string;
+  yourRateCents: number | null;
+  compMedianCents: number | null;
+}
+
+export interface RevenueCommandCentreExplanation {
+  headline: string;
+  body: string;
+  bullets: string[];
+}
+
+export interface RevenueCommandCentreView {
+  scope: {
+    mode: "PORTFOLIO" | "HOTEL";
+    hotelId?: string;
+    hotelName?: string;
+  };
+  reviewedAt: string;
+  metrics: RevenueCommandCentreMetrics;
+  actions: RevenueActionView[];
+  /** Hotel name per action id (portfolio scope) */
+  actionHotelNames: Record<string, string>;
+  rateChart: RevenueCommandCentreRatePoint[];
+  /** Hotel used for the 14-day rate chart (portfolio uses first active hotel) */
+  chartHotelName?: string;
+  explanation: RevenueCommandCentreExplanation;
+  hasSeededActions: boolean;
+  hasLiveActions: boolean;
+  /** Active actions in scope before dashboard limit */
+  totalActiveCount: number;
+  /** Whether TROSKY_DEMO_MODE (or dev default) allows demo actions on surfaces */
+  demoModeEnabled: boolean;
+  /** Demo actions excluded from this view when demo mode is disabled */
+  hiddenDemoActionCount: number;
+}
+
+export interface RevenueActionView {
+  id: string;
+  hotelId: string;
+  actionKey: string;
+  type: RevenueActionType;
+  status: RevenueActionStatus;
+  title: string;
+  summary: string;
+  reason: string | null;
+  urgency: ActionUrgency;
+  confidence: ActionConfidence;
+  stayDate: string | null;
+  currentValueCents: number | null;
+  recommendedValueCents: number | null;
+  estimatedUpsideLowCents: number | null;
+  estimatedUpsideHighCents: number | null;
+  evidenceJson: Record<string, unknown> | null;
+  source: string | null;
+  sourceEntityId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  lastEvaluatedAt: string | null;
+  expiresAt: string | null;
+  decidedById: string | null;
+  decidedAt: string | null;
+  decisionNote: string | null;
+  snoozedUntil: string | null;
+}
+
+export interface RevenueActionInsightEvidence {
+  currentRateCents?: number | null;
+  recommendedRateCents?: number | null;
+  rateDeltaCents?: number | null;
+  compMedianCents?: number | null;
+  compReferenceCents?: number | null;
+  rateGapCents?: number | null;
+  confidence?: string | null;
+  urgency?: string | null;
+  recommendationId?: string | null;
+  generatedAt?: string | null;
+  competitorsSoldOut?: number | null;
+  competitorCount?: number | null;
+  eventName?: string | null;
+  eventDaysAway?: number | null;
+  demandLevel?: string | null;
+  watchReason?: string | null;
+  eventId?: string | null;
+  eventType?: string | null;
+  eventDate?: string | null;
+  source?: string | null;
+  raw: unknown;
+}
+
+export interface RevenueActionInsightExplanation {
+  headline: string;
+  body: string;
+  bullets: string[];
+}
+
+export interface RevenueActionInsightView {
+  id: string;
+  hotelId: string;
+  hotelName: string;
+  type: RevenueActionType;
+  status: RevenueActionStatus;
+  title: string;
+  summary: string;
+  reason: string | null;
+  urgency: ActionUrgency;
+  confidence: ActionConfidence;
+  stayDate: string | null;
+  currentValueCents: number | null;
+  recommendedValueCents: number | null;
+  deltaCents: number | null;
+  estimatedUpsideLowCents: number | null;
+  estimatedUpsideHighCents: number | null;
+  source: string | null;
+  sourceEntityId: string | null;
+  actionKey: string;
+  lastEvaluatedAt: string | null;
+  expiresAt: string | null;
+  evidence: RevenueActionInsightEvidence;
+  explanation: RevenueActionInsightExplanation;
+  canManage: boolean;
+  canViewRawEvidence: boolean;
+  hasLimitedEvidence: boolean;
+}
+
+export type RevenueActionInsightResult =
+  | { status: "ok"; insight: RevenueActionInsightView }
+  | { status: "not_found" }
+  | { status: "forbidden" };
+
+export type RateCalendarDayStatus =
+  | "URGENT"
+  | "WATCH"
+  | "HEALTHY"
+  | "OPPORTUNITY"
+  | "NO_DATA";
+
+export interface RateCalendarDayView {
+  date: string;
+  dayLabel: string;
+  isToday: boolean;
+  yourRateCents: number | null;
+  compReferenceCents: number | null;
+  rateGapCents: number | null;
+  status: RateCalendarDayStatus;
+  actionCount: number;
+  topActionId: string | null;
+  topActionTitle: string | null;
+  urgency: ActionUrgency | null;
+  confidence: ActionConfidence | null;
+}
+
+export interface RateCalendarView {
+  scope: {
+    mode: "HOTEL" | "PORTFOLIO";
+    hotelId: string | null;
+    hotelName: string | null;
+  };
+  startDate: string;
+  endDate: string;
+  days: RateCalendarDayView[];
+  summary: {
+    urgentCount: number;
+    watchCount: number;
+    healthyCount: number;
+    opportunityCount: number;
+    actionCount: number;
+  };
+}

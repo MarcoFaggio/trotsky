@@ -25,6 +25,11 @@ async function main() {
   console.log("Seeding database...");
 
   // Clean existing data
+  await prisma.revenueAction.deleteMany();
+  await prisma.inquiryMessage.deleteMany();
+  await prisma.inquiryProposal.deleteMany();
+  await prisma.groupRfp.deleteMany();
+  await prisma.inquiry.deleteMany();
   await prisma.message.deleteMany();
   await prisma.messageThread.deleteMany();
   await prisma.securityEvent.deleteMany();
@@ -448,6 +453,268 @@ async function main() {
     },
   });
 
+  // Demo inquiry for INQUIRY_REVIEW action
+  const demoInquiry = await prisma.inquiry.create({
+    data: {
+      hotelId: hotel.id,
+      source: "WEB_CHAT",
+      intent: "GROUP_ROOMS",
+      status: "NEW",
+      priority: "HIGH",
+      guestName: "Jordan Lee",
+      guestEmail: "jordan.lee@example.com",
+      organizationName: "Summit Events LLC",
+      summary: "40-room block for a corporate offsite, flexible on shoulder nights.",
+      checkIn: toDateOnly(addDays(today, 21)),
+      checkOut: toDateOnly(addDays(today, 24)),
+      guestCount: 85,
+      roomCount: 40,
+      budgetCents: 520000,
+      eventSpaceNeeded: true,
+      assignedToUserId: analyst.id,
+    },
+  });
+
+  const satDate = toDateOnly(addDays(today, 10));
+  const friDate = toDateOnly(addDays(today, 5));
+  const eventWeekendDate = toDateOnly(addDays(today, 7));
+  const concertDate = toDateOnly(addDays(today, 4));
+  const sportsDate = toDateOnly(addDays(today, 10));
+  const parityDate = toDateOnly(addDays(today, 3));
+
+  const revenueActions = [
+    {
+      actionKey: `price-change:${satDate.toISOString().slice(0, 10)}`,
+      type: "PRICE_CHANGE" as const,
+      title: "Raise Saturday rate to $169",
+      summary:
+        "You are $33 below comp median with strong weekend demand and three competitors sold out.",
+      reason:
+        "Comp anchor $178, occupancy trending above target, event weekend in 7 days.",
+      urgency: "HIGH" as const,
+      confidence: "HIGH" as const,
+      stayDate: satDate,
+      currentValueCents: 14500,
+      recommendedValueCents: 16900,
+      estimatedUpsideLowCents: 18000,
+      estimatedUpsideHighCents: 42000,
+      evidenceJson: {
+        compMedianCents: 17800,
+        rateGapCents: -3300,
+        competitorsSoldOut: 3,
+        competitorCount: 5,
+        demandLevel: "HIGH",
+        source: "seed-demo",
+      },
+      source: "SEED",
+    },
+    {
+      actionKey: `price-change:${friDate.toISOString().slice(0, 10)}-watch`,
+      type: "WATCH_DEMAND" as const,
+      title: "Watch Friday demand spike",
+      summary:
+        "Pickup accelerated 12% vs LY; comp median up 8% in the last 48 hours.",
+      reason: "Monitor before committing to a floor increase.",
+      urgency: "MEDIUM" as const,
+      confidence: "MEDIUM" as const,
+      stayDate: friDate,
+      currentValueCents: 13200,
+      recommendedValueCents: 14500,
+      estimatedUpsideLowCents: 4000,
+      estimatedUpsideHighCents: 12000,
+      evidenceJson: {
+        compMedianCents: 15100,
+        rateGapCents: -1900,
+        competitorsSoldOut: 1,
+        demandLevel: "MEDIUM",
+        pickupVsLyPercent: 12,
+        source: "seed-demo",
+      },
+      source: "SEED",
+    },
+    {
+      actionKey: `price-change:${eventWeekendDate.toISOString().slice(0, 10)}-event-weekend`,
+      type: "PRICE_CHANGE" as const,
+      title: "Raise event weekend BAR",
+      summary:
+        "Atlanta Music Festival weekend: comp set tightening, recommend +$18 on BAR.",
+      reason: "Event on calendar with positive demand signals.",
+      urgency: "HIGH" as const,
+      confidence: "MEDIUM" as const,
+      stayDate: eventWeekendDate,
+      currentValueCents: 13800,
+      recommendedValueCents: 15600,
+      estimatedUpsideLowCents: 8000,
+      estimatedUpsideHighCents: 22000,
+      evidenceJson: {
+        eventName: "Atlanta Music Festival",
+        eventDaysAway: 7,
+        compMedianCents: 16200,
+        demandLevel: "HIGH",
+        source: "seed-demo",
+      },
+      source: "SEED",
+    },
+    {
+      actionKey: `event-pricing:${concertDate.toISOString().slice(0, 10)}-concert`,
+      type: "EVENT_PRICING" as const,
+      title: "Add event pricing for downtown concert",
+      summary:
+        "Concert in 4 days; comp median up 18%, three competitors sold out on shoulder night.",
+      reason: "Layer event BAR or min-stay before compression day.",
+      urgency: "HIGH" as const,
+      confidence: "HIGH" as const,
+      stayDate: concertDate,
+      currentValueCents: 12900,
+      recommendedValueCents: 15500,
+      evidenceJson: {
+        eventName: "City Concert",
+        eventDaysAway: 4,
+        compMedianCents: 17800,
+        competitorsSoldOut: 3,
+        demandLevel: "HIGH",
+        source: "seed-demo",
+      },
+      source: "SEED",
+    },
+    {
+      actionKey: `event-pricing:${sportsDate.toISOString().slice(0, 10)}-sports`,
+      type: "EVENT_PRICING" as const,
+      title: "Prepare pricing for sports event",
+      summary: "Tech Conference at Georgia World Congress in 10 days — build ladder now.",
+      reason: "Longer booking window; set BAR floors before compression.",
+      urgency: "MEDIUM" as const,
+      confidence: "MEDIUM" as const,
+      stayDate: sportsDate,
+      evidenceJson: {
+        eventName: "Tech Conference at Georgia World Congress",
+        eventDaysAway: 10,
+        demandLevel: "MEDIUM",
+        source: "seed-demo",
+      },
+      source: "SEED",
+    },
+    {
+      actionKey: "watch-demand:comp-median-rising",
+      type: "WATCH_DEMAND" as const,
+      title: "Competitor median rising across next 7 days",
+      summary: "Weighted comp median +6% WoW while your BAR is flat on 4 key dates.",
+      reason: "Review parity and pace before competitors capture share.",
+      urgency: "MEDIUM" as const,
+      confidence: "MEDIUM" as const,
+      evidenceJson: {
+        compMedianMovementPercent: 6,
+        datesAffected: 4,
+        demandLevel: "MEDIUM",
+        source: "seed-demo",
+      },
+      source: "SEED",
+    },
+    {
+      actionKey: "watch-demand:weekend-pickup",
+      type: "WATCH_DEMAND" as const,
+      title: "Weekend pickup warning",
+      summary: "OTB for next weekend is 8 pts behind LY with only 5 days to recover.",
+      reason: "Consider tactical promotion or BAR adjustment on Thu–Sat.",
+      urgency: "CRITICAL" as const,
+      confidence: "HIGH" as const,
+      evidenceJson: {
+        occPercent: 64,
+        occLyPercent: 72,
+        paceGapPoints: -8,
+        demandLevel: "HIGH",
+        source: "seed-demo",
+      },
+      source: "SEED",
+    },
+    {
+      actionKey: `parity-fix:${parityDate.toISOString().slice(0, 10)}-expedia-mobile`,
+      type: "PARITY_FIX" as const,
+      title: "Fix Expedia mobile parity (demo)",
+      summary:
+        "Expedia mobile shows $127 vs Booking $145 and direct — likely mobile/member promo (beta evidence).",
+      reason: "Demo parity row; real parity engine not enabled in this build.",
+      urgency: "HIGH" as const,
+      confidence: "MEDIUM" as const,
+      stayDate: parityDate,
+      currentValueCents: 14500,
+      recommendedValueCents: 14500,
+      evidenceJson: {
+        channelRates: [
+          { channel: "Booking.com", rateCents: 14500, status: "aligned" },
+          { channel: "Expedia mobile", rateCents: 12700, status: "issue" },
+          { channel: "Direct", rateCents: 14500, status: "aligned" },
+        ],
+        parityGapCents: -1800,
+        demoBeta: true,
+        source: "seed-demo",
+      },
+      source: "SEED",
+    },
+    {
+      actionKey: `parity-fix:${parityDate.toISOString().slice(0, 10)}-tripadvisor`,
+      type: "PARITY_FIX" as const,
+      title: "Review Tripadvisor rate display (demo)",
+      summary: "Tripadvisor metasearch $138 vs BAR $145 — watch for tax/fee presentation (demo).",
+      urgency: "LOW" as const,
+      confidence: "LOW" as const,
+      stayDate: parityDate,
+      evidenceJson: {
+        channelRates: [{ channel: "Tripadvisor", rateCents: 13800, status: "watch" }],
+        demoBeta: true,
+        source: "seed-demo",
+      },
+      source: "SEED",
+    },
+    {
+      actionKey: "strategy-review:discount-mix",
+      type: "STRATEGY_REVIEW" as const,
+      title: "Review discount mix vs ADR target",
+      summary: "Mobile + AAA share at 35% on peak night; ADR risk vs BAR.",
+      reason: "Discount share above warning threshold on upcoming Saturday.",
+      urgency: "MEDIUM" as const,
+      confidence: "MEDIUM" as const,
+      evidenceJson: {
+        discountSharePercent: 35,
+        adrWarningThresholdPercent: 12,
+        source: "seed-demo",
+      },
+      source: "SEED",
+    },
+    {
+      actionKey: `inquiry-review:${demoInquiry.id}`,
+      type: "INQUIRY_REVIEW" as const,
+      title: "Qualify group inquiry — Summit Events",
+      summary: "40-room corporate offsite; high priority, RFP fields partially complete.",
+      reason: "New inquiry assigned; respond within 24h.",
+      urgency: "HIGH" as const,
+      confidence: "HIGH" as const,
+      source: "SEED",
+      sourceEntityId: demoInquiry.id,
+      evidenceJson: {
+        inquiryId: demoInquiry.id,
+        intent: "GROUP_ROOMS",
+        roomCount: 40,
+        source: "seed-demo",
+      },
+    },
+  ];
+
+  const evaluatedAt = new Date();
+  const expiresAt = addDays(today, 14);
+
+  for (const action of revenueActions) {
+    await prisma.revenueAction.create({
+      data: {
+        hotelId: hotel.id,
+        ...action,
+        status: "PENDING",
+        lastEvaluatedAt: evaluatedAt,
+        expiresAt,
+      },
+    });
+  }
+
   // Security event
   await prisma.securityEvent.create({
     data: {
@@ -471,6 +738,8 @@ async function main() {
   console.log(`  Daily rates: ${30 * 6} records`);
   console.log(`  Message threads: 2 (1 active, 1 resolved)`);
   console.log(`  Security events: 1`);
+  console.log(`  Revenue actions: ${revenueActions.length}`);
+  console.log(`  Demo inquiry: ${demoInquiry.id}`);
 }
 
 main()
