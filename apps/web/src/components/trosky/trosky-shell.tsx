@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useTransition } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { OnboardingTour } from "@/components/layout/onboarding-tour";
 import { Sidebar } from "@/components/layout/sidebar";
@@ -43,6 +43,13 @@ export function TroskyShell({
   const [selectedHotelId, setSelectedHotelId] = useState<string | null>(
     searchParams.get("hotelId") || lastHotelId || hotels[0]?.id || null
   );
+  const [isRefreshing, startRefresh] = useTransition();
+
+  const handleRefresh = useCallback(() => {
+    startRefresh(() => {
+      router.refresh();
+    });
+  }, [router]);
 
   useEffect(() => {
     const hotelIdParam = searchParams.get("hotelId");
@@ -98,6 +105,8 @@ export function TroskyShell({
             hotels={hotels}
             selectedHotelId={selectedHotelId}
             onHotelChange={handleHotelChange}
+            isRefreshing={isRefreshing}
+            onRefresh={handleRefresh}
           />
           <main
             data-tour="main-content"

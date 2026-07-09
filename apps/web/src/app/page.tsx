@@ -13,13 +13,18 @@ export const metadata = {
 export default async function Home() {
   const cookieStore = await cookies();
   const token = cookieStore.get("access_token")?.value;
+  let authenticated = false;
   if (token) {
     try {
-      await jwtVerify(token, jwtAccessSecretBytes());
-      redirect("/dashboard");
+      await jwtVerify(token, jwtAccessSecretBytes(), {
+        algorithms: ["HS256"],
+      });
+      authenticated = true;
     } catch {
       // Token invalid or expired; show landing
     }
   }
+  // redirect() throws internally, so it must live outside the try/catch.
+  if (authenticated) redirect("/dashboard");
   return <LandingPage />;
 }

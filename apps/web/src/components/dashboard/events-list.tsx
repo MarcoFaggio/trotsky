@@ -7,12 +7,15 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Calendar, Trash2, Plus } from "lucide-react";
+import { Calendar, Trash2, Plus, Radar } from "lucide-react";
 import { createEvent } from "@/actions/occupancy";
 import { deleteEvent } from "@/actions/events";
 import { suppressSignalImpact, unsuppressSignalImpact } from "@/actions/signals";
 import { toast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
+import { TroskyPageHeader } from "@/components/trosky/trosky-page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface EventItem {
   id: string;
@@ -152,24 +155,23 @@ export function EventsList({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Events</h1>
-          <p className="text-muted-foreground text-sm">
-            Manage events that impact hotel pricing
-          </p>
-        </div>
-        {isAnalyst && (
-          <Button
-            size="sm"
-            className="gap-1.5"
-            onClick={() => setShowAdd(true)}
-          >
-            <Plus className="h-4 w-4" />
-            Add Event
-          </Button>
-        )}
-      </div>
+      <TroskyPageHeader
+        eyebrow="Demand signals"
+        title="Events"
+        description="Manage events that impact hotel pricing"
+        actions={
+          isAnalyst ? (
+            <Button
+              size="sm"
+              className="gap-1.5"
+              onClick={() => setShowAdd(true)}
+            >
+              <Plus className="h-4 w-4" />
+              Add Event
+            </Button>
+          ) : undefined
+        }
+      />
 
       <Tabs defaultValue="manual" className="space-y-4">
         <TabsList>
@@ -188,7 +190,7 @@ export function EventsList({
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <Calendar className="h-4 w-4 text-primary shrink-0" />
+                        <Calendar className="h-4 w-4 text-amber-500 shrink-0" aria-hidden />
                         <span className="text-sm font-medium truncate">
                           {event.title}
                         </span>
@@ -210,6 +212,7 @@ export function EventsList({
                         variant="ghost"
                         size="sm"
                         className="h-7 w-7 p-0 shrink-0"
+                        aria-label={`Delete event: ${event.title}`}
                         onClick={() => handleDelete(event.id)}
                       >
                         <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
@@ -250,6 +253,7 @@ export function EventsList({
                         variant="ghost"
                         size="sm"
                         className="h-7 w-7 p-0"
+                        aria-label={`Delete event: ${event.title}`}
                         onClick={() => handleDelete(event.id)}
                       >
                         <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
@@ -264,28 +268,32 @@ export function EventsList({
       )}
 
       {events.length === 0 && (
-        <div className="rounded-lg border-2 border-dashed p-12 text-center">
-          <Calendar className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">No events yet.</p>
-          {isAnalyst && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-3"
-              onClick={() => setShowAdd(true)}
-            >
-              Create your first event
-            </Button>
-          )}
-        </div>
+        <EmptyState
+          icon={Calendar}
+          title="No events yet"
+          description="Events that impact hotel pricing will appear here."
+          action={
+            isAnalyst ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAdd(true)}
+              >
+                Create your first event
+              </Button>
+            ) : undefined
+          }
+        />
       )}
         </TabsContent>
         {isAnalyst && (
           <TabsContent value="imported" className="space-y-3">
             {signals.length === 0 ? (
-              <div className="rounded-lg border-2 border-dashed p-12 text-center">
-                <p className="text-sm text-muted-foreground">No imported signals found.</p>
-              </div>
+              <EmptyState
+                icon={Radar}
+                title="No imported signals found"
+                description="External demand signals will appear here once imported."
+              />
             ) : (
               <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                 {signals.map((signal) => (
@@ -296,12 +304,23 @@ export function EventsList({
                           <Badge variant={signal.direction === "NEGATIVE_DISRUPTION" ? "destructive" : "secondary"}>
                             {signal.direction === "NEGATIVE_DISRUPTION" ? "Disruption" : "Demand up"}
                           </Badge>
-                          <span className="text-xs font-semibold">
+                          <span
+                            className={
+                              signal.impactBps < 0
+                                ? "text-xs font-semibold text-destructive"
+                                : signal.impactBps > 0
+                                ? "text-xs font-semibold text-emerald-600 dark:text-emerald-400"
+                                : "text-xs font-semibold text-muted-foreground"
+                            }
+                          >
                             {signal.impactBps >= 0 ? "+" : ""}
                             {(signal.impactBps / 100).toFixed(1)}%
                           </span>
                         </div>
-                        <p className="text-sm font-medium">{signal.title}</p>
+                        <div className="flex items-center gap-2">
+                          <Radar className="h-4 w-4 text-teal-600 shrink-0" aria-hidden />
+                          <p className="text-sm font-medium">{signal.title}</p>
+                        </div>
                         <p className="text-xs text-muted-foreground">
                           {formatDate(signal.date)} · {signal.category} · {signal.hotelName}
                         </p>
@@ -343,47 +362,62 @@ export function EventsList({
           <DialogHeader>
             <DialogTitle>Add Event</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {hotels.length > 1 && (
-              <Select
-                value={form.hotelId}
-                onValueChange={(v) =>
-                  setForm((p) => ({ ...p, hotelId: v }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select hotel" />
-                </SelectTrigger>
-                <SelectContent>
-                  {hotels.map((h) => (
-                    <SelectItem key={h.id} value={h.id}>
-                      {h.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="space-y-2">
+                <Label htmlFor="event-hotel">Hotel</Label>
+                <Select
+                  value={form.hotelId}
+                  onValueChange={(v) =>
+                    setForm((p) => ({ ...p, hotelId: v }))
+                  }
+                >
+                  <SelectTrigger id="event-hotel">
+                    <SelectValue placeholder="Select hotel" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {hotels.map((h) => (
+                      <SelectItem key={h.id} value={h.id}>
+                        {h.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             )}
-            <Input
-              type="date"
-              value={form.date}
-              onChange={(e) =>
-                setForm((p) => ({ ...p, date: e.target.value }))
-              }
-            />
-            <Input
-              placeholder="Event title"
-              value={form.title}
-              onChange={(e) =>
-                setForm((p) => ({ ...p, title: e.target.value }))
-              }
-            />
-            <Input
-              placeholder="Notes (optional)"
-              value={form.notes}
-              onChange={(e) =>
-                setForm((p) => ({ ...p, notes: e.target.value }))
-              }
-            />
+            <div className="space-y-2">
+              <Label htmlFor="event-date">Date</Label>
+              <Input
+                id="event-date"
+                type="date"
+                value={form.date}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, date: e.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="event-title">Title</Label>
+              <Input
+                id="event-title"
+                placeholder="Event title"
+                value={form.title}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, title: e.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="event-notes">Notes</Label>
+              <Input
+                id="event-notes"
+                placeholder="Notes (optional)"
+                value={form.notes}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, notes: e.target.value }))
+                }
+              />
+            </div>
             <Button
               onClick={handleCreate}
               disabled={saving || !form.title || !form.date}

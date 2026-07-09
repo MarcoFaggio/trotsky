@@ -16,9 +16,15 @@ import {
 } from "recharts";
 import { chartColors } from "@/lib/chart-colors";
 import type { DashboardDay } from "@hotel-pricing/shared";
+import { formatCurrency } from "@hotel-pricing/shared";
 
 interface MatrixChartProps {
   days: DashboardDay[];
+}
+
+/** Chart data holds dollars; convert back to cents for the shared formatter. */
+function fmtDollars(dollars: number): string {
+  return formatCurrency(Math.round(dollars * 100));
 }
 
 function formatDate(dateStr: string): string {
@@ -80,7 +86,7 @@ export function MatrixChart({ days }: MatrixChartProps) {
           <YAxis
             yAxisId="left"
             tick={{ fontSize: 11, fill: chartColors.axis }}
-            tickFormatter={(v) => `$${v}`}
+            tickFormatter={(v) => fmtDollars(v)}
             domain={["auto", "auto"]}
           />
           <YAxis
@@ -99,21 +105,21 @@ export function MatrixChart({ days }: MatrixChartProps) {
                   <p className="font-semibold">{label}</p>
                   {data?.ourRate && (
                     <p className="text-primary">
-                      Our Rate: <span className="font-medium">${data.ourRate}</span>
+                      Our Rate: <span className="font-medium">{fmtDollars(data.ourRate)}</span>
                     </p>
                   )}
                   {data?.compAvg && (
                     <p className="text-muted-foreground">
-                      Comp Avg: <span className="font-medium">${Math.round(data.compAvg)}</span>
+                      Comp Avg: <span className="font-medium">{fmtDollars(data.compAvg)}</span>
                     </p>
                   )}
                   {data?.recommended && (
-                    <p className="text-emerald-600">
-                      Recommended: <span className="font-medium">${Math.round(data.recommended)}</span>
+                    <p className="text-emerald-600 dark:text-emerald-400">
+                      Recommended: <span className="font-medium">{fmtDollars(data.recommended)}</span>
                     </p>
                   )}
                   {data?.occupancy !== null && data?.occupancy !== undefined && (
-                    <p className="text-landing-violet dark:text-violet-300">
+                    <p className="text-violet-600 dark:text-violet-300">
                       Occupancy: <span className="font-medium">{data.occupancy.toFixed(1)}%</span>
                     </p>
                   )}

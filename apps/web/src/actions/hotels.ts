@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@hotel-pricing/db";
-import { createHotelSchema } from "@hotel-pricing/shared";
+import { createHotelSchema, updateHotelSchema } from "@hotel-pricing/shared";
 import { requireAnalyst, requireHotelAccess } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
 
@@ -99,7 +99,7 @@ export async function createHotel(formData: FormData) {
   return hotel;
 }
 
-export async function updateHotel(data: {
+export async function updateHotel(input: {
   id: string;
   name?: string;
   pmsName?: string;
@@ -114,6 +114,7 @@ export async function updateHotel(data: {
   occTarget?: number | null;
 }) {
   await requireAnalyst();
+  const data = updateHotelSchema.parse(input);
   assertRateBounds(data.minRate, data.maxRate);
   if (data.roomCount !== undefined && (!Number.isInteger(data.roomCount) || data.roomCount <= 0)) {
     throw new Error("Room count must be a whole number greater than 0.");

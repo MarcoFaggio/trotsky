@@ -289,8 +289,9 @@ model DailyRate {
 
   @@unique([listingType, hotelId, ota, date], name: "daily_rate_hotel_listing_date")
   @@unique([listingType, competitorId, ota, date], name: "daily_rate_competitor_listing_date")
-  @@index([date, hotelId])
-  @@index([date, competitorId])
+  // Hot paths query by hotel/competitor first, then a date range.
+  @@index([hotelId, date])
+  @@index([competitorId, date])
 }
 
 model ReviewSnapshot {
@@ -307,6 +308,10 @@ model ReviewSnapshot {
   hotel        Hotel?      @relation(fields: [hotelId], references: [id], onDelete: Cascade)
   competitor   Competitor? @relation(fields: [competitorId], references: [id], onDelete: Cascade)
   sourceRun    ScrapeRun?  @relation(fields: [sourceRunId], references: [id])
+
+  // Dashboards read "latest snapshot per property" — keep it index-served.
+  @@index([hotelId, scrapedAt])
+  @@index([competitorId, scrapedAt])
 }
 
 model OccupancyEntry {
@@ -340,6 +345,8 @@ model Promotion {
   terms       String?
   createdAt   DateTime @default(now())
   hotel       Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  @@index([hotelId, startDate, endDate])
 }
 
 model Event {
@@ -511,6 +518,8 @@ model Message {
   readAt       DateTime?
   thread       MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
   sender       User          @relation(fields: [senderUserId], references: [id])
+
+  @@index([threadId, createdAt])
 }
 
 model SecurityEvent {

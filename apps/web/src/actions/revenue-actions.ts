@@ -247,4 +247,6 @@ function revalidateRevenueActionPaths(hotelId: string) {
   revalidatePath("/actions");
   revalidatePath("/dashboard");
   revalidatePath("/dashboard", "page");
+  // Per-day action badges and counts surface on the rate calendar too.
+  revalidatePath("/rate-calendar");
 }

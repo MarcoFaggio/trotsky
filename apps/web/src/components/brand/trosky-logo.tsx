@@ -38,7 +38,7 @@ export function TroskyMark({
         fetchPriority={priority ? "high" : "auto"}
         className={cn(
           "h-full w-full object-contain object-center",
-          "drop-shadow-[0_2px_6px_rgba(213,23,30,0.22)]",
+          "drop-shadow-[0_2px_6px_rgba(166,1,1,0.22)]",
           imageClassName
         )}
       />

@@ -3,7 +3,12 @@
 import { prisma } from "@hotel-pricing/db";
 import { requireHotelAccess } from "@/lib/rbac";
 import { getSession } from "@/lib/auth";
-import { computeWeightedAvg, toDateString } from "@hotel-pricing/shared";
+import {
+  computeWeightedAvg,
+  toDateString,
+  startOfTodayUtc,
+  addUtcDays,
+} from "@hotel-pricing/shared";
 import type {
   OverviewData,
   OverviewHotel,
@@ -23,15 +28,11 @@ export async function getOverviewData(
   const session = await requireHotelAccess(hotelId);
   const isAnalyst = session.role === "ANALYST";
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = startOfTodayUtc();
   const todayStr = toDateString(today);
 
-  const sevenDaysEnd = new Date(today);
-  sevenDaysEnd.setDate(sevenDaysEnd.getDate() + 6);
-
-  const graphEnd = new Date(today);
-  graphEnd.setDate(graphEnd.getDate() + graphRange - 1);
+  // The 7-day cards always need a week of data, even when the graph range is shorter.
+  const fetchEnd = addUtcDays(today, Math.max(graphRange, 7) - 1);
 
   const [
     hotel,
@@ -63,7 +64,7 @@ export async function getOverviewData(
       where: {
         hotelId,
         listingType: "HOTEL",
-        date: { gte: today, lte: graphEnd },
+        date: { gte: today, lte: fetchEnd },
       },
       orderBy: { date: "asc" },
     }),
@@ -73,7 +74,7 @@ export async function getOverviewData(
         competitor: {
           include: {
             dailyRates: {
-              where: { date: { gte: today, lte: graphEnd } },
+              where: { date: { gte: today, lte: fetchEnd } },
               orderBy: { date: "asc" },
             },
             listings: { where: { active: true }, take: 1 },
@@ -83,21 +84,21 @@ export async function getOverviewData(
       },
     }),
     prisma.occupancyEntry.findMany({
-      where: { hotelId, date: { gte: today, lte: graphEnd } },
+      where: { hotelId, date: { gte: today, lte: fetchEnd } },
     }),
     prisma.recommendation.findMany({
-      where: { hotelId, date: { gte: today, lte: graphEnd } },
+      where: { hotelId, date: { gte: today, lte: fetchEnd } },
     }),
     prisma.priceOverride.findMany({
-      where: { hotelId, date: { gte: today, lte: graphEnd } },
+      where: { hotelId, date: { gte: today, lte: fetchEnd } },
     }),
     prisma.event.findMany({
-      where: { hotelId, date: { gte: today, lte: graphEnd } },
+      where: { hotelId, date: { gte: today, lte: fetchEnd } },
     }),
     prisma.promotion.findMany({
       where: {
         hotelId,
-        startDate: { lte: graphEnd },
+        startDate: { lte: fetchEnd },
         endDate: { gte: today },
       },
     }),
@@ -137,8 +138,7 @@ export async function getOverviewData(
   // Build seven-day rate cards
   const sevenDayRates: SevenDayRate[] = [];
   for (let i = 0; i < 7; i++) {
-    const d = new Date(today);
-    d.setDate(d.getDate() + i);
+    const d = addUtcDays(today, i);
     const dateStr = toDateString(d);
 
     const override = overrides.find(
@@ -189,8 +189,7 @@ export async function getOverviewData(
   }));
 
   for (let i = 0; i < graphRange; i++) {
-    const d = new Date(today);
-    d.setDate(d.getDate() + i);
+    const d = addUtcDays(today, i);
     const dateStr = toDateString(d);
     graphDates.push(dateStr);
 

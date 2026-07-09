@@ -94,12 +94,12 @@ function categoryCapBps(
 
 function* dateRangeInclusive(start: Date, end: Date): Generator<Date> {
   const current = new Date(start);
-  current.setHours(0, 0, 0, 0);
+  current.setUTCHours(0, 0, 0, 0);
   const final = new Date(end);
-  final.setHours(0, 0, 0, 0);
+  final.setUTCHours(0, 0, 0, 0);
   while (current <= final) {
     yield new Date(current);
-    current.setDate(current.getDate() + 1);
+    current.setUTCDate(current.getUTCDate() + 1);
   }
 }
 

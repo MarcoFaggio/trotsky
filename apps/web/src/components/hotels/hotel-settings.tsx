@@ -9,11 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, Plus, ArrowLeft } from "lucide-react";
+import { Trash2, Plus, ArrowLeft, ExternalLink } from "lucide-react";
 import { updateHotel, addCompetitorToHotel, updateHotelCompetitor, removeHotelCompetitor } from "@/actions/hotels";
-import { createRatePlan } from "@/actions/rate-plans";
+import { createRatePlan, updateRatePlan } from "@/actions/rate-plans";
 import { toast } from "@/hooks/use-toast";
 import { COMPETITOR_WEIGHT_OPTIONS } from "@hotel-pricing/shared";
+import { TroskyPageHeader } from "@/components/trosky/trosky-page-header";
 import Link from "next/link";
 
 type GeneralForm = {
@@ -113,6 +114,7 @@ export function HotelSettings({ hotel }: HotelSettingsProps) {
 
   // Rate plan form
   const [newPlan, setNewPlan] = useState({ code: "", name: "", discountPercent: "0" });
+  const [togglingPlanId, setTogglingPlanId] = useState<string | null>(null);
   const generalErrors = validateGeneralHotel(general);
 
   async function handleSaveGeneral() {
@@ -207,16 +209,32 @@ export function HotelSettings({ hotel }: HotelSettingsProps) {
     }
   }
 
+  async function handleToggleRatePlan(plan: { id: string; name: string; active: boolean }) {
+    setTogglingPlanId(plan.id);
+    try {
+      await updateRatePlan({ id: plan.id, active: !plan.active });
+      toast({ title: plan.active ? "Rate plan deactivated" : "Rate plan activated" });
+      router.refresh();
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setTogglingPlanId(null);
+    }
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center gap-4">
-        <Link href={`/hotels/${hotel.id}`}>
-          <Button variant="ghost" size="icon"><ArrowLeft className="h-4 w-4" /></Button>
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold">{hotel.name}</h1>
-          <p className="text-muted-foreground">Hotel settings and configuration</p>
-        </div>
+      <div>
+        <Button asChild variant="ghost" size="icon" className="mb-2">
+          <Link href={`/hotels/${hotel.id}`} aria-label="Back to hotel dashboard">
+            <ArrowLeft className="h-4 w-4" aria-hidden />
+          </Link>
+        </Button>
+        <TroskyPageHeader
+          eyebrow="Portfolio"
+          title={hotel.name}
+          description="Hotel settings and configuration"
+        />
       </div>
 
       <Tabs defaultValue="general">
@@ -226,38 +244,39 @@ export function HotelSettings({ hotel }: HotelSettingsProps) {
           <TabsTrigger value="rateplans">Rate Plans ({hotel.ratePlans.length})</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="general">
+        <TabsContent value="general" className="space-y-4">
           <Card>
             <CardHeader><CardTitle>Hotel Details</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Name</Label>
-                  <Input value={general.name} onChange={(e) => setGeneral({ ...general, name: e.target.value })} />
+                  <Label htmlFor="hotel-name">Name</Label>
+                  <Input id="hotel-name" value={general.name} onChange={(e) => setGeneral({ ...general, name: e.target.value })} />
                 </div>
                 <div className="space-y-2">
-                  <Label>PMS Name</Label>
-                  <Input value={general.pmsName} onChange={(e) => setGeneral({ ...general, pmsName: e.target.value })} />
+                  <Label htmlFor="hotel-pms-name">PMS Name</Label>
+                  <Input id="hotel-pms-name" value={general.pmsName} onChange={(e) => setGeneral({ ...general, pmsName: e.target.value })} />
                 </div>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Phone</Label>
-                  <Input value={general.phone} onChange={(e) => setGeneral({ ...general, phone: e.target.value })} />
+                  <Label htmlFor="hotel-phone">Phone</Label>
+                  <Input id="hotel-phone" value={general.phone} onChange={(e) => setGeneral({ ...general, phone: e.target.value })} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Email</Label>
-                  <Input value={general.email} onChange={(e) => setGeneral({ ...general, email: e.target.value })} />
+                  <Label htmlFor="hotel-email">Email</Label>
+                  <Input id="hotel-email" value={general.email} onChange={(e) => setGeneral({ ...general, email: e.target.value })} />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Address</Label>
-                <Input value={general.address} onChange={(e) => setGeneral({ ...general, address: e.target.value })} />
+                <Label htmlFor="hotel-address">Address</Label>
+                <Input id="hotel-address" value={general.address} onChange={(e) => setGeneral({ ...general, address: e.target.value })} />
               </div>
               <div className="grid gap-4 md:grid-cols-4">
                 <div className="space-y-2">
-                  <Label>Room Count</Label>
+                  <Label htmlFor="hotel-room-count">Room Count</Label>
                   <Input
+                    id="hotel-room-count"
                     type="number"
                     value={general.roomCount}
                     min={1}
@@ -267,8 +286,9 @@ export function HotelSettings({ hotel }: HotelSettingsProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Min Rate ($)</Label>
+                  <Label htmlFor="hotel-min-rate">Min Rate ($)</Label>
                   <Input
+                    id="hotel-min-rate"
                     type="number"
                     value={general.minRate}
                     min={1}
@@ -277,8 +297,9 @@ export function HotelSettings({ hotel }: HotelSettingsProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Max Rate ($)</Label>
+                  <Label htmlFor="hotel-max-rate">Max Rate ($)</Label>
                   <Input
+                    id="hotel-max-rate"
                     type="number"
                     value={general.maxRate}
                     min={1}
@@ -292,8 +313,9 @@ export function HotelSettings({ hotel }: HotelSettingsProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Occ Target %</Label>
+                  <Label htmlFor="hotel-occ-target">Occ Target %</Label>
                   <Input
+                    id="hotel-occ-target"
                     type="number"
                     value={general.occTarget}
                     min={0}
@@ -304,7 +326,7 @@ export function HotelSettings({ hotel }: HotelSettingsProps) {
                 </div>
               </div>
               {generalErrors.length > 0 && (
-                <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+                <div role="alert" className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
                   {generalErrors.map((error) => (
                     <p key={error}>{error}</p>
                   ))}
@@ -313,6 +335,40 @@ export function HotelSettings({ hotel }: HotelSettingsProps) {
               <Button onClick={handleSaveGeneral} disabled={saving || generalErrors.length > 0}>
                 {saving ? "Saving..." : "Save Changes"}
               </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader><CardTitle>OTA Listings</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">
+                Listings are set when the hotel is created and can&apos;t be edited here.
+              </p>
+              {hotel.listings.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No OTA listings connected.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {hotel.listings.map((listing) => (
+                    <li key={listing.id} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2">
+                      <div className="min-w-0 space-y-0.5">
+                        <p className="text-sm font-medium">{listing.ota}</p>
+                        <a
+                          href={listing.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="block truncate text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
+                        >
+                          {listing.url}
+                          <ExternalLink className="ml-1 inline h-3 w-3" aria-hidden />
+                        </a>
+                      </div>
+                      <Badge variant={listing.active ? "success" : "secondary"}>
+                        {listing.active ? "Active" : "Inactive"}
+                      </Badge>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -341,7 +397,7 @@ export function HotelSettings({ hotel }: HotelSettingsProps) {
                         <td className="px-4 py-2">{hc.competitor.name}</td>
                         <td className="px-4 py-2">
                           <Select defaultValue={hc.weight.toString()} onValueChange={(v) => handleUpdateWeight(hc.competitorId, v)}>
-                            <SelectTrigger className="w-[120px] h-8">
+                            <SelectTrigger className="w-[120px] h-8" aria-label={`Weight for ${hc.competitor.name}`}>
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -357,8 +413,14 @@ export function HotelSettings({ hotel }: HotelSettingsProps) {
                           {hc.competitor.listings[0]?.url || "No URL"}
                         </td>
                         <td className="px-4 py-2 text-right">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleRemoveCompetitor(hc.competitorId)}>
-                            <Trash2 className="h-3 w-3 text-destructive" />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            aria-label={`Remove ${hc.competitor.name}`}
+                            onClick={() => handleRemoveCompetitor(hc.competitorId)}
+                          >
+                            <Trash2 className="h-3 w-3 text-destructive" aria-hidden />
                           </Button>
                         </td>
                       </tr>
@@ -370,21 +432,32 @@ export function HotelSettings({ hotel }: HotelSettingsProps) {
               <div className="border-t pt-4">
                 <h4 className="text-sm font-medium mb-3">Add Competitor</h4>
                 <div className="grid gap-3 md:grid-cols-4">
-                  <Input placeholder="Competitor name" value={newComp.name} onChange={(e) => setNewComp({ ...newComp, name: e.target.value })} />
-                  <Input placeholder="Expedia URL" value={newComp.expediaUrl} onChange={(e) => setNewComp({ ...newComp, expediaUrl: e.target.value })} />
-                  <Select value={newComp.weight} onValueChange={(v) => setNewComp({ ...newComp, weight: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {COMPETITOR_WEIGHT_OPTIONS.map((option) => (
-                        <SelectItem key={option.label} value={String(option.value)}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button onClick={handleAddCompetitor} disabled={saving}>
-                    <Plus className="mr-2 h-4 w-4" />Add
-                  </Button>
+                  <div className="space-y-2">
+                    <Label htmlFor="new-competitor-name">Name</Label>
+                    <Input id="new-competitor-name" placeholder="Competitor name" value={newComp.name} onChange={(e) => setNewComp({ ...newComp, name: e.target.value })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="new-competitor-url">Expedia URL</Label>
+                    <Input id="new-competitor-url" placeholder="https://www.expedia.com/..." value={newComp.expediaUrl} onChange={(e) => setNewComp({ ...newComp, expediaUrl: e.target.value })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="new-competitor-weight">Weight</Label>
+                    <Select value={newComp.weight} onValueChange={(v) => setNewComp({ ...newComp, weight: v })}>
+                      <SelectTrigger id="new-competitor-weight"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {COMPETITOR_WEIGHT_OPTIONS.map((option) => (
+                          <SelectItem key={option.label} value={String(option.value)}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-end">
+                    <Button onClick={handleAddCompetitor} disabled={saving} className="w-full">
+                      <Plus className="mr-2 h-4 w-4" aria-hidden />Add
+                    </Button>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -403,6 +476,7 @@ export function HotelSettings({ hotel }: HotelSettingsProps) {
                       <th className="px-4 py-2 text-left">Name</th>
                       <th className="px-4 py-2 text-right">Discount %</th>
                       <th className="px-4 py-2 text-center">Status</th>
+                      <th className="px-4 py-2 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -416,6 +490,18 @@ export function HotelSettings({ hotel }: HotelSettingsProps) {
                             {plan.active ? "Active" : "Inactive"}
                           </Badge>
                         </td>
+                        <td className="px-4 py-2 text-right">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8"
+                            aria-label={`${plan.active ? "Deactivate" : "Activate"} ${plan.name}`}
+                            disabled={togglingPlanId === plan.id}
+                            onClick={() => handleToggleRatePlan(plan)}
+                          >
+                            {togglingPlanId === plan.id ? "Saving..." : plan.active ? "Deactivate" : "Activate"}
+                          </Button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -425,12 +511,23 @@ export function HotelSettings({ hotel }: HotelSettingsProps) {
               <div className="border-t pt-4">
                 <h4 className="text-sm font-medium mb-3">Add Rate Plan</h4>
                 <div className="grid gap-3 md:grid-cols-4">
-                  <Input placeholder="Code (e.g. GOV)" value={newPlan.code} onChange={(e) => setNewPlan({ ...newPlan, code: e.target.value })} />
-                  <Input placeholder="Plan name" value={newPlan.name} onChange={(e) => setNewPlan({ ...newPlan, name: e.target.value })} />
-                  <Input type="number" placeholder="Discount %" value={newPlan.discountPercent} onChange={(e) => setNewPlan({ ...newPlan, discountPercent: e.target.value })} />
-                  <Button onClick={handleAddRatePlan} disabled={saving}>
-                    <Plus className="mr-2 h-4 w-4" />Add
-                  </Button>
+                  <div className="space-y-2">
+                    <Label htmlFor="new-plan-code">Code</Label>
+                    <Input id="new-plan-code" placeholder="e.g. GOV" value={newPlan.code} onChange={(e) => setNewPlan({ ...newPlan, code: e.target.value })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="new-plan-name">Name</Label>
+                    <Input id="new-plan-name" placeholder="Plan name" value={newPlan.name} onChange={(e) => setNewPlan({ ...newPlan, name: e.target.value })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="new-plan-discount">Discount %</Label>
+                    <Input id="new-plan-discount" type="number" min={0} max={100} value={newPlan.discountPercent} onChange={(e) => setNewPlan({ ...newPlan, discountPercent: e.target.value })} />
+                  </div>
+                  <div className="flex items-end">
+                    <Button onClick={handleAddRatePlan} disabled={saving} className="w-full">
+                      <Plus className="mr-2 h-4 w-4" aria-hidden />Add
+                    </Button>
+                  </div>
                 </div>
               </div>
             </CardContent>

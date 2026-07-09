@@ -2,9 +2,19 @@
 
 import type { FormEvent } from "react";
 import { useState } from "react";
+import { Hotel } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 type HotelOption = {
   id: string;
@@ -20,10 +30,12 @@ type SubmitState =
 
 export function PublicInquiryForm({ hotels }: { hotels: HotelOption[] }) {
   const [state, setState] = useState<SubmitState>({ status: "idle" });
+  const [hotelId, setHotelId] = useState(hotels[0]?.id ?? "");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     setState({ status: "submitting" });
 
     const response = await fetch("/api/inquiries/public", {
@@ -50,15 +62,18 @@ export function PublicInquiryForm({ hotels }: { hotels: HotelOption[] }) {
       return;
     }
 
-    event.currentTarget.reset();
+    formElement.reset();
+    setHotelId(hotels[0]?.id ?? "");
     setState({ status: "success", inquiryId: payload.inquiry.id });
   }
 
   if (hotels.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed bg-background p-8 text-center text-sm text-muted-foreground">
-        No active hotels are available for inquiries yet.
-      </div>
+      <EmptyState
+        icon={Hotel}
+        title="No hotels open for inquiries yet"
+        description="No active hotels are available for inquiries yet. Please check back soon."
+      />
     );
   }
 
@@ -78,19 +93,19 @@ export function PublicInquiryForm({ hotels }: { hotels: HotelOption[] }) {
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2 md:col-span-2">
           <Label htmlFor="hotelId">Hotel</Label>
-          <select
-            id="hotelId"
-            name="hotelId"
-            required
-            className="h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-          >
-            {hotels.map((hotel) => (
-              <option key={hotel.id} value={hotel.id}>
-                {hotel.name}
-                {hotel.city ? `, ${hotel.city}` : ""}
-              </option>
-            ))}
-          </select>
+          <Select name="hotelId" required value={hotelId} onValueChange={setHotelId}>
+            <SelectTrigger id="hotelId" className="h-11">
+              <SelectValue placeholder="Select a hotel" />
+            </SelectTrigger>
+            <SelectContent>
+              {hotels.map((hotel) => (
+                <SelectItem key={hotel.id} value={hotel.id}>
+                  {hotel.name}
+                  {hotel.city ? `, ${hotel.city}` : ""}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="space-y-2">
           <Label htmlFor="name">Name</Label>
@@ -116,7 +131,7 @@ export function PublicInquiryForm({ hotels }: { hotels: HotelOption[] }) {
 
       <div className="space-y-2">
         <Label htmlFor="message">Inquiry</Label>
-        <textarea
+        <Textarea
           id="message"
           name="message"
           required
@@ -124,7 +139,6 @@ export function PublicInquiryForm({ hotels }: { hotels: HotelOption[] }) {
           minLength={5}
           maxLength={4000}
           placeholder="Tell us dates, rooms, guests, budget, and any meeting or catering needs."
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
         />
       </div>
 
@@ -133,12 +147,12 @@ export function PublicInquiryForm({ hotels }: { hotels: HotelOption[] }) {
           {state.status === "submitting" ? "Sending..." : "Send inquiry"}
         </Button>
         {state.status === "success" && (
-          <p className="text-sm text-emerald-700">
+          <p role="status" className="text-sm text-emerald-600 dark:text-emerald-400">
             Inquiry received. Reference {state.inquiryId.slice(-6)}.
           </p>
         )}
         {state.status === "error" && (
-          <p className="text-sm text-destructive">{state.message}</p>
+          <p role="alert" className="text-sm text-destructive">{state.message}</p>
         )}
       </div>
     </form>

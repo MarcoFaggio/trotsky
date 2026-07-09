@@ -4,6 +4,9 @@ import { prisma } from "@hotel-pricing/db";
 import { requireHotelAccess } from "@/lib/rbac";
 import type { DashboardDay } from "@hotel-pricing/shared";
 
+const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+const MAX_RANGE_DAYS = 366;
+
 export async function getDashboardData(
   hotelId: string,
   startDate: string,
@@ -11,8 +14,19 @@ export async function getDashboardData(
 ): Promise<DashboardDay[]> {
   await requireHotelAccess(hotelId);
 
+  if (!DATE_ONLY.test(startDate) || !DATE_ONLY.test(endDate)) {
+    throw new Error("Invalid date range");
+  }
   const start = new Date(startDate + "T00:00:00.000Z");
   const end = new Date(endDate + "T00:00:00.000Z");
+  if (
+    Number.isNaN(start.getTime()) ||
+    Number.isNaN(end.getTime()) ||
+    end < start ||
+    (end.getTime() - start.getTime()) / 86400000 > MAX_RANGE_DAYS
+  ) {
+    throw new Error("Invalid date range");
+  }
 
   const [hotel, hotelRates, competitors, occupancy, recommendations, events, promotions, overrides, signalImpacts] = await Promise.all([
     prisma.hotel.findUnique({ where: { id: hotelId } }),
@@ -132,10 +146,10 @@ export async function getDashboardData(
       ourRate: override ? override.overridePriceCents : (hotelRate?.priceCents || null),
       recommendedRate: rec?.recommendedPriceCents || null,
       compAvgRate: compAvg ? Math.round(compAvg) : null,
-      occPercent: occ?.occPercent || null,
-      occLyPercent: occ?.occLyPercent || null,
-      otbRooms: occ?.roomsOnBooks || null,
-      otbLyRooms: occ?.otbLyRooms || null,
+      occPercent: occ?.occPercent ?? null,
+      occLyPercent: occ?.occLyPercent ?? null,
+      otbRooms: occ?.roomsOnBooks ?? null,
+      otbLyRooms: occ?.otbLyRooms ?? null,
       hasEvent,
       hasPromotion,
       overrideRate: override?.overridePriceCents || null,
@@ -152,7 +166,7 @@ export async function getDashboardData(
       competitors: compData,
     });
 
-    current.setDate(current.getDate() + 1);
+    current.setUTCDate(current.getUTCDate() + 1);
   }
 
   return days;

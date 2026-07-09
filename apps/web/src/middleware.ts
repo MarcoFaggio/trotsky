@@ -39,7 +39,9 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    await jwtVerify(accessToken, jwtAccessSecretBytes());
+    await jwtVerify(accessToken, jwtAccessSecretBytes(), {
+      algorithms: ["HS256"],
+    });
     const response = NextResponse.next();
     response.headers.set("X-Content-Type-Options", "nosniff");
     response.headers.set("X-Frame-Options", "DENY");

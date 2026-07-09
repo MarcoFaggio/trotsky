@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { DashboardDay } from "@hotel-pricing/shared";
+import { formatCurrency } from "@hotel-pricing/shared";
 
 interface CalendarViewProps {
   days: DashboardDay[];
@@ -13,7 +14,7 @@ interface CalendarViewProps {
 
 function fmt(cents: number | null): string {
   if (cents === null) return "—";
-  return `$${Math.round(cents / 100)}`;
+  return formatCurrency(cents);
 }
 
 export function CalendarView({ days, onDayClick }: CalendarViewProps) {
@@ -76,11 +77,21 @@ export function CalendarView({ days, onDayClick }: CalendarViewProps) {
   return (
     <div className="border rounded-lg bg-card">
       <div className="flex items-center justify-between p-4 border-b">
-        <Button variant="ghost" size="icon" onClick={() => setMonthOffset((p) => p - 1)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Previous month"
+          onClick={() => setMonthOffset((p) => p - 1)}
+        >
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <h3 className="font-semibold">{monthName}</h3>
-        <Button variant="ghost" size="icon" onClick={() => setMonthOffset((p) => p + 1)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Next month"
+          onClick={() => setMonthOffset((p) => p + 1)}
+        >
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
@@ -126,7 +137,7 @@ export function CalendarView({ days, onDayClick }: CalendarViewProps) {
                     </span>
                   )}
                   {day.hasPromotion && (
-                    <span className="inline-flex h-1.5 w-1.5 rounded-full bg-purple-500">
+                    <span className="inline-flex h-1.5 w-1.5 rounded-full bg-violet-500">
                       <span className="sr-only">Promotion</span>
                     </span>
                   )}
@@ -135,8 +146,8 @@ export function CalendarView({ days, onDayClick }: CalendarViewProps) {
                       className={cn(
                         "inline-flex h-1.5 w-1.5 rounded-full",
                         day.signalDirection === "NEGATIVE_DISRUPTION"
-                          ? "bg-red-500"
-                          : "bg-indigo-500"
+                          ? "bg-destructive"
+                          : "bg-teal-600"
                       )}
                     >
                       <span className="sr-only">Imported signal</span>
@@ -154,7 +165,7 @@ export function CalendarView({ days, onDayClick }: CalendarViewProps) {
                   {day.recommendedRate && (
                     <div className="text-xs">
                       <span className="text-muted-foreground">Rec: </span>
-                      <span className="font-medium text-emerald-600">
+                      <span className="font-medium text-emerald-600 dark:text-emerald-400">
                         {fmt(day.recommendedRate)}
                       </span>
                     </div>

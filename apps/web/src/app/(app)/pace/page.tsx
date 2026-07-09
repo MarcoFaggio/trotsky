@@ -1,5 +1,6 @@
 import { getSession } from "@/lib/auth";
 import { prisma } from "@hotel-pricing/db";
+import { computeWeightedAvg } from "@hotel-pricing/shared";
 import { redirect } from "next/navigation";
 import { PaceDashboard } from "@/components/dashboard/pace-dashboard";
 
@@ -26,17 +27,21 @@ export default async function PacePage({
     });
   }
 
-  const hotelId = searchParams.hotelId || hotels[0]?.id;
-  
+  const requestedHotelId = searchParams.hotelId;
+  const hotelId =
+    (requestedHotelId && hotels.some((h) => h.id === requestedHotelId)
+      ? requestedHotelId
+      : hotels[0]?.id) || undefined;
+
   let occupancy: Awaited<ReturnType<typeof prisma.occupancyEntry.findMany>> = [];
   let compAvgRate: number | null = null;
   let ourRate: number | null = null;
 
   if (hotelId) {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setUTCHours(0, 0, 0, 0);
     const end = new Date(today);
-    end.setDate(end.getDate() + 30);
+    end.setUTCDate(end.getUTCDate() + 30);
 
     occupancy = await prisma.occupancyEntry.findMany({
       where: { hotelId, date: { gte: today, lte: end } },
@@ -45,31 +50,40 @@ export default async function PacePage({
 
     const todayRate = await prisma.dailyRate.findFirst({
       where: { hotelId, listingType: "HOTEL", date: today },
+      orderBy: { scrapedAt: "desc" },
     });
-    ourRate = todayRate?.priceCents || null;
+    ourRate = todayRate?.priceCents ?? null;
 
     const competitors = await prisma.hotelCompetitor.findMany({
       where: { hotelId, active: true },
       include: {
         competitor: {
           include: {
-            dailyRates: { where: { date: today }, take: 1 },
+            dailyRates: {
+              where: { date: today },
+              orderBy: { scrapedAt: "desc" },
+              take: 1,
+            },
           },
         },
       },
     });
 
-    const compRates = competitors
-      .map((c) => c.competitor.dailyRates[0]?.priceCents)
-      .filter(Boolean) as number[];
-    
-    if (compRates.length > 0) {
-      compAvgRate = Math.round(compRates.reduce((s, r) => s + r, 0) / compRates.length);
+    const weightedRates = competitors
+      .filter((c) => c.competitor.dailyRates[0]?.priceCents != null)
+      .map((c) => ({
+        rate: c.competitor.dailyRates[0]!.priceCents,
+        weight: c.weight,
+      }));
+
+    if (weightedRates.length > 0) {
+      compAvgRate = computeWeightedAvg(weightedRates);
     }
   }
 
   return (
     <PaceDashboard
+      key={hotelId ?? "none"}
       hotels={hotels}
       initialHotelId={hotelId || null}
       occupancy={occupancy.map((o) => ({

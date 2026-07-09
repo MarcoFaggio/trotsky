@@ -38,7 +38,7 @@ export const expediaScraper: ScraperAdapter = {
       for (const date of dates) {
         const checkIn = date.toISOString().split("T")[0];
         const checkOut = new Date(date);
-        checkOut.setDate(checkOut.getDate() + 1);
+        checkOut.setUTCDate(checkOut.getUTCDate() + 1);
         const checkOutStr = checkOut.toISOString().split("T")[0];
 
         let success = false;

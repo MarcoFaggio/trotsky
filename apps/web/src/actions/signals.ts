@@ -3,6 +3,7 @@
 import { prisma } from "@hotel-pricing/db";
 import { requireAnalyst, requireHotelAccess } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
+import { startOfTodayUtc, addUtcDays } from "@hotel-pricing/shared";
 import { queueRecommendationRecompute } from "@/lib/recommendation-queue";
 
 function toDateObj(date: string): Date {
@@ -11,10 +12,8 @@ function toDateObj(date: string): Date {
 
 export async function getImportedSignals(hotelId?: string, days = 30) {
   const session = await requireAnalyst();
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const end = new Date(today);
-  end.setDate(end.getDate() + days - 1);
+  const today = startOfTodayUtc();
+  const end = addUtcDays(today, days - 1);
 
   const impacts = await prisma.hotelSignalImpact.findMany({
     where: {

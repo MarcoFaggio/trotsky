@@ -23,6 +23,10 @@ export const createHotelSchema = z.object({
 export const updateHotelSchema = createHotelSchema.partial().extend({
   id: z.string(),
   status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
+  // Updates receive cents and allow null to clear a guardrail/target.
+  minRate: z.number().int().positive().nullable().optional(),
+  maxRate: z.number().int().positive().nullable().optional(),
+  occTarget: z.number().min(0).max(100).nullable().optional(),
 });
 
 export const competitorSchema = z.object({

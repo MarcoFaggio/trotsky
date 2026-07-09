@@ -12,6 +12,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import type { DashboardDay } from "@hotel-pricing/shared";
+import { formatCurrency } from "@hotel-pricing/shared";
 
 interface SummaryCardsProps {
   data: DashboardDay | null;
@@ -20,7 +21,7 @@ interface SummaryCardsProps {
 
 function fmt(cents: number | null): string {
   if (cents === null) return "—";
-  return `$${Math.round(cents / 100)}`;
+  return formatCurrency(cents);
 }
 
 export function SummaryCards({ data, roomCount }: SummaryCardsProps) {
@@ -35,10 +36,8 @@ export function SummaryCards({ data, roomCount }: SummaryCardsProps) {
   const occupiedRooms = data.occPercent
     ? Math.round((data.occPercent / 100) * roomCount)
     : null;
-  const revenue =
-    data.ourRate && occupiedRooms
-      ? Math.round((data.ourRate / 100) * occupiedRooms)
-      : null;
+  const revenueCents =
+    data.ourRate && occupiedRooms ? data.ourRate * occupiedRooms : null;
 
   const cards = [
     {
@@ -76,7 +75,7 @@ export function SummaryCards({ data, roomCount }: SummaryCardsProps) {
     },
     {
       title: "Est. Revenue",
-      value: revenue ? `$${revenue.toLocaleString()}` : "—",
+      value: revenueCents ? formatCurrency(revenueCents) : "—",
       icon: DollarSign,
     },
   ];

@@ -10,18 +10,18 @@ Color palette, typography, chart colors, and visual guidelines.
 
 | Token | Hex | Usage |
 |-------|-----|-------|
-| `--trosky-red` | `#D5171E` | Primary brand, urgent CTAs, active nav accent |
-| `--trosky-red-dark` | `#A80E15` | Hover on primary actions |
+| `--trosky-red` | `#A60101` | Primary brand, urgent CTAs, active nav accent (brighter `0 78% 50%` in dark mode for contrast) |
+| `--trosky-red-dark` | `#780000` | Hover on primary actions, destructive anchor |
 | `--trosky-red-soft` | `#F6F1F1` | Soft panels, active nav background (desktop) |
-| `--trosky-ink` | `#0E1523` | Headings, primary text in app |
-| `--trosky-muted` | `#657681` | Captions, secondary labels |
-| `--trosky-border` | `#DAD9DB` | Card and shell borders |
+| `--trosky-ink` | `#424040` | Headings, primary text in app (warm ink) |
+| `--trosky-muted` | warm graphite (`10 4% 45%`) | Captions, secondary labels |
+| `--trosky-border` | warm hairline (`20 6% 86%`) | Card and shell borders |
 
 Reusable UI: `apps/web/src/components/trosky/` (`TroskyShell`, `TroskyPageHeader`, `TroskyMetricCard`, etc.).
 
 ### Dark mode (authenticated app)
 
-- `.dark` in `globals.css` overrides Trosky cockpit tokens and maps semantic shadcn variables (`background`, `card`, `border`, `muted-foreground`, etc.).
+- `.dark` in `globals.css` overrides Trosky cockpit tokens and maps semantic shadcn variables (`background`, `card`, `border`, `muted-foreground`, etc.). Dark surfaces are **warm black** (hue 12–20, e.g. `--background: 15 16% 5%`), never blue-black, per `.impeccable.md`.
 - Prefer **semantic classes** in components: `bg-card`, `border-border`, `text-muted-foreground` — avoid hardcoded `bg-white` on operational surfaces.
 - Shared patterns: `apps/web/src/components/trosky/trosky-primitives.ts` (`troskySurfaces`).
 
@@ -30,7 +30,7 @@ Reusable UI: `apps/web/src/components/trosky/` (`TroskyShell`, `TroskyPageHeader
 | Token | Usage | HSL / Hex |
 |-------|-------|-----|
 | `foreground` | Primary body text | maps to `--trosky-ink` |
-| `primary` | Our hotel, main CTAs, active states | `#D5171E` / `358 81% 46%` |
+| `primary` | Our hotel, main CTAs, active states | `#A60101` / `0 99% 33%` |
 | `secondary` | Muted backgrounds, secondary buttons | warm red-tinted neutral |
 | `destructive` | Errors, delete actions, dark-mode primary base | `#780000` / `0 100% 23.5%` |
 | `muted` | Disabled, placeholder text | warm red-tinted neutral |

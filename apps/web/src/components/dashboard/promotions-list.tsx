@@ -8,9 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Megaphone } from "lucide-react";
 import { createPromotion, deletePromotion } from "@/actions/occupancy";
 import { toast } from "@/hooks/use-toast";
+import { TroskyPageHeader } from "@/components/trosky/trosky-page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface Promotion {
   id: string;
@@ -89,64 +91,65 @@ export function PromotionsList({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Promotions</h1>
-          <p className="text-muted-foreground">
-            {isAnalyst
-              ? "Manage hotel promotions and special offers"
-              : "View active and upcoming promotions for your hotel"}
-          </p>
-        </div>
-        {isAnalyst && (
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button><Plus className="mr-2 h-4 w-4" />Add Promotion</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create Promotion</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Hotel</Label>
-                  <Select value={form.hotelId} onValueChange={(v) => setForm({ ...form, hotelId: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {hotels.map((h) => (<SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Title</Label>
-                  <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Description</Label>
-                  <Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
+      <TroskyPageHeader
+        eyebrow="Demand levers"
+        title="Promotions"
+        description={
+          isAnalyst
+            ? "Manage hotel promotions and special offers"
+            : "View active and upcoming promotions for your hotel"
+        }
+        actions={
+          isAnalyst ? (
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button><Plus className="mr-2 h-4 w-4" />Add Promotion</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create Promotion</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Start Date</Label>
-                    <Input type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} />
+                    <Label htmlFor="promo-hotel">Hotel</Label>
+                    <Select value={form.hotelId} onValueChange={(v) => setForm({ ...form, hotelId: v })}>
+                      <SelectTrigger id="promo-hotel"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {hotels.map((h) => (<SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>End Date</Label>
-                    <Input type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })} />
+                    <Label htmlFor="promo-title">Title</Label>
+                    <Input id="promo-title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="promo-description">Description</Label>
+                    <Input id="promo-description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="promo-start-date">Start Date</Label>
+                      <Input id="promo-start-date" type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="promo-end-date">End Date</Label>
+                      <Input id="promo-end-date" type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })} />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="promo-terms">Terms</Label>
+                    <Input id="promo-terms" value={form.terms} onChange={(e) => setForm({ ...form, terms: e.target.value })} />
+                  </div>
+                  <Button onClick={handleCreate} disabled={saving} className="w-full">
+                    {saving ? "Creating..." : "Create Promotion"}
+                  </Button>
                 </div>
-                <div className="space-y-2">
-                  <Label>Terms</Label>
-                  <Input value={form.terms} onChange={(e) => setForm({ ...form, terms: e.target.value })} />
-                </div>
-                <Button onClick={handleCreate} disabled={saving} className="w-full">
-                  {saving ? "Creating..." : "Create Promotion"}
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        )}
-      </div>
+              </DialogContent>
+            </Dialog>
+          ) : undefined
+        }
+      />
 
       <div className="space-y-3">
         {promotions.map((p) => {
@@ -156,6 +159,7 @@ export function PromotionsList({
               <CardContent className="flex items-center justify-between py-4">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
+                    <Megaphone className="h-4 w-4 text-violet-500 shrink-0" aria-hidden />
                     <span className="font-medium">{p.title}</span>
                     <Badge variant={isActive ? "success" : "secondary"}>
                       {isActive ? "Active" : "Inactive"}
@@ -167,7 +171,12 @@ export function PromotionsList({
                   {p.description && <p className="text-xs text-muted-foreground">{p.description}</p>}
                 </div>
                 {isAnalyst && (
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(p.id)}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={`Delete promotion: ${p.title}`}
+                    onClick={() => handleDelete(p.id)}
+                  >
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
                 )}
@@ -176,11 +185,22 @@ export function PromotionsList({
           );
         })}
         {promotions.length === 0 && (
-          <div className="text-center py-12 text-muted-foreground">
-            {isAnalyst
-              ? "No promotions yet. Create your first promotion."
-              : "No promotions are available for your hotel yet."}
-          </div>
+          <EmptyState
+            icon={Megaphone}
+            title="No promotions yet"
+            description={
+              isAnalyst
+                ? "Special offers you create will appear here."
+                : "No promotions are available for your hotel yet."
+            }
+            action={
+              isAnalyst ? (
+                <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+                  Create your first promotion
+                </Button>
+              ) : undefined
+            }
+          />
         )}
       </div>
     </div>

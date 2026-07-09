@@ -141,8 +141,13 @@ export function ThreadView({
       {/* Header */}
       <div className="flex items-center justify-between pb-4">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={onBack}>
-            <ArrowLeft className="h-4 w-4" />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onBack}
+            aria-label="Back to inbox"
+          >
+            <ArrowLeft className="h-4 w-4" aria-hidden />
           </Button>
           <div>
             <h2 className="text-lg font-semibold">
@@ -253,6 +258,7 @@ export function ThreadView({
         <div className="flex gap-2">
           <Input
             placeholder="Type a message..."
+            aria-label="Message"
             value={body}
             onChange={(e) => setBody(e.target.value)}
             onKeyDown={(e) => {
@@ -267,8 +273,9 @@ export function ThreadView({
             onClick={handleSend}
             disabled={sending || !body.trim()}
             size="sm"
+            aria-label="Send message"
           >
-            <Send className="h-4 w-4" />
+            <Send className="h-4 w-4" aria-hidden />
           </Button>
         </div>
       </div>

@@ -1,10 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { EmptyState } from "@/components/ui/empty-state";
+import { TroskyPageHeader } from "@/components/trosky/trosky-page-header";
 import { Building2, Download, Save } from "lucide-react";
 import { bulkUpsertOccupancy } from "@/actions/occupancy";
 import { toast } from "@/hooks/use-toast";
@@ -25,18 +28,17 @@ interface OccupancyEditorProps {
 
 function generateDates(days: number): string[] {
   const dates: string[] = [];
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const now = new Date();
+  const todayUtc = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
   for (let i = 0; i < days; i++) {
-    const d = new Date(today);
-    d.setDate(d.getDate() + i);
-    dates.push(d.toISOString().split("T")[0]);
+    dates.push(new Date(todayUtc + i * 86400000).toISOString().split("T")[0]);
   }
   return dates;
 }
 
 export function OccupancyEditor({ hotels, initialHotelId, initialData }: OccupancyEditorProps) {
-  const [hotelId, setHotelId] = useState(initialHotelId || "");
+  const router = useRouter();
+  const hotelId = initialHotelId || "";
   const dates = generateDates(30);
   const [entries, setEntries] = useState<Map<string, OccEntry>>(() => {
     const map = new Map<string, OccEntry>();
@@ -47,16 +49,31 @@ export function OccupancyEditor({ hotels, initialHotelId, initialData }: Occupan
     return map;
   });
   const [saving, setSaving] = useState(false);
+  const [dirty, setDirty] = useState(false);
   const hasHotels = hotels.length > 0;
+  const hotelName = hotels.find((h) => h.id === hotelId)?.name;
+
+  function handleHotelChange(id: string) {
+    if (id === hotelId) return;
+    if (
+      dirty &&
+      !window.confirm("You have unsaved occupancy changes. Switch hotel and discard them?")
+    ) {
+      return;
+    }
+    router.push(`/occupancy?hotelId=${id}`);
+  }
 
   function updateEntry(date: string, field: keyof OccEntry, value: string) {
     setEntries((prev) => {
       const next = new Map(prev);
       const entry = { ...next.get(date)! };
-      (entry as any)[field] = value === "" ? null : parseFloat(value);
+      const parsed = parseFloat(value);
+      (entry as any)[field] = value === "" || Number.isNaN(parsed) ? null : parsed;
       next.set(date, entry);
       return next;
     });
+    setDirty(true);
   }
 
   async function handleSave() {
@@ -67,7 +84,8 @@ export function OccupancyEditor({ hotels, initialHotelId, initialData }: Occupan
         .filter((e) => e.occPercent !== null || e.roomsOnBooks !== null)
         .map((e) => ({ hotelId, ...e }));
       await bulkUpsertOccupancy(data);
-      toast({ title: "Occupancy data saved" });
+      setDirty(false);
+      toast({ title: "Occupancy data saved", description: hotelName ? `Saved for ${hotelName}.` : undefined });
     } catch (e: any) {
       toast({ title: "Error saving", description: e.message, variant: "destructive" });
     } finally {
@@ -93,40 +111,44 @@ export function OccupancyEditor({ hotels, initialHotelId, initialData }: Occupan
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Occupancy Management</h1>
-          <p className="text-muted-foreground">Enter and manage occupancy data for next 30 days</p>
-        </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <Select value={hotelId} onValueChange={setHotelId}>
-            <SelectTrigger className="w-full sm:w-[300px]">
-              <SelectValue placeholder="Select hotel" />
-            </SelectTrigger>
-            <SelectContent>
-              {hotels.map((h) => (
-                <SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button variant="outline" size="sm" onClick={handleExportCSV} disabled={!hasHotels}>
-            <Download className="mr-2 h-4 w-4" />CSV
-          </Button>
-          <Button size="sm" onClick={handleSave} disabled={saving || !hasHotels}>
-            <Save className="mr-2 h-4 w-4" />
-            {saving ? "Saving..." : "Save All"}
-          </Button>
-        </div>
-      </div>
+      <TroskyPageHeader
+        eyebrow="Demand inputs"
+        title="Occupancy Management"
+        description={
+          hotelName
+            ? `Enter and manage the next 30 days of occupancy for ${hotelName}.`
+            : "Enter and manage occupancy data for the next 30 days."
+        }
+        badge={dirty ? { text: "Unsaved changes", variant: "warning" } : undefined}
+        actions={
+          <>
+            <Select value={hotelId} onValueChange={handleHotelChange}>
+              <SelectTrigger className="w-full sm:w-[260px]" aria-label="Select hotel">
+                <SelectValue placeholder="Select hotel" />
+              </SelectTrigger>
+              <SelectContent>
+                {hotels.map((h) => (
+                  <SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button variant="outline" size="sm" onClick={handleExportCSV} disabled={!hasHotels}>
+              <Download className="mr-2 h-4 w-4" />CSV
+            </Button>
+            <Button size="sm" onClick={handleSave} disabled={saving || !hasHotels}>
+              <Save className="mr-2 h-4 w-4" />
+              {saving ? "Saving..." : "Save All"}
+            </Button>
+          </>
+        }
+      />
 
       {!hasHotels ? (
-        <div className="rounded-lg border-2 border-dashed p-10 text-center">
-          <Building2 className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
-          <p className="text-sm font-medium">No active hotels available</p>
-          <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
-            Occupancy entries can be added once an active hotel exists.
-          </p>
-        </div>
+        <EmptyState
+          icon={Building2}
+          title="No active hotels available"
+          description="Occupancy entries can be added once an active hotel exists."
+        />
       ) : (
       <Card>
         <CardContent className="p-0">
@@ -153,16 +175,16 @@ export function OccupancyEditor({ hotels, initialHotelId, initialData }: Occupan
                         <time dateTime={date}>{label}</time>
                       </th>
                       <td className="px-3 py-1">
-                        <Input type="number" className="h-8 text-center text-xs w-20 mx-auto" value={entry.occPercent ?? ""} onChange={(e) => updateEntry(date, "occPercent", e.target.value)} min={0} max={100} />
+                        <Input type="number" aria-label={`Occupancy percent for ${label}`} className="h-8 text-center text-xs w-20 mx-auto" value={entry.occPercent ?? ""} onChange={(e) => updateEntry(date, "occPercent", e.target.value)} min={0} max={100} />
                       </td>
                       <td className="px-3 py-1">
-                        <Input type="number" className="h-8 text-center text-xs w-20 mx-auto" value={entry.roomsOnBooks ?? ""} onChange={(e) => updateEntry(date, "roomsOnBooks", e.target.value)} min={0} />
+                        <Input type="number" aria-label={`Rooms on books for ${label}`} className="h-8 text-center text-xs w-20 mx-auto" value={entry.roomsOnBooks ?? ""} onChange={(e) => updateEntry(date, "roomsOnBooks", e.target.value)} min={0} />
                       </td>
                       <td className="px-3 py-1">
-                        <Input type="number" className="h-8 text-center text-xs w-20 mx-auto" value={entry.occLyPercent ?? ""} onChange={(e) => updateEntry(date, "occLyPercent", e.target.value)} min={0} max={100} />
+                        <Input type="number" aria-label={`Last year occupancy percent for ${label}`} className="h-8 text-center text-xs w-20 mx-auto" value={entry.occLyPercent ?? ""} onChange={(e) => updateEntry(date, "occLyPercent", e.target.value)} min={0} max={100} />
                       </td>
                       <td className="px-3 py-1">
-                        <Input type="number" className="h-8 text-center text-xs w-20 mx-auto" value={entry.otbLyRooms ?? ""} onChange={(e) => updateEntry(date, "otbLyRooms", e.target.value)} min={0} />
+                        <Input type="number" aria-label={`Last year on-the-books rooms for ${label}`} className="h-8 text-center text-xs w-20 mx-auto" value={entry.otbLyRooms ?? ""} onChange={(e) => updateEntry(date, "otbLyRooms", e.target.value)} min={0} />
                       </td>
                     </tr>
                   );

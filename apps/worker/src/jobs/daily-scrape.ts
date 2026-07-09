@@ -1,4 +1,5 @@
 import { prisma } from "@hotel-pricing/db";
+import { addUtcDays, startOfTodayUtc } from "@hotel-pricing/shared";
 import { mockScraper } from "../scrapers/mock";
 import { expediaScraper } from "../scrapers/expedia";
 import { bookingStub } from "../scrapers/booking-stub";
@@ -44,13 +45,10 @@ export async function dailyScrapeProcessor(
       },
     });
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = startOfTodayUtc();
     const dates: Date[] = [];
     for (let i = 0; i < 30; i++) {
-      const d = new Date(today);
-      d.setDate(d.getDate() + i);
-      dates.push(d);
+      dates.push(addUtcDays(today, i));
     }
 
     for (const hotel of hotels) {

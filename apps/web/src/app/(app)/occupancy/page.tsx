@@ -17,15 +17,19 @@ export default async function OccupancyPage({
     orderBy: { name: "asc" },
   });
 
-  const hotelId = searchParams.hotelId || hotels[0]?.id;
-  
+  const requestedHotelId = searchParams.hotelId;
+  const hotelId =
+    (requestedHotelId && hotels.some((h) => h.id === requestedHotelId)
+      ? requestedHotelId
+      : hotels[0]?.id) || undefined;
+
   let occupancyData: Awaited<ReturnType<typeof prisma.occupancyEntry.findMany>> = [];
   if (hotelId) {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setUTCHours(0, 0, 0, 0);
     const end = new Date(today);
-    end.setDate(end.getDate() + 30);
-    
+    end.setUTCDate(end.getUTCDate() + 30);
+
     occupancyData = await prisma.occupancyEntry.findMany({
       where: {
         hotelId,
@@ -37,6 +41,7 @@ export default async function OccupancyPage({
 
   return (
     <OccupancyEditor
+      key={hotelId ?? "none"}
       hotels={hotels}
       initialHotelId={hotelId || null}
       initialData={occupancyData.map((o) => ({

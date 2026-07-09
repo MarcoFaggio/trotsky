@@ -8,13 +8,14 @@ import {
 } from "@/lib/auth";
 import { attachAuthSessionCookies } from "@/lib/auth-cookies";
 import { checkRateLimitAsync } from "@/lib/rate-limiter";
+import { clientIpKey } from "@/lib/client-ip";
+
+// Constant-cost comparison target so unknown emails take as long as known ones.
+const TIMING_PAD_HASH =
+  "$2b$10$6ckW9Ewrtk1d//X2mpe6P.r1bAExzyL/Iw57mfVcKSm1yEgsXXUQm";
 
 export async function POST(request: NextRequest) {
-  const forwarded = request.headers.get("x-forwarded-for");
-  const ip =
-    forwarded?.split(",")[0]?.trim() ||
-    request.headers.get("x-real-ip") ||
-    "unknown";
+  const ip = clientIpKey(request);
   const rateLimit = await checkRateLimitAsync(`login:${ip}`);
 
   if (!rateLimit.allowed) {
@@ -42,6 +43,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user) {
+      await bcrypt.compare(password, TIMING_PAD_HASH);
       return NextResponse.json(
         { error: "Invalid email or password" },
         { status: 401 }

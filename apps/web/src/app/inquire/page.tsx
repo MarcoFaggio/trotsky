@@ -21,10 +21,10 @@ export default async function PublicInquiryPage() {
             <span className="truncate text-trosky-ink dark:text-foreground">Trosky</span>
           </Link>
           <div className="space-y-4">
-            <p className="text-sm font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
               Hotel inquiry capture
             </p>
-            <h1 className="max-w-xl text-4xl font-bold leading-tight md:text-5xl">
+            <h1 className="max-w-xl text-4xl font-semibold leading-tight tracking-tight md:text-5xl">
               Ask once. Let the hotel sales team pick it up cleanly.
             </h1>
             <p className="max-w-lg text-base leading-7 text-muted-foreground">
@@ -51,7 +51,7 @@ export default async function PublicInquiryPage() {
         <section className="relative overflow-hidden rounded-lg border bg-card p-5 shadow-sm md:p-7">
           <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-primary to-landing-emerald" />
           <div className="mb-6">
-            <h2 className="text-xl font-semibold">Send an inquiry</h2>
+            <h2 className="text-xl font-semibold tracking-tight">Send an inquiry</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Include as much detail as you know. Unknowns are fine.
             </p>

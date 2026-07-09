@@ -1,3 +1,5 @@
+import type { RecommendationInput } from "../types/index";
+
 export function formatCurrency(cents: number, currency = "USD"): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -35,14 +37,31 @@ export function formatDateFull(date: Date | string): string {
   });
 }
 
+/**
+ * Midnight UTC of the current calendar day. All `@db.Date` columns store
+ * UTC-midnight instants, so every "today" boundary must be computed in UTC —
+ * never with server-local `setHours(0,0,0,0)`, which shifts a day for any
+ * server east of UTC.
+ */
+export function startOfTodayUtc(): Date {
+  const now = new Date();
+  return new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+  );
+}
+
+/** A new Date `days` after `date`, preserving UTC-midnight alignment. */
+export function addUtcDays(date: Date, days: number): Date {
+  const d = new Date(date);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d;
+}
+
 export function getDateRange(days: number): Date[] {
   const dates: Date[] = [];
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = startOfTodayUtc();
   for (let i = 0; i < days; i++) {
-    const d = new Date(today);
-    d.setDate(d.getDate() + i);
-    dates.push(d);
+    dates.push(addUtcDays(today, i));
   }
   return dates;
 }
@@ -61,23 +80,9 @@ export function computeWeightedAvg(
   return valid.reduce((sum, i) => sum + i.rate * i.weight, 0) / totalWeight;
 }
 
-export function computeRecommendation(input: {
-  ourRate: number;
-  competitorRates: { rate: number; weight: number }[];
-  occPercent: number | null;
-  occTarget: number;
-  occLyPercent: number | null;
-  otbRooms: number | null;
-  otbLyRooms: number | null;
-  hasEvent: boolean;
-  manualEventCount?: number;
-  signalNetBps?: number;
-  signalPositiveBps?: number;
-  signalNegativeBps?: number;
-  minRate: number | null;
-  maxRate: number | null;
-  discountWarning: boolean;
-}): { recommendedPriceCents: number; confidence: number; rationale: string[] } {
+export function computeRecommendation(
+  input: RecommendationInput
+): { recommendedPriceCents: number; confidence: number; rationale: string[] } {
   const rationale: string[] = [];
   const validCompRates = input.competitorRates.filter((c) => c.rate > 0);
   const compAnchor = computeWeightedAvg(validCompRates);
@@ -146,6 +151,25 @@ export function computeRecommendation(input: {
   }
 
   let price = compAnchor * (1 + adjustment);
+
+  // Damp swings against today's own rate: comps moving shouldn't whipsaw the
+  // recommendation by more than ±20% per recompute. Hotel min/max guardrails
+  // are applied after and always win.
+  if (input.ourRate > 0) {
+    const upper = input.ourRate * 1.2;
+    const lower = input.ourRate * 0.8;
+    if (price > upper) {
+      price = upper;
+      rationale.push(
+        `Capped at +20% vs current rate $${(input.ourRate / 100).toFixed(0)}`
+      );
+    } else if (price < lower) {
+      price = lower;
+      rationale.push(
+        `Capped at -20% vs current rate $${(input.ourRate / 100).toFixed(0)}`
+      );
+    }
+  }
 
   if (input.minRate !== null && price < input.minRate) {
     price = input.minRate;

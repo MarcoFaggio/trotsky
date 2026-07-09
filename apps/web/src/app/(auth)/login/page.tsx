@@ -58,7 +58,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-neutral-50 via-background to-primary/5 p-4 dark:from-background dark:via-background dark:to-primary/15">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-trosky-soft/60 via-background to-primary/5 p-4 dark:from-background dark:via-background dark:to-primary/15">
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-[linear-gradient(90deg,transparent,hsl(var(--primary)/0.14),transparent)] blur-3xl"
         aria-hidden
@@ -67,7 +67,7 @@ export default function LoginPage() {
         <ThemeToggle />
       </div>
       <Card className="relative w-full max-w-md overflow-hidden border-border/80 bg-card/90 shadow-2xl shadow-black/[0.08] backdrop-blur-xl dark:border-white/10 dark:shadow-black/50">
-        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-primary to-landing-emerald" />
+        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-trosky-red via-trosky-red to-trosky-red-dark" />
         <CardHeader className="space-y-1 text-center">
           <TroskyMark
             priority
@@ -81,7 +81,10 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="rounded-md bg-destructive/10 text-destructive text-sm p-3">
+              <div
+                role="alert"
+                className="rounded-md bg-destructive/10 text-destructive text-sm p-3"
+              >
                 {error}
               </div>
             )}

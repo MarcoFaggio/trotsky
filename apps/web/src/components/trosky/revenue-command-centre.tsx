@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -51,6 +51,12 @@ export function RevenueCommandCentre({
   const [insightActionId, setInsightActionId] = useState<string | null>(null);
   const [insightOpen, setInsightOpen] = useState(false);
   const [mutationError, setMutationError] = useState<string | null>(null);
+  // Time-independent on the server render, personalized after mount —
+  // avoids a hydration mismatch when server and viewer clocks disagree.
+  const [greeting, setGreeting] = useState("Welcome back");
+  useEffect(() => {
+    setGreeting(greetingForHour());
+  }, []);
 
   const scopeTitle =
     view.scope.mode === "HOTEL" && view.scope.hotelName
@@ -125,7 +131,7 @@ export function RevenueCommandCentre({
       <div data-tour="command-centre-header">
       <TroskyPageHeader
         eyebrow="Command centre"
-        title={`${greetingForHour()}${userDisplayName ? `, ${userDisplayName.split(" ")[0]}` : ""}`}
+        title={`${greeting}${userDisplayName ? `, ${userDisplayName.split(" ")[0]}` : ""}`}
         description={description}
         badge={{
           text: scopeTitle,

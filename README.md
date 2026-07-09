@@ -24,7 +24,7 @@ pnpm infra:up
 pnpm db:generate
 pnpm exec dotenv -e .env -- pnpm --filter @hotel-pricing/db exec prisma migrate dev --name init
 # Or apply existing migrations without prompting: pnpm db:migrate:deploy
-pnpm db:seed
+pnpm db:seed   # dev-safety: refuses to run against non-local DATABASE_URL or NODE_ENV=production unless SEED_FORCE=true (it wipes all data first)
 
 # 5. Run the app (pick one)
 pnpm dev                    # Next.js only — best default; no Redis/worker noise
@@ -77,7 +77,7 @@ Copy `.env.example` to `.env` and configure:
 |----------|----------|-------------|
 | `DATABASE_URL` | Yes | PostgreSQL connection string |
 | `REDIS_URL` | No | Redis URL — needed for scrape/refresh jobs and shared rate limits across deployed instances |
-| `JWT_SECRET` | Yes | Access token signing key. **Must be set in production** (app will crash without it) |
+| `JWT_SECRET` | Yes | Access token signing key. **Required in every environment** — signing/verification fails closed when unset (no dev fallback) |
 | `JWT_REFRESH_SECRET` | Yes | Refresh token signing key. **Must be set in production** |
 | `SCRAPE_MODE` | No | `mock` (default) or `real` (uses Playwright) |
 | `SCRAPE_CRON` | No | Worker scrape schedule, default `0 */2 * * *` |
@@ -95,7 +95,7 @@ Copy `.env.example` to `.env` and configure:
 
 **Demo data:** Seed actions must not be treated as live hotel intelligence. In production keep `TROSKY_DEMO_MODE` unset or `false` unless this deploy is an intentional demo tenant. Details: [docs/REVENUE-ACTION-SYSTEM.md](docs/REVENUE-ACTION-SYSTEM.md).
 
-**Security note:** In production, `JWT_SECRET` and `JWT_REFRESH_SECRET` must be long random strings (e.g. `openssl rand -hex 32`). The app throws on startup if these are missing in production.
+**Security note:** `JWT_SECRET` and `JWT_REFRESH_SECRET` must be long random strings (e.g. `openssl rand -hex 32`). Token signing/verification throws whenever they are missing — there is no fallback secret in any environment (`next build` alone tolerates their absence).
 
 ---
 

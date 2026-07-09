@@ -9,6 +9,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { HotelSearch } from "./hotel-search";
 import { Plus, RefreshCw, User, LogOut, Clock, Compass } from "lucide-react";
 import Link from "next/link";
@@ -58,6 +65,26 @@ export function TopBar({
       <div className="flex min-w-0 flex-1 items-center gap-3 overflow-hidden">
         {isAnalyst ? (
           <HotelSearch onSelect={onHotelChange} />
+        ) : hotels.length > 1 ? (
+          <Select
+            value={selectedHotelId ?? undefined}
+            onValueChange={onHotelChange}
+          >
+            <SelectTrigger
+              data-tour="hotel-name"
+              aria-label="Select your hotel"
+              className="h-9 w-[220px] max-w-full rounded-full"
+            >
+              <SelectValue placeholder="Select your hotel" />
+            </SelectTrigger>
+            <SelectContent>
+              {hotels.map((h) => (
+                <SelectItem key={h.id} value={h.id}>
+                  {h.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         ) : (
           <div
             data-tour="hotel-name"

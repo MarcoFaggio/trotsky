@@ -21,7 +21,42 @@ function mockPrice(base: number, dayOffset: number, seed: number): number {
   return Math.max(5000, Math.round(base + sinWave + dowFactor + variation));
 }
 
+function assertSeedIsSafe(): void {
+  if (process.env.SEED_FORCE === "true") {
+    console.warn("SEED_FORCE=true — skipping safety checks. This WIPES the database.");
+    return;
+  }
+
+  const problems: string[] = [];
+  if (process.env.NODE_ENV === "production") {
+    problems.push(`NODE_ENV is "production"`);
+  }
+
+  const dbUrl = process.env.DATABASE_URL ?? "";
+  const localHosts = ["localhost", "127.0.0.1", "0.0.0.0", "host.docker.internal", "postgres", "db"];
+  try {
+    const host = new URL(dbUrl).hostname;
+    if (host && !localHosts.includes(host)) {
+      problems.push(`DATABASE_URL points at non-local host "${host}"`);
+    }
+  } catch {
+    // Unparseable URL — let Prisma surface the real error.
+  }
+
+  if (problems.length > 0) {
+    console.error(
+      [
+        "Refusing to seed: this script DELETES ALL DATA before inserting demo rows.",
+        ...problems.map((p) => `  - ${p}`),
+        "If you really intend to wipe and reseed this database, re-run with SEED_FORCE=true.",
+      ].join("\n")
+    );
+    process.exit(1);
+  }
+}
+
 async function main() {
+  assertSeedIsSafe();
   console.log("Seeding database...");
 
   // Clean existing data

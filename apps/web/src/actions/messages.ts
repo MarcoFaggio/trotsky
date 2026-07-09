@@ -3,6 +3,7 @@
 import { prisma } from "@hotel-pricing/db";
 import { requireAuth, requireAnalyst, requireHotelAccess } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
+import { messageSchema } from "@hotel-pricing/shared";
 import type { MessageThreadSummary, MessageItem } from "@hotel-pricing/shared";
 
 export async function getThreadsForUser(): Promise<MessageThreadSummary[]> {
@@ -132,13 +133,37 @@ export async function sendMessage(data: {
   body: string;
 }): Promise<{ threadId: string }> {
   const session = await requireAuth();
-  await requireHotelAccess(data.hotelId);
+  const parsed = messageSchema.parse(data);
 
-  let threadId = data.threadId;
+  let threadId = parsed.threadId;
 
-  if (!threadId) {
+  if (threadId) {
+    // The thread is the source of truth for which hotel is being messaged —
+    // never trust a caller-supplied hotelId to authorize writes into it.
+    const thread = await prisma.messageThread.findUniqueOrThrow({
+      where: { id: threadId },
+      select: { id: true, hotelId: true },
+    });
+    if (session.role === "CLIENT") {
+      const access = await prisma.hotelAccess.findFirst({
+        where: { userId: session.sub, hotelId: thread.hotelId },
+      });
+      if (!access) {
+        await prisma.securityEvent.create({
+          data: {
+            userId: session.sub,
+            hotelId: thread.hotelId,
+            type: "UNAUTHORIZED_THREAD_ACCESS",
+            metadataJson: { threadId, attempted: "sendMessage" },
+          },
+        });
+        throw new Error("FORBIDDEN");
+      }
+    }
+  } else {
+    await requireHotelAccess(parsed.hotelId);
     const thread = await prisma.messageThread.create({
-      data: { hotelId: data.hotelId },
+      data: { hotelId: parsed.hotelId },
     });
     threadId = thread.id;
   }
@@ -147,7 +172,7 @@ export async function sendMessage(data: {
     data: {
       threadId,
       senderUserId: session.sub,
-      body: data.body,
+      body: parsed.body,
     },
   });
 

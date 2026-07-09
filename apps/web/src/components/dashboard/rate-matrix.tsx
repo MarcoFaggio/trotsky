@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { DashboardDay } from "@hotel-pricing/shared";
-import { weightToLabel } from "@hotel-pricing/shared";
+import { formatCurrency, weightToLabel } from "@hotel-pricing/shared";
 
 interface RateMatrixProps {
   days: DashboardDay[];
@@ -14,7 +14,7 @@ interface RateMatrixProps {
 
 function fmt(cents: number | null): string {
   if (cents === null) return "—";
-  return `$${Math.round(cents / 100)}`;
+  return formatCurrency(cents);
 }
 
 function formatDateShort(dateStr: string): { day: string; dow: string } {
@@ -73,8 +73,8 @@ export function RateMatrix({ days, competitors, onCellClick }: RateMatrixProps) 
                           className={cn(
                             "inline-flex h-1.5 w-1.5 rounded-full",
                             d.signalDirection === "NEGATIVE_DISRUPTION"
-                              ? "bg-red-500"
-                              : "bg-indigo-500"
+                              ? "bg-destructive"
+                              : "bg-teal-600"
                           )}
                           title="Imported signal"
                         >
@@ -199,7 +199,9 @@ export function RateMatrix({ days, competitors, onCellClick }: RateMatrixProps) 
                         <div
                           className={cn(
                             "text-[10px]",
-                            diff > 0 ? "text-red-500" : "text-emerald-600"
+                            diff > 0
+                              ? "text-destructive"
+                              : "text-emerald-600 dark:text-emerald-400"
                           )}
                         >
                           {diff > 0 ? "+" : ""}

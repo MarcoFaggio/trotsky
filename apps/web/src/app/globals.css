@@ -4,41 +4,41 @@
 
 @layer base {
   :root {
-    /* Trosky brand — red-and-white revenue cockpit */
-    --trosky-red: 358 81% 46%; /* #D5171E */
-    --trosky-red-dark: 357 85% 36%; /* #A80E15 */
-    --trosky-red-soft: 0 33% 95%; /* #F6F1F1 */
-    --trosky-ink: 221 43% 10%; /* #0E1523 */
-    --trosky-muted: 206 12% 45%; /* #657681 */
-    --trosky-border: 270 3% 85%; /* #DAD9DB */
+    /* Trosky brand — authoritative red on warm paper (.impeccable.md) */
+    --trosky-red: 0 99% 33%; /* #A60101 */
+    --trosky-red-dark: 0 100% 24%; /* #780000 */
+    --trosky-red-soft: 0 30% 95%; /* warm red-tinted panel */
+    --trosky-ink: 0 2% 26%; /* #424040 */
+    --trosky-muted: 10 4% 45%; /* warm graphite */
+    --trosky-border: 20 6% 86%; /* warm hairline */
 
     --font-trosky: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
       "Segoe UI", Roboto, sans-serif;
     --font-landing-body: "DM Sans", Manrope, Avenir Next, Segoe UI, system-ui, sans-serif;
     --font-landing-display: Fraunces, Georgia, Cambria, Times New Roman, serif;
-    --background: 0 33% 98%;
-    --foreground: 221 43% 10%;
+    --background: 20 25% 98%;
+    --foreground: 0 2% 26%;
     --card: 0 0% 100%;
-    --card-foreground: 221 43% 10%;
+    --card-foreground: 0 2% 26%;
     --popover: 0 0% 100%;
-    --popover-foreground: 221 43% 10%;
-    --primary: 358 81% 46%;
+    --popover-foreground: 0 2% 26%;
+    --primary: 0 99% 33%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 33% 95%;
-    --secondary-foreground: 221 43% 10%;
-    --muted: 0 20% 96%;
-    --muted-foreground: 206 12% 45%;
-    --accent: 0 33% 95%;
-    --accent-foreground: 221 43% 10%;
-    --destructive: 357 85% 36%;
+    --secondary: 0 30% 95%;
+    --secondary-foreground: 0 2% 26%;
+    --muted: 20 16% 96%;
+    --muted-foreground: 10 4% 45%;
+    --accent: 0 30% 95%;
+    --accent-foreground: 0 2% 26%;
+    --destructive: 0 100% 24%;
     --destructive-foreground: 0 0% 100%;
-    --border: 270 3% 85%;
-    --input: 270 3% 85%;
-    --ring: 358 81% 46%;
+    --border: 20 6% 86%;
+    --input: 20 6% 86%;
+    --ring: 0 99% 33%;
     --radius: 1rem;
-    --chart-grid: 214.3 31.8% 91.4%;
+    --chart-grid: 20 12% 91%;
     --chart-axis: 0 2% 37%;
-    --chart-primary: 358 81% 46%;
+    --chart-primary: 0 99% 33%;
     --chart-comparison: 0 2% 48%;
     --chart-recommended: 164 82% 42%;
     --chart-occupancy: 263 70% 64%;
@@ -51,10 +51,10 @@
     --chart-series-6: 258 90% 66%;
     --chart-series-7: 190 90% 48%;
     /* Landing accents — red family only */
-    --landing-emerald: 358 81% 46%;
+    --landing-emerald: 0 99% 33%;
     --landing-amber: 38 92% 50%;
-    --landing-violet: 357 85% 36%;
-    --landing-sky: 357 85% 36%;
+    --landing-violet: 0 100% 24%;
+    --landing-sky: 0 100% 24%;
   }
 
   /* Landing page: light theme with white gradient */
@@ -67,38 +67,41 @@
     --landing-card: 0 0% 100%;
   }
 
+  /* Dark mode — warm black and red, never blue-black (.impeccable.md) */
   .dark {
-    --trosky-ink: 0 15% 96%;
-    --trosky-muted: 206 10% 62%;
-    --trosky-border: 221 16% 22%;
-    --trosky-red-soft: 221 22% 14%;
-    --background: 221 43% 6%;
-    --foreground: 0 20% 98%;
-    --card: 221 35% 9%;
-    --card-foreground: 0 20% 98%;
-    --popover: 221 35% 9%;
-    --popover-foreground: 0 20% 98%;
-    --primary: 358 75% 52%;
+    --trosky-ink: 20 12% 96%;
+    --trosky-muted: 20 6% 64%;
+    --trosky-border: 15 9% 20%;
+    --trosky-red-soft: 10 28% 12%;
+    --trosky-red: 0 78% 50%;
+    --trosky-red-dark: 0 100% 24%;
+    --background: 15 16% 5%;
+    --foreground: 20 12% 96%;
+    --card: 15 13% 8%;
+    --card-foreground: 20 12% 96%;
+    --popover: 15 13% 8%;
+    --popover-foreground: 20 12% 96%;
+    --primary: 0 78% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 221 25% 14%;
-    --secondary-foreground: 0 20% 98%;
-    --muted: 221 20% 14%;
-    --muted-foreground: 206 12% 65%;
-    --accent: 221 25% 16%;
-    --accent-foreground: 0 20% 98%;
-    --destructive: 357 85% 40%;
+    --secondary: 12 12% 14%;
+    --secondary-foreground: 20 12% 96%;
+    --muted: 12 10% 13%;
+    --muted-foreground: 20 6% 64%;
+    --accent: 12 12% 16%;
+    --accent-foreground: 20 12% 96%;
+    --destructive: 0 85% 38%;
     --destructive-foreground: 0 0% 100%;
-    --border: 221 18% 18%;
-    --input: 221 18% 18%;
-    --ring: 358 75% 52%;
-    --chart-grid: 0 13% 22%;
-    --chart-axis: 0 5% 74%;
-    --chart-primary: 358 81% 46%;
-    --chart-comparison: 0 3% 58%;
+    --border: 15 9% 19%;
+    --input: 15 9% 19%;
+    --ring: 0 78% 50%;
+    --chart-grid: 15 10% 21%;
+    --chart-axis: 20 5% 74%;
+    --chart-primary: 0 80% 56%;
+    --chart-comparison: 20 4% 60%;
     --chart-recommended: 164 82% 48%;
     --chart-occupancy: 263 70% 66%;
     --chart-warning: 38 92% 55%;
-    --chart-series-1: 0 3% 62%;
+    --chart-series-1: 20 4% 62%;
     --chart-series-2: 263 70% 70%;
     --chart-series-3: 24 95% 60%;
     --chart-series-4: 173 80% 50%;

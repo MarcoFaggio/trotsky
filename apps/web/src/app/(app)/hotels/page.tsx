@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
+import { TroskyPageHeader } from "@/components/trosky/trosky-page-header";
 import { Plus, Building2 } from "lucide-react";
 
 export default async function HotelsPage() {
@@ -21,55 +23,67 @@ export default async function HotelsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Hotels</h1>
-          <p className="text-muted-foreground">Manage your hotel portfolio</p>
-        </div>
-        <Link href="/hotels/new">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Hotel
+      <TroskyPageHeader
+        eyebrow="Portfolio"
+        title="Hotels"
+        description="Manage your hotel portfolio"
+        actions={
+          <Button asChild size="sm" className="gap-1.5">
+            <Link href="/hotels/new">
+              <Plus className="h-4 w-4" aria-hidden />
+              Add Hotel
+            </Link>
           </Button>
-        </Link>
-      </div>
+        }
+      />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {hotels.map((hotel) => (
-          <Link key={hotel.id} href={`/hotels/${hotel.id}`}>
-            <Card className="hover:shadow-md transition-shadow cursor-pointer">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Building2 className="h-5 w-5 text-primary" />
+      {hotels.length === 0 ? (
+        <EmptyState
+          icon={Building2}
+          title="No hotels yet"
+          description="Create your first hotel to get started."
+          action={
+            <Button asChild size="sm" className="gap-1.5">
+              <Link href="/hotels/new">
+                <Plus className="h-4 w-4" aria-hidden />
+                Add Hotel
+              </Link>
+            </Button>
+          }
+        />
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {hotels.map((hotel) => (
+            <Link key={hotel.id} href={`/hotels/${hotel.id}`}>
+              <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Building2 className="h-5 w-5 text-primary" aria-hidden />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base">{hotel.name}</CardTitle>
+                        <p className="text-xs text-muted-foreground mt-1">{hotel.pmsName || hotel.address || "No address"}</p>
+                      </div>
                     </div>
-                    <div>
-                      <CardTitle className="text-base">{hotel.name}</CardTitle>
-                      <p className="text-xs text-muted-foreground mt-1">{hotel.pmsName || hotel.address || "No address"}</p>
-                    </div>
+                    <Badge variant={hotel.status === "ACTIVE" ? "success" : "secondary"}>
+                      {hotel.status}
+                    </Badge>
                   </div>
-                  <Badge variant={hotel.status === "ACTIVE" ? "success" : "secondary"}>
-                    {hotel.status}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <span>{hotel.roomCount} rooms</span>
-                  <span>{hotel._count.competitors} competitors</span>
-                  <span>{hotel.listings.length} listing(s)</span>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-        {hotels.length === 0 && (
-          <div className="col-span-full text-center py-12 text-muted-foreground">
-            No hotels yet. Create your first hotel to get started.
-          </div>
-        )}
-      </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <span>{hotel.roomCount} rooms</span>
+                    <span>{hotel._count.competitors} competitors</span>
+                    <span>{hotel.listings.length} listing(s)</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

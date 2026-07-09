@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { SevenDayRate } from "@hotel-pricing/shared";
+import { formatCurrency } from "@hotel-pricing/shared";
 
 interface SevenDayCardsProps {
   rates: SevenDayRate[];
@@ -62,9 +63,7 @@ export function SevenDayCards({
       <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
         {rates.map((rate) => {
           const { day, weekday } = formatShortDate(rate.date);
-          const priceDollars = rate.rateCents
-            ? Math.round(rate.rateCents / 100)
-            : null;
+          const price = rate.rateCents ? formatCurrency(rate.rateCents) : null;
           const occVal = rate.occPercent
             ? Math.round(rate.occPercent)
             : null;
@@ -85,9 +84,9 @@ export function SevenDayCards({
               </span>
               <span className="text-xs text-muted-foreground">{day}</span>
 
-              {priceDollars !== null ? (
+              {price !== null ? (
                 <span className="text-xl font-bold mt-1">
-                  ${priceDollars}
+                  {price}
                 </span>
               ) : (
                 <span className="text-lg font-medium text-muted-foreground mt-1">
@@ -100,8 +99,8 @@ export function SevenDayCards({
                   className={cn(
                     "text-[10px] font-semibold mt-0.5",
                     rate.changePct > 0
-                      ? "text-emerald-600"
-                      : "text-red-500"
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-destructive"
                   )}
                 >
                   {rate.changePct > 0 ? "+" : ""}

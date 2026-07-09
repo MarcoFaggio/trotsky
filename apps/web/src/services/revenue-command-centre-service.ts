@@ -3,6 +3,8 @@ import type { Prisma, RevenueAction } from "@hotel-pricing/db";
 import {
   computeWeightedAvg,
   toDateString,
+  startOfTodayUtc,
+  addUtcDays,
   type RevenueActionView,
   type RevenueCommandCentreView,
 } from "@hotel-pricing/shared";
@@ -113,10 +115,8 @@ function computeMetrics(actions: RevenueActionView[]) {
 async function buildRateChart(hotelId: string): Promise<
   RevenueCommandCentreView["rateChart"]
 > {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const end = new Date(today);
-  end.setDate(end.getDate() + CHART_DAYS - 1);
+  const today = startOfTodayUtc();
+  const end = addUtcDays(today, CHART_DAYS - 1);
 
   const [hotelRates, competitorLinks, overrides] = await Promise.all([
     prisma.dailyRate.findMany({
@@ -148,8 +148,7 @@ async function buildRateChart(hotelId: string): Promise<
   const points: RevenueCommandCentreView["rateChart"] = [];
 
   for (let i = 0; i < CHART_DAYS; i++) {
-    const d = new Date(today);
-    d.setDate(d.getDate() + i);
+    const d = addUtcDays(today, i);
     const dateStr = toDateString(d);
 
     const override = overrides.find((o) => toDateString(o.date) === dateStr);

@@ -3,6 +3,7 @@
 import { prisma } from "@hotel-pricing/db";
 import { requireAuth, requireAnalyst, requireHotelAccess } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
+import { startOfTodayUtc, addUtcDays } from "@hotel-pricing/shared";
 import { queueRecommendationRecompute } from "@/lib/recommendation-queue";
 
 export async function getEvents(hotelId?: string) {
@@ -62,10 +63,8 @@ export async function updateEvent(data: {
 
 export async function getUpcomingEventCount(): Promise<number> {
   const session = await requireAuth();
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const weekFromNow = new Date(today);
-  weekFromNow.setDate(weekFromNow.getDate() + 7);
+  const today = startOfTodayUtc();
+  const weekFromNow = addUtcDays(today, 7);
 
   const where =
     session.role === "ANALYST"

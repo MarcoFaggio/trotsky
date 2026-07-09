@@ -23,11 +23,11 @@ import { OnboardingProvider } from "./onboarding-context";
 import { OnboardingTooltip } from "./onboarding-tooltip";
 
 const joyrideOptions = {
-  primaryColor: "hsl(358 81% 46%)",
+  primaryColor: "hsl(var(--primary))",
   backgroundColor: "hsl(var(--card))",
   textColor: "hsl(var(--foreground))",
   arrowColor: "hsl(var(--card))",
-  overlayColor: "rgba(15, 15, 20, 0.58)",
+  overlayColor: "rgba(20, 14, 12, 0.58)",
   zIndex: 10050,
   spotlightRadius: 14,
   showProgress: true,

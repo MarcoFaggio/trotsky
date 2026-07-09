@@ -6,9 +6,23 @@ import {
   createRefreshToken,
 } from "@/lib/auth";
 import { attachAuthSessionCookies } from "@/lib/auth-cookies";
+import { checkRateLimitAsync } from "@/lib/rate-limiter";
+import { clientIpKey } from "@/lib/client-ip";
 
 export async function POST(request: NextRequest) {
   try {
+    // Generous cap (NAT-friendly) that still blocks forged-token probing.
+    const rateLimit = await checkRateLimitAsync(
+      `refresh:${clientIpKey(request)}`,
+      { max: 30 }
+    );
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Too many refresh attempts. Please try again later." },
+        { status: 429 }
+      );
+    }
+
     const refreshTokenCookie = request.cookies.get("refresh_token")?.value;
     if (!refreshTokenCookie) {
       return NextResponse.json({ error: "No refresh token" }, { status: 401 });

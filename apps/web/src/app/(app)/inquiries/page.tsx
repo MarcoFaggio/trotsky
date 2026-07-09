@@ -21,8 +21,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { TroskyPageHeader } from "@/components/trosky/trosky-page-header";
+import { ExternalLink, Inbox, MousePointerClick } from "lucide-react";
 import { formatCurrency } from "@hotel-pricing/shared";
 import type {
   InquiryDetail,
@@ -75,60 +86,64 @@ function priorityVariant(priority: InquiryPriority) {
 }
 
 function SelectField({
+  id,
   name,
   defaultValue,
   options,
 }: {
+  id: string;
   name: string;
   defaultValue: string;
   options: string[];
 }) {
   return (
-    <select
-      name={name}
-      defaultValue={defaultValue}
-      className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-    >
-      {options.map((option) => (
-        <option key={option} value={option}>
-          {titleize(option)}
-        </option>
-      ))}
-    </select>
+    <Select name={name} defaultValue={defaultValue}>
+      <SelectTrigger id={id}>
+        <SelectValue placeholder="Select" />
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((option) => (
+          <SelectItem key={option} value={option}>
+            {titleize(option)}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 
 function HotelSelect({
+  id,
   hotels,
   defaultValue,
 }: {
+  id: string;
   hotels: { id: string; name: string }[];
-  defaultValue: string;
+  defaultValue?: string;
 }) {
   return (
-    <select
-      name="hotelId"
-      defaultValue={defaultValue}
-      className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-    >
-      {hotels.map((hotel) => (
-        <option key={hotel.id} value={hotel.id}>
-          {hotel.name}
-        </option>
-      ))}
-    </select>
+    <Select name="hotelId" defaultValue={defaultValue}>
+      <SelectTrigger id={id}>
+        <SelectValue placeholder="Select hotel" />
+      </SelectTrigger>
+      <SelectContent>
+        {hotels.map((hotel) => (
+          <SelectItem key={hotel.id} value={hotel.id}>
+            {hotel.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 
 function EmptyDetail() {
   return (
-    <Card>
-      <CardContent className="p-10 text-center">
-        <p className="text-sm text-muted-foreground">
-          Select an inquiry to qualify the lead, add RFP details, and send a proposal.
-        </p>
-      </CardContent>
-    </Card>
+    <EmptyState
+      icon={MousePointerClick}
+      title="No inquiry selected"
+      description="Select an inquiry from the list to qualify the lead, add RFP details, and send a proposal."
+    />
   );
 }
 
@@ -172,16 +187,16 @@ function InquiryDetailPanel({
           <form action={updateInquiryStatus} className="grid gap-3 md:grid-cols-4">
             <input type="hidden" name="inquiryId" value={inquiry.id} />
             <div className="space-y-1">
-              <Label>Status</Label>
-              <SelectField name="status" defaultValue={inquiry.status} options={STATUSES} />
+              <Label htmlFor="inquiry-status">Status</Label>
+              <SelectField id="inquiry-status" name="status" defaultValue={inquiry.status} options={STATUSES} />
             </div>
             <div className="space-y-1">
-              <Label>Intent</Label>
-              <SelectField name="intent" defaultValue={inquiry.intent} options={INTENTS} />
+              <Label htmlFor="inquiry-intent">Intent</Label>
+              <SelectField id="inquiry-intent" name="intent" defaultValue={inquiry.intent} options={INTENTS} />
             </div>
             <div className="space-y-1">
-              <Label>Priority</Label>
-              <SelectField name="priority" defaultValue={inquiry.priority} options={PRIORITIES} />
+              <Label htmlFor="inquiry-priority">Priority</Label>
+              <SelectField id="inquiry-priority" name="priority" defaultValue={inquiry.priority} options={PRIORITIES} />
             </div>
             <div className="flex items-end">
               <Button type="submit" className="w-full">Update</Button>
@@ -220,9 +235,9 @@ function InquiryDetailPanel({
             <div className="rounded-md border p-3">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="text-sm font-medium">AI Assist</p>
+                  <p className="text-sm font-medium">Smart lead scoring</p>
                   <p className="text-xs text-muted-foreground">
-                    Classifies intent and extracts missing RFP fields.
+                    Heuristic scoring — flags intent, urgency, and fit from the message text.
                   </p>
                 </div>
                 <form action={analyzeInquiry}>
@@ -286,11 +301,11 @@ function InquiryDetailPanel({
           </div>
           <form action={addInquiryMessage} className="space-y-2">
             <input type="hidden" name="inquiryId" value={inquiry.id} />
-            <textarea
+            <Textarea
               name="body"
               rows={3}
               placeholder="Add a staff note or reply context"
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              aria-label="Add a staff note or reply context"
             />
             <Button type="submit" size="sm">Add note</Button>
           </form>
@@ -308,40 +323,45 @@ function InquiryDetailPanel({
               <input type="hidden" name="inquiryId" value={inquiry.id} />
               <div className="grid gap-3 md:grid-cols-2">
                 <div className="space-y-1">
-                  <Label>Event Type</Label>
-                  <Input name="eventType" defaultValue={inquiry.groupRfp?.eventType ?? ""} />
+                  <Label htmlFor="rfp-event-type">Event Type</Label>
+                  <Input id="rfp-event-type" name="eventType" defaultValue={inquiry.groupRfp?.eventType ?? ""} />
                 </div>
                 <div className="space-y-1">
-                  <Label>Decision Date</Label>
-                  <Input type="date" name="decisionDate" defaultValue={inquiry.groupRfp?.decisionDate ?? ""} />
+                  <Label htmlFor="rfp-decision-date">Decision Date</Label>
+                  <Input id="rfp-decision-date" type="date" name="decisionDate" defaultValue={inquiry.groupRfp?.decisionDate ?? ""} />
                 </div>
                 <div className="space-y-1">
-                  <Label>Rooms Per Night</Label>
-                  <Input type="number" name="roomsPerNight" defaultValue={inquiry.groupRfp?.roomsPerNight ?? ""} />
+                  <Label htmlFor="rfp-rooms-per-night">Rooms Per Night</Label>
+                  <Input id="rfp-rooms-per-night" type="number" name="roomsPerNight" defaultValue={inquiry.groupRfp?.roomsPerNight ?? ""} />
                 </div>
                 <div className="space-y-1">
-                  <Label>Attendees</Label>
-                  <Input type="number" name="attendeeCount" defaultValue={inquiry.groupRfp?.attendeeCount ?? ""} />
+                  <Label htmlFor="rfp-attendees">Attendees</Label>
+                  <Input id="rfp-attendees" type="number" name="attendeeCount" defaultValue={inquiry.groupRfp?.attendeeCount ?? ""} />
                 </div>
               </div>
               <div className="space-y-1">
-                <Label>Meeting Room Setup</Label>
-                <Input name="meetingRoomSetup" defaultValue={inquiry.groupRfp?.meetingRoomSetup ?? ""} />
+                <Label htmlFor="rfp-meeting-room-setup">Meeting Room Setup</Label>
+                <Input id="rfp-meeting-room-setup" name="meetingRoomSetup" defaultValue={inquiry.groupRfp?.meetingRoomSetup ?? ""} />
               </div>
               <div className="space-y-1">
-                <Label>Food & Beverage</Label>
-                <Input name="foodAndBeverage" defaultValue={inquiry.groupRfp?.foodAndBeverage ?? ""} />
+                <Label htmlFor="rfp-food-and-beverage">Food & Beverage</Label>
+                <Input id="rfp-food-and-beverage" name="foodAndBeverage" defaultValue={inquiry.groupRfp?.foodAndBeverage ?? ""} />
               </div>
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" name="flexibleDates" defaultChecked={inquiry.groupRfp?.flexibleDates ?? false} />
+              <label htmlFor="rfp-flexible-dates" className="flex items-center gap-2 text-sm">
+                <input
+                  id="rfp-flexible-dates"
+                  type="checkbox"
+                  name="flexibleDates"
+                  defaultChecked={inquiry.groupRfp?.flexibleDates ?? false}
+                />
                 Flexible dates
               </label>
-              <textarea
+              <Textarea
                 name="notes"
                 rows={3}
                 placeholder="RFP notes"
+                aria-label="RFP notes"
                 defaultValue={inquiry.groupRfp?.notes ?? ""}
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               />
               <Button type="submit" size="sm">Save RFP</Button>
             </form>
@@ -377,28 +397,32 @@ function InquiryDetailPanel({
               <input type="hidden" name="inquiryId" value={inquiry.id} />
               <div className="grid gap-3 md:grid-cols-2">
                 <div className="space-y-1">
-                  <Label>Room Rate</Label>
-                  <Input type="number" name="roomRate" min="0" step="1" />
+                  <Label htmlFor="proposal-room-rate">Room Rate</Label>
+                  <Input id="proposal-room-rate" type="number" name="roomRate" min="0" step="1" />
                 </div>
                 <div className="space-y-1">
-                  <Label>Total Estimate</Label>
-                  <Input type="number" name="totalEstimate" min="0" step="1" />
+                  <Label htmlFor="proposal-total-estimate">Total Estimate</Label>
+                  <Input id="proposal-total-estimate" type="number" name="totalEstimate" min="0" step="1" />
                 </div>
                 <div className="space-y-1">
-                  <Label>Room Block</Label>
-                  <Input type="number" name="roomBlock" min="0" />
+                  <Label htmlFor="proposal-room-block">Room Block</Label>
+                  <Input id="proposal-room-block" type="number" name="roomBlock" min="0" />
                 </div>
                 <div className="space-y-1">
-                  <Label>Cutoff Date</Label>
-                  <Input type="date" name="cutoffDate" />
+                  <Label htmlFor="proposal-cutoff-date">Cutoff Date</Label>
+                  <Input id="proposal-cutoff-date" type="date" name="cutoffDate" />
                 </div>
               </div>
-              <Input name="cancellationTerms" placeholder="Cancellation terms" />
-              <textarea
+              <Input
+                name="cancellationTerms"
+                placeholder="Cancellation terms"
+                aria-label="Cancellation terms"
+              />
+              <Textarea
                 name="notes"
                 rows={3}
                 placeholder="Proposal notes"
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                aria-label="Proposal notes"
               />
               <Button type="submit" size="sm">Create proposal</Button>
             </form>
@@ -440,15 +464,12 @@ export default async function InquiriesPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Inquiries</h1>
-          <p className="text-sm text-muted-foreground">
-            Capture hotel demand, qualify group intent, and prepare RFPs and proposals.
-          </p>
-        </div>
-        <Badge variant="outline">{inquiries.length} total</Badge>
-      </div>
+      <TroskyPageHeader
+        eyebrow="Lead inbox"
+        title="Inquiries"
+        description="Capture hotel demand, qualify group intent, and prepare RFPs and proposals."
+        actions={<Badge variant="outline">{inquiries.length} total</Badge>}
+      />
 
       <Card>
         <CardHeader>
@@ -458,52 +479,52 @@ export default async function InquiriesPage({
         <CardContent>
           <form action={createManualInquiry} className="grid gap-3 lg:grid-cols-6">
             <div className="space-y-1 lg:col-span-2">
-              <Label>Hotel</Label>
-              <HotelSelect hotels={hotels} defaultValue={hotels[0]?.id ?? ""} />
+              <Label htmlFor="new-inquiry-hotel">Hotel</Label>
+              <HotelSelect id="new-inquiry-hotel" hotels={hotels} defaultValue={hotels[0]?.id} />
             </div>
             <div className="space-y-1">
-              <Label>Guest</Label>
-              <Input name="guestName" placeholder="Guest name" />
+              <Label htmlFor="new-inquiry-guest">Guest</Label>
+              <Input id="new-inquiry-guest" name="guestName" placeholder="Guest name" />
             </div>
             <div className="space-y-1">
-              <Label>Email</Label>
-              <Input name="guestEmail" type="email" placeholder="guest@email.com" />
+              <Label htmlFor="new-inquiry-email">Email</Label>
+              <Input id="new-inquiry-email" name="guestEmail" type="email" placeholder="guest@email.com" />
             </div>
             <div className="space-y-1">
-              <Label>Intent</Label>
-              <SelectField name="intent" defaultValue="UNKNOWN" options={INTENTS} />
+              <Label htmlFor="new-inquiry-intent">Intent</Label>
+              <SelectField id="new-inquiry-intent" name="intent" defaultValue="UNKNOWN" options={INTENTS} />
             </div>
             <div className="space-y-1">
-              <Label>Priority</Label>
-              <SelectField name="priority" defaultValue="NORMAL" options={PRIORITIES} />
+              <Label htmlFor="new-inquiry-priority">Priority</Label>
+              <SelectField id="new-inquiry-priority" name="priority" defaultValue="NORMAL" options={PRIORITIES} />
             </div>
             <div className="space-y-1 lg:col-span-2">
-              <Label>Organization</Label>
-              <Input name="organizationName" placeholder="Company, school, planner" />
+              <Label htmlFor="new-inquiry-organization">Organization</Label>
+              <Input id="new-inquiry-organization" name="organizationName" placeholder="Company, school, planner" />
             </div>
             <div className="space-y-1">
-              <Label>Check In</Label>
-              <Input name="checkIn" type="date" />
+              <Label htmlFor="new-inquiry-check-in">Check In</Label>
+              <Input id="new-inquiry-check-in" name="checkIn" type="date" />
             </div>
             <div className="space-y-1">
-              <Label>Check Out</Label>
-              <Input name="checkOut" type="date" />
+              <Label htmlFor="new-inquiry-check-out">Check Out</Label>
+              <Input id="new-inquiry-check-out" name="checkOut" type="date" />
             </div>
             <div className="space-y-1">
-              <Label>Rooms</Label>
-              <Input name="roomCount" type="number" min="0" />
+              <Label htmlFor="new-inquiry-rooms">Rooms</Label>
+              <Input id="new-inquiry-rooms" name="roomCount" type="number" min="0" />
             </div>
             <div className="space-y-1">
-              <Label>Budget</Label>
-              <Input name="budget" type="number" min="0" />
+              <Label htmlFor="new-inquiry-budget">Budget</Label>
+              <Input id="new-inquiry-budget" name="budget" type="number" min="0" />
             </div>
             <div className="space-y-1 lg:col-span-3">
-              <Label>Summary</Label>
-              <Input name="summary" placeholder="Short lead summary" />
+              <Label htmlFor="new-inquiry-summary">Summary</Label>
+              <Input id="new-inquiry-summary" name="summary" placeholder="Short lead summary" />
             </div>
             <div className="space-y-1 lg:col-span-3">
-              <Label>Initial Message</Label>
-              <Input name="initialMessage" placeholder="What did the guest ask for?" />
+              <Label htmlFor="new-inquiry-initial-message">Initial Message</Label>
+              <Input id="new-inquiry-initial-message" name="initialMessage" placeholder="What did the guest ask for?" />
             </div>
             <div className="flex items-end lg:col-span-6">
               <Button type="submit" disabled={hotels.length === 0}>Create inquiry</Button>
@@ -515,11 +536,23 @@ export default async function InquiriesPage({
       <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
         <div className="space-y-3">
           {inquiries.length === 0 ? (
-            <Card>
-              <CardContent className="p-8 text-center text-sm text-muted-foreground">
-                No inquiries yet.
-              </CardContent>
-            </Card>
+            <EmptyState
+              icon={Inbox}
+              title="No inquiries yet"
+              description={
+                session.role === "ANALYST"
+                  ? "Inquiries are inbound leads — room blocks, weddings, meetings, and offsites. They arrive from the public form at /inquire or can be logged by hand with Add Inquiry above. No active hotel has received one yet."
+                  : "Inquiries are inbound leads — room blocks, weddings, meetings, and offsites. They arrive from the public form at /inquire or can be logged by hand with Add Inquiry above. Your hotels have not received one yet."
+              }
+              action={
+                <Button asChild size="sm" variant="outline" className="gap-1.5">
+                  <Link href="/inquire" target="_blank" rel="noreferrer">
+                    <ExternalLink className="h-4 w-4" aria-hidden />
+                    Preview the public form
+                  </Link>
+                </Button>
+              }
+            />
           ) : (
             inquiries.map((inquiry) => (
               <Link key={inquiry.id} href={`/inquiries?id=${inquiry.id}`}>

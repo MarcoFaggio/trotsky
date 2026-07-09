@@ -6,6 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Settings,
   Download,
   RefreshCw,
@@ -32,7 +39,7 @@ import { SummaryCards } from "./summary-cards";
 import { toast } from "@/hooks/use-toast";
 import { useSessionStorage } from "@/hooks/use-session-storage";
 import type { OverviewData, DashboardDay } from "@hotel-pricing/shared";
-import { formatCurrency } from "@hotel-pricing/shared";
+import { formatCurrency, startOfTodayUtc, addUtcDays } from "@hotel-pricing/shared";
 
 interface OverviewDashboardProps {
   hotel: {
@@ -101,10 +108,9 @@ export function OverviewDashboard({
 
   const loadAdvancedData = useCallback(async () => {
     setAdvancedLoading(true);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const end = new Date(today);
-    end.setDate(end.getDate() + parseInt(advancedRange) - 1);
+    // Stored dates are UTC (@db.Date); compute "today" in UTC, never local.
+    const today = startOfTodayUtc();
+    const end = addUtcDays(today, parseInt(advancedRange) - 1);
     try {
       const data = await getDashboardData(
         hotel.id,
@@ -219,7 +225,7 @@ export function OverviewDashboard({
                 Welcome to your property dashboard
               </p>
             )}
-            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
               {hotel.name}
             </h1>
             <div className="mt-1 flex flex-wrap items-center gap-2">
@@ -315,15 +321,19 @@ export function OverviewDashboard({
 
           {(view === "matrix" || view === "calendar") && (
             <div className="flex items-center gap-2">
-              <select
-                value={advancedRange}
-                onChange={(e) => setAdvancedRange(e.target.value)}
-                className="h-9 rounded-full border bg-background/80 px-3 text-xs shadow-sm"
-              >
-                <option value="7">7 days</option>
-                <option value="14">14 days</option>
-                <option value="30">30 days</option>
-              </select>
+              <Select value={advancedRange} onValueChange={setAdvancedRange}>
+                <SelectTrigger
+                  aria-label="Graph range"
+                  className="h-9 w-auto gap-1.5 rounded-full bg-background/80 px-3 text-xs shadow-sm"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="7">7 days</SelectItem>
+                  <SelectItem value="14">14 days</SelectItem>
+                  <SelectItem value="30">30 days</SelectItem>
+                </SelectContent>
+              </Select>
               {isAnalyst && (
                 <Button
                   variant="outline"

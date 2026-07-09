@@ -101,6 +101,10 @@ export interface RecommendationInput {
   otbRooms: number | null;
   otbLyRooms: number | null;
   hasEvent: boolean;
+  manualEventCount?: number;
+  signalNetBps?: number;
+  signalPositiveBps?: number;
+  signalNegativeBps?: number;
   minRate: number | null;
   maxRate: number | null;
   discountWarning: boolean;

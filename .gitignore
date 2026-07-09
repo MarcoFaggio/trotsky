@@ -9,3 +9,9 @@ dist
 
 # macOS resource forks / AppleDouble (safe to ignore)
 ._*
+
+# Compiled seed artifacts (seed runs via tsx)
+packages/db/prisma/seed.js
+packages/db/prisma/seed.js.map
+packages/db/prisma/seed.d.ts
+packages/db/prisma/seed.d.ts.map

@@ -424,7 +424,7 @@ export async function upsertPriceChangeActionsForHotel(
 ): Promise<UpsertPriceChangeActionsResult> {
   const now = new Date();
   const today = new Date(input.recomputeWindowStart);
-  today.setHours(0, 0, 0, 0);
+  today.setUTCHours(0, 0, 0, 0);
 
   const [recommendations, hotelRates, overrides, competitors] = await Promise.all([
     prisma.recommendation.findMany({

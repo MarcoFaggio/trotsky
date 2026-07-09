@@ -31,7 +31,11 @@ export async function POST() {
     await connection.quit();
     
     return NextResponse.json({ jobId: job.id, message: "Scrape job queued" });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err) {
+    console.error("Failed to queue scrape job:", err);
+    return NextResponse.json(
+      { error: "Could not queue the scrape job. Check the Redis connection and try again." },
+      { status: 500 }
+    );
   }
 }

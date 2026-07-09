@@ -86,7 +86,9 @@ function isOpportunityAction(action: RevenueAction): boolean {
   const current = action.currentValueCents;
   const recommended = action.recommendedValueCents;
   if (current == null || recommended == null) return false;
-  return recommended < current;
+  // Upside: the engine sees room to raise the rate above where it sits today.
+  // Recommended cuts surface through urgency (URGENT/WATCH), not as opportunity.
+  return recommended > current;
 }
 
 function deriveDayStatus(

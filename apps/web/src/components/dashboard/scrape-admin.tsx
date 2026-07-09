@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Play, RefreshCw } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { TroskyPageHeader } from "@/components/trosky/trosky-page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface ScrapeRun {
   id: string;
@@ -45,29 +47,37 @@ export function ScrapeAdmin({ runs }: ScrapeAdminProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Scrape Administration</h1>
-          <p className="text-muted-foreground">Monitor and trigger scraping jobs</p>
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={handleRunNow} disabled={triggering}>
-            <Play className="mr-2 h-4 w-4" />
-            {triggering ? "Queuing..." : "Run Scrape Now"}
-          </Button>
-          <Button variant="outline" onClick={() => router.refresh()}>
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Refresh
-          </Button>
-        </div>
-      </div>
+      <TroskyPageHeader
+        eyebrow="Operations"
+        title="Scrape Administration"
+        description="Monitor and trigger scraping jobs"
+        actions={
+          <>
+            <Button onClick={handleRunNow} disabled={triggering}>
+              <Play className="mr-2 h-4 w-4" />
+              {triggering ? "Queuing..." : "Run Scrape Now"}
+            </Button>
+            <Button variant="outline" onClick={() => router.refresh()}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Refresh
+            </Button>
+          </>
+        }
+      />
 
       <Card>
         <CardHeader>
           <CardTitle>Recent Scrape Runs</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
+          {runs.length === 0 ? (
+            <EmptyState
+              icon={Play}
+              title="No scrape runs yet"
+              description={'Click "Run Scrape Now" to start.'}
+            />
+          ) : (
+            <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/50">
@@ -110,16 +120,10 @@ export function ScrapeAdmin({ runs }: ScrapeAdminProps) {
                     </tr>
                   );
                 })}
-                {runs.length === 0 && (
-                  <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
-                      No scrape runs yet. Click "Run Scrape Now" to start.
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
-          </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

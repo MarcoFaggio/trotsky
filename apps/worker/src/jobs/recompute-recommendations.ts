@@ -1,7 +1,9 @@
 import { prisma } from "@hotel-pricing/db";
 import {
+  addUtcDays,
   computeRecommendation,
   computeSignalPressure,
+  startOfTodayUtc,
   toDateString,
 } from "@hotel-pricing/shared";
 import pino from "pino";
@@ -10,20 +12,21 @@ import { upsertPriceChangeActionsForHotel } from "../services/revenue-action-bui
 
 const logger = pino({ name: "recommendations" });
 
+/** Ignore scraped rates older than this when building recommendation inputs. */
+const STALE_COMP_RATE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
 export async function recomputeRecommendationsProcessor(data: { hotelId?: string }) {
   const hotels = data.hotelId
     ? await prisma.hotel.findMany({ where: { id: data.hotelId, status: "ACTIVE" } })
     : await prisma.hotel.findMany({ where: { status: "ACTIVE" } });
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = startOfTodayUtc();
+  const staleRateCutoffMs = Date.now() - STALE_COMP_RATE_MAX_AGE_MS;
 
   for (const hotel of hotels) {
     const dates: Date[] = [];
     for (let i = 0; i < 30; i++) {
-      const d = new Date(today);
-      d.setDate(d.getDate() + i);
-      dates.push(d);
+      dates.push(addUtcDays(today, i));
     }
     const endDate = dates[dates.length - 1];
 
@@ -76,6 +79,7 @@ export async function recomputeRecommendationsProcessor(data: { hotelId?: string
 
     const hotelRateByDate = new Map<string, (typeof hotelRates)[number]>();
     for (const rate of hotelRates) {
+      if (rate.scrapedAt.getTime() < staleRateCutoffMs) continue;
       const key = toDateString(rate.date);
       if (!hotelRateByDate.has(key)) {
         hotelRateByDate.set(key, rate);
@@ -112,6 +116,7 @@ export async function recomputeRecommendationsProcessor(data: { hotelId?: string
     >();
     for (const rate of competitorRates) {
       if (!rate.competitorId) continue;
+      if (rate.scrapedAt.getTime() < staleRateCutoffMs) continue;
       const key = `${rate.competitorId}:${toDateString(rate.date)}`;
       if (!compRateByCompetitorDate.has(key)) {
         compRateByCompetitorDate.set(key, rate);
@@ -144,11 +149,11 @@ export async function recomputeRecommendationsProcessor(data: { hotelId?: string
         const result = computeRecommendation({
           ourRate,
           competitorRates: compRates,
-          occPercent: occ?.occPercent || null,
-          occTarget: hotel.occTarget || 75,
-          occLyPercent: occ?.occLyPercent || null,
-          otbRooms: occ?.roomsOnBooks || null,
-          otbLyRooms: occ?.otbLyRooms || null,
+          occPercent: occ?.occPercent ?? null,
+          occTarget: hotel.occTarget ?? 75,
+          occLyPercent: occ?.occLyPercent ?? null,
+          otbRooms: occ?.roomsOnBooks ?? null,
+          otbLyRooms: occ?.otbLyRooms ?? null,
           hasEvent: eventCount > 0,
           manualEventCount: eventCount,
           signalNetBps: signalPressure.netBps,

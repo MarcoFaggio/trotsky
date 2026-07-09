@@ -38,14 +38,43 @@ async function connectRedisOrExit(): Promise<Redis> {
   return new Redis(REDIS_URL, { maxRetriesPerRequest: null });
 }
 
+/** Retry defaults for every queue; per-`add` options still win when provided. */
+const defaultJobOptions = {
+  attempts: 3,
+  backoff: { type: "exponential", delay: 30_000 },
+  removeOnComplete: 100,
+  removeOnFail: 500,
+};
+
+/**
+ * Drop repeatable schedules whose cron pattern no longer matches the
+ * configured env value, so changing a cron doesn't leave orphaned duplicates.
+ */
+async function removeStaleRepeatables(
+  queue: Queue,
+  jobName: string,
+  pattern: string
+) {
+  const repeatables = await queue.getRepeatableJobs();
+  for (const job of repeatables) {
+    if (job.name === jobName && job.pattern !== pattern) {
+      await queue.removeRepeatableByKey(job.key);
+      logger.info(
+        { queue: queue.name, jobName, stalePattern: job.pattern, pattern },
+        "Removed stale repeatable schedule"
+      );
+    }
+  }
+}
+
 async function main() {
   const connection = await connectRedisOrExit();
 
-  const scrapeQueue = new Queue("scrape-queue", { connection });
-  const recQueue = new Queue("recommendation-queue", { connection });
-  const signalIngestionQueue = new Queue("signal-ingestion-queue", { connection });
-  const signalMatchingQueue = new Queue("signal-matching-queue", { connection });
-  const hotelGeoQueue = new Queue("hotel-geo-queue", { connection });
+  const scrapeQueue = new Queue("scrape-queue", { connection, defaultJobOptions });
+  const recQueue = new Queue("recommendation-queue", { connection, defaultJobOptions });
+  const signalIngestionQueue = new Queue("signal-ingestion-queue", { connection, defaultJobOptions });
+  const signalMatchingQueue = new Queue("signal-matching-queue", { connection, defaultJobOptions });
+  const hotelGeoQueue = new Queue("hotel-geo-queue", { connection, defaultJobOptions });
 
   const scrapeWorker = new Worker(
     "scrape-queue",
@@ -142,6 +171,7 @@ async function main() {
   const SIGNAL_CRON = process.env.SIGNAL_CRON || "15 */6 * * *";
   const GEO_CRON = process.env.HOTEL_GEO_CRON || "45 2 * * *";
 
+  await removeStaleRepeatables(scrapeQueue, "daily-scrape", SCRAPE_CRON);
   await scrapeQueue.add(
     "daily-scrape",
     { trigger: "scheduled" },
@@ -154,6 +184,11 @@ async function main() {
 
   logger.info({ cron: SCRAPE_CRON }, "Scrape schedule configured");
 
+  await removeStaleRepeatables(
+    signalIngestionQueue,
+    "fetch-normalize-signals",
+    SIGNAL_CRON
+  );
   await signalIngestionQueue.add(
     "fetch-normalize-signals",
     { trigger: "scheduled" },
@@ -164,6 +199,7 @@ async function main() {
     }
   );
 
+  await removeStaleRepeatables(hotelGeoQueue, "geocode-hotels", GEO_CRON);
   await hotelGeoQueue.add(
     "geocode-hotels",
     { trigger: "scheduled" },
@@ -186,6 +222,11 @@ async function main() {
     await signalIngestionWorker.close();
     await signalMatchingWorker.close();
     await hotelGeoWorker.close();
+    await scrapeQueue.close();
+    await recQueue.close();
+    await signalIngestionQueue.close();
+    await signalMatchingQueue.close();
+    await hotelGeoQueue.close();
     await connection.quit();
     process.exit(0);
   };

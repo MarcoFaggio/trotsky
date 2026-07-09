@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@hotel-pricing/db";
+import { startOfTodayUtc, addUtcDays } from "@hotel-pricing/shared";
 import { TroskyShell } from "@/components/trosky";
 
 export default async function AppLayout({
@@ -48,10 +49,8 @@ export default async function AppLayout({
   });
 
   // Upcoming events in next 7 days
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const weekOut = new Date(today);
-  weekOut.setDate(weekOut.getDate() + 7);
+  const today = startOfTodayUtc();
+  const weekOut = addUtcDays(today, 7);
   const upcomingEvents = await prisma.event.count({
     where: {
       date: { gte: today, lte: weekOut },

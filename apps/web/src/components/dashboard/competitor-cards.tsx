@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { weightToLabel } from "@hotel-pricing/shared";
+import { formatCurrency, weightToLabel } from "@hotel-pricing/shared";
 import type { CompetitorCard } from "@hotel-pricing/shared";
 import Link from "next/link";
 
@@ -145,6 +145,7 @@ export function CompetitorCards({
                           variant="ghost"
                           size="sm"
                           className="h-6 w-6 p-0"
+                          aria-label={`Actions for ${comp.name}`}
                           onClick={(e) => e.stopPropagation()}
                         >
                           <MoreVertical className="h-3 w-3" />
@@ -157,7 +158,7 @@ export function CompetitorCards({
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          className="text-red-600"
+                          className="text-destructive focus:text-destructive"
                           onClick={(e) => {
                             e.stopPropagation();
                             onRemove?.(comp.id);
@@ -192,7 +193,7 @@ export function CompetitorCards({
                   ) : (
                     <div className="flex items-baseline gap-1.5">
                       <span className="text-lg font-bold">
-                        ${Math.round((comp.currentRate || 0) / 100)}
+                        {formatCurrency(comp.currentRate || 0)}
                       </span>
                       <span className="text-[10px] text-muted-foreground">
                         per night
@@ -222,6 +223,7 @@ export function CompetitorCards({
                       href={comp.listingUrl}
                       target="_blank"
                       rel="noopener noreferrer"
+                      aria-label={`Open ${comp.name} listing`}
                       onClick={(e) => e.stopPropagation()}
                       className="text-muted-foreground hover:text-foreground"
                     >

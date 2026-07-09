@@ -1,12 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
+import { TroskyPageHeader } from "@/components/trosky/trosky-page-header";
+import { TroskyMetricCard } from "@/components/trosky/trosky-metric-card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { chartColors } from "@/lib/chart-colors";
-import { Building2 } from "lucide-react";
+import { formatCurrency } from "@hotel-pricing/shared";
+import { Building2, DollarSign, Scale, TrendingUp } from "lucide-react";
 
 interface PaceData {
   date: string;
@@ -25,7 +29,13 @@ interface PaceDashboardProps {
 }
 
 export function PaceDashboard({ hotels, initialHotelId, occupancy, ourRate, compAvgRate }: PaceDashboardProps) {
-  const [hotelId, setHotelId] = useState(initialHotelId || "");
+  const router = useRouter();
+  const hotelId = initialHotelId || "";
+  const hotelName = hotels.find((h) => h.id === hotelId)?.name;
+
+  function handleHotelChange(id: string) {
+    if (id !== hotelId) router.push(`/pace?hotelId=${id}`);
+  }
 
   const chartData = useMemo(
     () =>
@@ -44,70 +54,68 @@ export function PaceDashboard({ hotels, initialHotelId, occupancy, ourRate, comp
     [occupancy]
   );
 
-  const ourADR = ourRate ? ourRate / 100 : null;
-  const compADR = compAvgRate ? compAvgRate / 100 : null;
-  const adrIndex = ourADR && compADR ? Math.round((ourADR / compADR) * 100) : null;
+  const adrIndex = ourRate && compAvgRate ? Math.round((ourRate / compAvgRate) * 100) : null;
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Pace / OTB Dashboard</h1>
-          <p className="text-muted-foreground">Track booking pace against last year</p>
-        </div>
-        <Select value={hotelId} onValueChange={setHotelId}>
-          <SelectTrigger className="w-full md:w-[300px]">
-            <SelectValue placeholder="Select hotel" />
-          </SelectTrigger>
-          <SelectContent>
-            {hotels.map((h) => (
-              <SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <TroskyPageHeader
+        eyebrow="Booking pace"
+        title="Pace / OTB"
+        description={
+          hotelName
+            ? `On-the-books rooms versus last year for ${hotelName}.`
+            : "Track booking pace against last year."
+        }
+        actions={
+          <Select value={hotelId} onValueChange={handleHotelChange}>
+            <SelectTrigger className="w-full sm:w-[260px]" aria-label="Select hotel">
+              <SelectValue placeholder="Select hotel" />
+            </SelectTrigger>
+            <SelectContent>
+              {hotels.map((h) => (
+                <SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        }
+      />
 
       {hotels.length === 0 ? (
-        <div className="rounded-lg border-2 border-dashed p-10 text-center">
-          <Building2 className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
-          <p className="text-sm font-medium">No active hotels available</p>
-          <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
-            Pace data will appear once an active hotel is assigned.
-          </p>
-        </div>
+        <EmptyState
+          icon={Building2}
+          title="No active hotels available"
+          description="Pace data will appear once an active hotel is assigned."
+        />
       ) : (
         <>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Our ADR</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">{ourADR ? `$${ourADR.toFixed(0)}` : "—"}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Comp Avg ADR</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">{compADR ? `$${compADR.toFixed(0)}` : "—"}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">ADR Index</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">{adrIndex ?? "—"}</p>
-            {adrIndex && (
-              <Badge variant={adrIndex >= 100 ? "success" : "warning"} className="mt-1">
-                {adrIndex >= 100 ? "Above market" : "Below market"}
-              </Badge>
-            )}
-          </CardContent>
-        </Card>
+        <TroskyMetricCard
+          label="Our ADR"
+          icon={DollarSign}
+          value={ourRate ? formatCurrency(ourRate) : "—"}
+          hint="Today's scraped rate"
+        />
+        <TroskyMetricCard
+          label="Comp Avg ADR"
+          icon={Scale}
+          value={compAvgRate ? formatCurrency(compAvgRate) : "—"}
+          hint="Weighted across your comp set"
+        />
+        <TroskyMetricCard
+          label="ADR Index"
+          icon={TrendingUp}
+          value={adrIndex ?? "—"}
+          hint={adrIndex ? "Our rate as % of comp average" : "Needs today's rates"}
+          badge={
+            adrIndex
+              ? {
+                  text: adrIndex >= 100 ? "Above market" : "Below market",
+                  variant: adrIndex >= 100 ? "success" : "warning",
+                }
+              : undefined
+          }
+        />
       </div>
 
       <Card>
@@ -131,7 +139,7 @@ export function PaceDashboard({ hotels, initialHotelId, occupancy, ourRate, comp
                         <p className="text-primary">OTB: {data?.otbRooms ?? "—"} rooms</p>
                         <p className="text-muted-foreground">OTB LY: {data?.otbLyRooms ?? "—"} rooms</p>
                         {data?.pace !== null && (
-                          <p className={data.pace >= 0 ? "text-emerald-600" : "text-red-500"}>
+                          <p className={data.pace >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}>
                             Pace: {data.pace >= 0 ? "+" : ""}{data.pace}%
                           </p>
                         )}
@@ -145,9 +153,11 @@ export function PaceDashboard({ hotels, initialHotelId, occupancy, ourRate, comp
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="text-center py-12 text-muted-foreground">
-              No OTB data available. Enter occupancy data first.
-            </div>
+            <EmptyState
+              className="border-0 bg-transparent py-12"
+              title="No OTB data available"
+              description="Enter occupancy data first — the pace chart builds from rooms on books."
+            />
           )}
         </CardContent>
       </Card>
@@ -174,7 +184,7 @@ export function PaceDashboard({ hotels, initialHotelId, occupancy, ourRate, comp
                       <td className="px-4 py-2">{d.date}</td>
                       <td className="px-4 py-2 text-right font-medium">{d.otbRooms ?? "—"}</td>
                       <td className="px-4 py-2 text-right text-muted-foreground">{d.otbLyRooms ?? "—"}</td>
-                      <td className={`px-4 py-2 text-right font-medium ${d.pace !== null ? (d.pace >= 0 ? "text-emerald-600" : "text-red-500") : ""}`}>
+                      <td className={`px-4 py-2 text-right font-medium ${d.pace !== null ? (d.pace >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive") : ""}`}>
                         {d.pace !== null ? `${d.pace >= 0 ? "+" : ""}${d.pace}%` : "—"}
                       </td>
                     </tr>

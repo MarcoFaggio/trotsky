@@ -4,6 +4,7 @@ import type { Prisma } from "@hotel-pricing/db";
 import { publicInquirySchema } from "@hotel-pricing/shared";
 import { analyzeInquiry } from "@/lib/inquiry-ai";
 import { checkRateLimitAsync } from "@/lib/rate-limiter";
+import { clientIpKey } from "@/lib/client-ip";
 
 function summarizeGuestMessage(message: string): string | null {
   const cleaned = message.replace(/\s+/g, " ").trim();
@@ -16,13 +17,9 @@ function publicAiAnalysisEnabled(): boolean {
 }
 
 export async function POST(request: NextRequest) {
-  const forwarded = request.headers.get("x-forwarded-for");
-  const ip =
-    forwarded?.split(",")[0]?.trim() ||
-    request.headers.get("x-real-ip") ||
-    "unknown";
-
-  const rateLimit = await checkRateLimitAsync(`public-inquiry:${ip}`);
+  const rateLimit = await checkRateLimitAsync(
+    `public-inquiry:${clientIpKey(request)}`
+  );
   if (!rateLimit.allowed) {
     return NextResponse.json(
       { error: "Too many inquiry submissions. Please try again later." },

@@ -3,6 +3,7 @@
 import { prisma } from "@hotel-pricing/db";
 import { requireAnalyst, requireHotelAccess } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
+import { startOfTodayUtc, addUtcDays } from "@hotel-pricing/shared";
 import { queueRecommendationRecompute } from "@/lib/recommendation-queue";
 
 export async function upsertOccupancy(data: {
@@ -69,27 +70,37 @@ export async function bulkUpsertOccupancy(
   }[]
 ) {
   await requireAnalyst();
-  
-  for (const entry of entries) {
-    const dateObj = new Date(entry.date + "T00:00:00.000Z");
-    await prisma.occupancyEntry.upsert({
-      where: { hotelId_date: { hotelId: entry.hotelId, date: dateObj } },
-      create: {
-        hotelId: entry.hotelId,
-        date: dateObj,
-        occPercent: entry.occPercent,
-        roomsOnBooks: entry.roomsOnBooks,
-        occLyPercent: entry.occLyPercent,
-        otbLyRooms: entry.otbLyRooms,
-      },
-      update: {
-        ...(entry.occPercent !== undefined && { occPercent: entry.occPercent }),
-        ...(entry.roomsOnBooks !== undefined && { roomsOnBooks: entry.roomsOnBooks }),
-        ...(entry.occLyPercent !== undefined && { occLyPercent: entry.occLyPercent }),
-        ...(entry.otbLyRooms !== undefined && { otbLyRooms: entry.otbLyRooms }),
-      },
-    });
-  }
+
+  const clean = (value: number | null | undefined) =>
+    typeof value === "number" && !Number.isFinite(value) ? null : value;
+
+  // All-or-nothing: a mid-save failure must not leave a half-written grid.
+  await prisma.$transaction(
+    entries.map((entry) => {
+      const dateObj = new Date(entry.date + "T00:00:00.000Z");
+      const occPercent = clean(entry.occPercent);
+      const roomsOnBooks = clean(entry.roomsOnBooks);
+      const occLyPercent = clean(entry.occLyPercent);
+      const otbLyRooms = clean(entry.otbLyRooms);
+      return prisma.occupancyEntry.upsert({
+        where: { hotelId_date: { hotelId: entry.hotelId, date: dateObj } },
+        create: {
+          hotelId: entry.hotelId,
+          date: dateObj,
+          occPercent,
+          roomsOnBooks,
+          occLyPercent,
+          otbLyRooms,
+        },
+        update: {
+          ...(entry.occPercent !== undefined && { occPercent }),
+          ...(entry.roomsOnBooks !== undefined && { roomsOnBooks }),
+          ...(entry.occLyPercent !== undefined && { occLyPercent }),
+          ...(entry.otbLyRooms !== undefined && { otbLyRooms }),
+        },
+      });
+    })
+  );
 
   revalidatePath("/occupancy");
   const hotelIds = Array.from(new Set(entries.map((entry) => entry.hotelId)));
@@ -102,10 +113,8 @@ export async function bulkUpsertOccupancy(
 
 export async function getOccupancyData(hotelId: string, days: number = 30) {
   await requireHotelAccess(hotelId);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const end = new Date(today);
-  end.setDate(end.getDate() + days);
+  const today = startOfTodayUtc();
+  const end = addUtcDays(today, days);
 
   return prisma.occupancyEntry.findMany({
     where: {

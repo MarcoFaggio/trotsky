@@ -20,7 +20,12 @@ import { getSignalsForDate, suppressSignalImpact } from "@/actions/signals";
 import { getDiscountMix } from "@/actions/rate-plans";
 import { toast } from "@/hooks/use-toast";
 import type { DashboardDay } from "@hotel-pricing/shared";
-import { formatDateFull, weightToLabel, checkDiscountWarning } from "@hotel-pricing/shared";
+import {
+  formatCurrency,
+  formatDateFull,
+  weightToLabel,
+  checkDiscountWarning,
+} from "@hotel-pricing/shared";
 
 interface DayDetailModalProps {
   hotelId: string;
@@ -40,7 +45,7 @@ interface DayDetailModalProps {
 
 function fmt(cents: number | null): string {
   if (cents === null) return "—";
-  return `$${Math.round(cents / 100)}`;
+  return formatCurrency(cents);
 }
 
 export function DayDetailModal({
@@ -319,11 +324,13 @@ export function DayDetailModal({
   const occupiedRooms = data?.occPercent
     ? Math.round((data.occPercent / 100) * hotel.roomCount)
     : null;
-  const revenue = data?.ourRate && occupiedRooms ? Math.round((data.ourRate / 100) * occupiedRooms) : null;
+  const revenueCents =
+    data?.ourRate && occupiedRooms ? data.ourRate * occupiedRooms : null;
   const lyOccRooms = data?.occLyPercent
     ? Math.round((data.occLyPercent / 100) * hotel.roomCount)
     : null;
-  const stlyRevenue = data?.ourRate && lyOccRooms ? Math.round((data.ourRate / 100) * lyOccRooms) : null;
+  const lyEstRevenueCents =
+    data?.ourRate && lyOccRooms ? data.ourRate * lyOccRooms : null;
 
   const pacePercent = data?.otbRooms !== null && data?.otbLyRooms !== null && data?.otbLyRooms
     ? ((data.otbRooms! - data.otbLyRooms) / Math.max(data.otbLyRooms, 1)) * 100
@@ -369,7 +376,7 @@ export function DayDetailModal({
                 </div>
                 <div className="rounded-md border p-3">
                   <p className="text-xs text-muted-foreground">AI Recommended</p>
-                  <p className="text-lg font-bold text-emerald-600">{fmt(data?.recommendedRate ?? null)}</p>
+                  <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{fmt(data?.recommendedRate ?? null)}</p>
                   {data?.confidence !== null && (
                     <p className="text-xs text-muted-foreground">{Math.round((data?.confidence || 0) * 100)}% confidence</p>
                   )}
@@ -435,7 +442,7 @@ export function DayDetailModal({
                           </td>
                           <td className="px-3 py-1.5 truncate max-w-[150px]">{c.name}</td>
                           <td className="px-3 py-1.5 text-right font-medium">{fmt(c.rate)}</td>
-                          <td className={`px-3 py-1.5 text-right ${diff && diff > 0 ? "text-red-500" : diff && diff < 0 ? "text-emerald-600" : ""}`}>
+                          <td className={`px-3 py-1.5 text-right ${diff && diff > 0 ? "text-destructive" : diff && diff < 0 ? "text-emerald-600 dark:text-emerald-400" : ""}`}>
                             {diff !== null ? `${diff > 0 ? "+" : ""}${diff.toFixed(0)}%` : "—"}
                           </td>
                         </tr>
@@ -478,7 +485,7 @@ export function DayDetailModal({
                 </div>
               </div>
               {pacePercent !== null && (
-                <div className={`mt-2 text-sm font-medium ${pacePercent >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                <div className={`mt-2 text-sm font-medium ${pacePercent >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}`}>
                   Pace: {pacePercent >= 0 ? "+" : ""}{pacePercent.toFixed(1)}% vs LY
                 </div>
               )}
@@ -630,17 +637,20 @@ export function DayDetailModal({
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Est. Revenue</p>
-                  <p className="font-bold">{revenue ? `$${revenue.toLocaleString()}` : "—"}</p>
+                  <p className="font-bold">{revenueCents ? formatCurrency(revenueCents) : "—"}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">STLY ADR</p>
+                  <p className="text-xs text-muted-foreground">ADR used for LY est.</p>
                   <p className="font-medium">{fmt(data?.ourRate ?? null)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">STLY Revenue</p>
-                  <p className="font-medium">{stlyRevenue ? `$${stlyRevenue.toLocaleString()}` : "—"}</p>
+                  <p className="text-xs text-muted-foreground">Est. LY Revenue (current ADR × LY rooms)</p>
+                  <p className="font-medium">{lyEstRevenueCents ? formatCurrency(lyEstRevenueCents) : "—"}</p>
                 </div>
               </div>
+              <p className="mt-2 text-[10px] text-muted-foreground">
+                Uses today&apos;s ADR — historical rates not yet tracked.
+              </p>
             </div>
 
             <Separator />

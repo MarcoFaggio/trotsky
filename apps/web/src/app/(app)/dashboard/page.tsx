@@ -24,12 +24,20 @@ export default async function DashboardPage({
     searchParams.hotelId || undefined;
 
   if (user.role === "CLIENT") {
-    const access = await prisma.hotelAccess.findFirst({
+    const accesses = await prisma.hotelAccess.findMany({
       where: { userId: user.id },
+      select: { hotelId: true },
     });
-    if (!access) redirect("/login");
-    detailHotelId = access.hotelId;
-    commandCentreHotelId = access.hotelId;
+    if (accesses.length === 0) redirect("/login");
+    // Multi-hotel clients may switch via the top-bar selector; the URL param
+    // is honored only when it points at a hotel they actually have access to.
+    const requested = searchParams.hotelId;
+    const granted =
+      requested && accesses.some((a) => a.hotelId === requested)
+        ? requested
+        : accesses[0].hotelId;
+    detailHotelId = granted;
+    commandCentreHotelId = granted;
   }
 
   let commandView;
@@ -39,8 +47,13 @@ export default async function DashboardPage({
       role: user.role,
       hotelId: commandCentreHotelId,
     });
-  } catch {
-    redirect("/login");
+  } catch (error) {
+    // Only auth failures belong at /login — data errors go to the error boundary.
+    const message = error instanceof Error ? error.message : "";
+    if (message === "UNAUTHORIZED" || message === "FORBIDDEN") {
+      redirect("/login");
+    }
+    throw error;
   }
 
   if (!detailHotelId) {

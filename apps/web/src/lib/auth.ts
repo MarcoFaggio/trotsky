@@ -35,7 +35,9 @@ export async function verifyAccessToken(
   token: string
 ): Promise<JWTPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, jwtAccessSecretBytes());
+    const { payload } = await jwtVerify(token, jwtAccessSecretBytes(), {
+      algorithms: ["HS256"],
+    });
     return payload as unknown as JWTPayload;
   } catch {
     return null;
@@ -46,7 +48,9 @@ export async function verifyRefreshToken(
   token: string
 ): Promise<{ sub: string } | null> {
   try {
-    const { payload } = await jwtVerify(token, jwtRefreshSecretBytes());
+    const { payload } = await jwtVerify(token, jwtRefreshSecretBytes(), {
+      algorithms: ["HS256"],
+    });
     return payload as unknown as { sub: string };
   } catch {
     return null;
