@@ -2,7 +2,6 @@
 
 import { prisma } from "@hotel-pricing/db";
 import { requireHotelAccess } from "@/lib/rbac";
-import { getSession } from "@/lib/auth";
 import {
   computeWeightedAvg,
   toDateString,

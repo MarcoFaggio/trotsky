@@ -136,16 +136,31 @@ Missing environment variables. Check:
 
 ### Dashboard shows no data
 
-Database hasn't been seeded. From your local machine (with the same `DATABASE_URL` as Vercel):
+1. Confirm `/api/health` returns `"db": "ok"`.
+2. Check the hotel dashboard API / UI: if competitors exist but **every rate is `—` / null** and last updated is weeks ago, the seed horizon has aged out. The UI only shows the next 7–30 days from **today**.
 
 ```bash
+# Preferred for an existing demo DB (keeps users/hotels; rewrites rates + seed actions):
+SEED_FORCE=true pnpm db:refresh-demo
+
+# Or full wipe + reseed:
 pnpm --filter @hotel-pricing/db exec prisma migrate deploy
-pnpm db:seed
+SEED_FORCE=true pnpm db:seed
 ```
+
+Use the same `DATABASE_URL` as Vercel (copy into local `.env` first).
+
+3. If hotels/rates exist but **Revenue Actions / Command Centre are empty**, either:
+   - stay dates on seed actions are in the past (run `db:refresh-demo`), or
+   - demo mode is off — set `TROSKY_DEMO_MODE=true` and redeploy. Live actions require Redis + the worker.
+
+### Command centre says demo actions are hidden
+
+Expected when `TROSKY_DEMO_MODE` is unset/`false` in production. Fix for a demo tenant: set `TROSKY_DEMO_MODE=true` → Redeploy. For real data: configure `REDIS_URL` and deploy the worker.
 
 ### "Run scrape now" does nothing
 
-The worker isn't deployed. The worker is a separate long-running process — it can't run on Vercel. Deploy it on Railway, Render, or a VPS. See [Deploy guide](DEPLOY.md#6-worker-deployment-optional).
+Either `REDIS_URL` is missing on Vercel, or the worker isn't deployed. The worker is a separate long-running process — it can't run on Vercel. Deploy it on Railway, Render, or a VPS. See [Deploy guide](DEPLOY.md#6-worker-deployment-optional). `/api/health` reports `"scrapeJobs": "unavailable"` when Redis is unset.
 
 ### Public inquiry returns "Too many inquiry submissions"
 

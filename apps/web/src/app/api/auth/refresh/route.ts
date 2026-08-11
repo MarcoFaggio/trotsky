@@ -5,7 +5,10 @@ import {
   createAccessToken,
   createRefreshToken,
 } from "@/lib/auth";
-import { attachAuthSessionCookies } from "@/lib/auth-cookies";
+import {
+  attachAuthSessionCookies,
+  clearAuthSessionCookies,
+} from "@/lib/auth-cookies";
 import { checkRateLimitAsync } from "@/lib/rate-limiter";
 import { clientIpKey } from "@/lib/client-ip";
 
@@ -39,16 +42,31 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { id: payload.sub },
     });
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 401 });
+    if (!user || user.disabledAt) {
+      return NextResponse.json({ error: "Invalid refresh token" }, { status: 401 });
     }
 
-    const accessToken = await createAccessToken({
+    // Revocation check: a bumped tokenVersion (logout, password/role change,
+    // deactivation) invalidates every refresh token issued before the bump.
+    if (payload.ver !== user.tokenVersion) {
+      const response = NextResponse.json(
+        { error: "Invalid refresh token" },
+        { status: 401 }
+      );
+      clearAuthSessionCookies(response);
+      return response;
+    }
+
+    // Role and email are re-read from the row, so rotation can't carry a stale
+    // privilege forward the way copying the old claims would.
+    const claims = {
       sub: user.id,
       email: user.email,
       role: user.role,
-    });
-    const refreshToken = await createRefreshToken({ sub: user.id });
+      ver: user.tokenVersion,
+    };
+    const accessToken = await createAccessToken(claims);
+    const refreshToken = await createRefreshToken(claims);
 
     const response = NextResponse.json({
       user: {

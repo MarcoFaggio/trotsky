@@ -149,7 +149,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ inquiry });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to create inquiry";
-    return NextResponse.json({ error: message }, { status: 500 });
+    // This endpoint is unauthenticated: a raw error message would hand out
+    // Prisma schema and column detail. Log it, return something opaque.
+    console.error("Public inquiry error:", error);
+    return NextResponse.json(
+      { error: "Could not submit your inquiry. Please try again." },
+      { status: 500 }
+    );
   }
 }

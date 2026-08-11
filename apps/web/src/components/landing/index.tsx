@@ -2,8 +2,6 @@ export { LandingNav } from "./landing-nav";
 export { Hero } from "./hero";
 export { PainPoints } from "./pain-points";
 export { WhyDifferent } from "./why-different";
-export { ComparisonTable } from "./comparison-table";
-export { Advantage } from "./advantage";
 export { ProcessSteps } from "./process-steps";
 export { MetricsStrip } from "./metrics-strip";
 export { FinalCta } from "./final-cta";

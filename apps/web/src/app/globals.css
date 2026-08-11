@@ -1,223 +1,120 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "../styles/theme.css";
+@import "../styles/typography.css";
 
-@layer base {
-  :root {
-    /* Trosky brand — authoritative red on warm paper (.impeccable.md) */
-    --trosky-red: 0 99% 33%; /* #A60101 */
-    --trosky-red-dark: 0 100% 24%; /* #780000 */
-    --trosky-red-soft: 0 30% 95%; /* warm red-tinted panel */
-    --trosky-ink: 0 2% 26%; /* #424040 */
-    --trosky-muted: 10 4% 45%; /* warm graphite */
-    --trosky-border: 20 6% 86%; /* warm hairline */
+@plugin "@tailwindcss/typography";
+@plugin "tailwindcss-react-aria-components";
+@plugin "tailwindcss-animate";
 
-    --font-trosky: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-      "Segoe UI", Roboto, sans-serif;
-    --font-landing-body: "DM Sans", Manrope, Avenir Next, Segoe UI, system-ui, sans-serif;
-    --font-landing-display: Fraunces, Georgia, Cambria, Times New Roman, serif;
-    --background: 20 25% 98%;
-    --foreground: 0 2% 26%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 2% 26%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 2% 26%;
-    --primary: 0 99% 33%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 0 30% 95%;
-    --secondary-foreground: 0 2% 26%;
-    --muted: 20 16% 96%;
-    --muted-foreground: 10 4% 45%;
-    --accent: 0 30% 95%;
-    --accent-foreground: 0 2% 26%;
-    --destructive: 0 100% 24%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 20 6% 86%;
-    --input: 20 6% 86%;
-    --ring: 0 99% 33%;
-    --radius: 1rem;
-    --chart-grid: 20 12% 91%;
-    --chart-axis: 0 2% 37%;
-    --chart-primary: 0 99% 33%;
-    --chart-comparison: 0 2% 48%;
-    --chart-recommended: 164 82% 42%;
-    --chart-occupancy: 263 70% 64%;
-    --chart-warning: 38 92% 50%;
-    --chart-series-1: 0 2% 52%;
-    --chart-series-2: 263 70% 64%;
-    --chart-series-3: 24 95% 53%;
-    --chart-series-4: 173 80% 40%;
-    --chart-series-5: 348 83% 58%;
-    --chart-series-6: 258 90% 66%;
-    --chart-series-7: 190 90% 48%;
-    /* Landing accents — red family only */
-    --landing-emerald: 0 99% 33%;
-    --landing-amber: 38 92% 50%;
-    --landing-violet: 0 100% 24%;
-    --landing-sky: 0 100% 24%;
+/* Support Trosky `.dark` and Untitled `.dark-mode` */
+@custom-variant dark (&:where(.dark-mode, .dark-mode *, .dark, .dark *));
+@custom-variant label (& [data-label]);
+@custom-variant focus-input-within (&:has(input:focus));
+
+@source "../../src/**/*.{ts,tsx}";
+
+@utility scrollbar-hide {
+  &::-webkit-scrollbar {
+    display: none;
+    -webkit-appearance: none;
   }
-
-  /* Landing page: light theme with white gradient */
-  .landing-page {
-    --landing-bg: 42 34% 98%;
-    --landing-bg-elevated: 214 44% 96%;
-    --landing-foreground: 0 2% 25.5%;
-    --landing-muted: 0 2% 35%;
-    --landing-border: 215 28% 87%;
-    --landing-card: 0 0% 100%;
-  }
-
-  /* Dark mode — warm black and red, never blue-black (.impeccable.md) */
-  .dark {
-    --trosky-ink: 20 12% 96%;
-    --trosky-muted: 20 6% 64%;
-    --trosky-border: 15 9% 20%;
-    --trosky-red-soft: 10 28% 12%;
-    --trosky-red: 0 78% 50%;
-    --trosky-red-dark: 0 100% 24%;
-    --background: 15 16% 5%;
-    --foreground: 20 12% 96%;
-    --card: 15 13% 8%;
-    --card-foreground: 20 12% 96%;
-    --popover: 15 13% 8%;
-    --popover-foreground: 20 12% 96%;
-    --primary: 0 78% 50%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 12 12% 14%;
-    --secondary-foreground: 20 12% 96%;
-    --muted: 12 10% 13%;
-    --muted-foreground: 20 6% 64%;
-    --accent: 12 12% 16%;
-    --accent-foreground: 20 12% 96%;
-    --destructive: 0 85% 38%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 15 9% 19%;
-    --input: 15 9% 19%;
-    --ring: 0 78% 50%;
-    --chart-grid: 15 10% 21%;
-    --chart-axis: 20 5% 74%;
-    --chart-primary: 0 80% 56%;
-    --chart-comparison: 20 4% 60%;
-    --chart-recommended: 164 82% 48%;
-    --chart-occupancy: 263 70% 66%;
-    --chart-warning: 38 92% 55%;
-    --chart-series-1: 20 4% 62%;
-    --chart-series-2: 263 70% 70%;
-    --chart-series-3: 24 95% 60%;
-    --chart-series-4: 173 80% 50%;
-    --chart-series-5: 348 83% 65%;
-    --chart-series-6: 258 90% 72%;
-    --chart-series-7: 190 90% 58%;
-  }
-
-  .dark .landing-page {
-    --landing-bg: 0 18% 4.5%;
-    --landing-bg-elevated: 0 13% 7%;
-    --landing-foreground: 210 40% 98%;
-    --landing-muted: 0 4% 72%;
-    --landing-border: 0 13% 20%;
-    --landing-card: 0 13% 7%;
-  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground antialiased;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-  }
-
-  ::selection {
-    @apply bg-primary/20 text-foreground;
-  }
+@utility transition-inherit-all {
+  transition-property: inherit;
+  transition-duration: inherit;
+  transition-timing-function: inherit;
 }
 
-@layer utilities {
-  .app-bg {
-    background:
-      radial-gradient(900px 520px at 12% -10%, hsl(var(--primary) / 0.08), transparent 62%),
-      radial-gradient(760px 420px at 100% 0%, hsl(var(--primary) / 0.06), transparent 58%),
-      hsl(var(--background));
-  }
+/*
+  Trosky compatibility tokens.
+  Do NOT override Untitled `--background-color-primary` / `bg-primary` (surface).
+  Brand red is `brand-*` / `trosky-red` / HSL `--primary` for charts.
+*/
+@theme {
+  --font-body: "Plus Jakarta Sans", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-trosky: "Plus Jakarta Sans", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-landing-body: "Plus Jakarta Sans", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-landing-display: "Plus Jakarta Sans", "DM Sans", ui-sans-serif, system-ui, sans-serif;
 
-  .dark .app-bg {
-    background:
-      radial-gradient(900px 520px at 12% -10%, hsl(var(--primary) / 0.14), transparent 62%),
-      radial-gradient(760px 420px at 100% 0%, hsl(var(--primary) / 0.08), transparent 58%),
-      hsl(var(--background));
-  }
+  --color-background: var(--color-bg-primary);
+  --color-foreground: var(--color-text-primary);
+  --color-card: var(--color-bg-primary);
+  --color-card-foreground: var(--color-text-primary);
+  --color-popover: var(--color-bg-primary);
+  --color-popover-foreground: var(--color-text-primary);
+  --color-secondary: var(--color-bg-secondary);
+  --color-secondary-foreground: var(--color-text-primary);
+  --color-muted: var(--color-bg-secondary);
+  --color-muted-foreground: var(--color-text-tertiary);
+  --color-accent: var(--color-bg-brand-primary);
+  --color-accent-foreground: var(--color-text-primary);
+  --color-destructive: var(--color-red-600);
+  --color-destructive-foreground: var(--color-white);
+  --color-border: var(--color-border-secondary);
+  --color-input: var(--color-border-secondary);
+  --color-ring: var(--color-brand-600);
 
-  /* Authenticated Trosky cockpit */
-  .trosky-cockpit-bg {
-    background:
-      radial-gradient(ellipse 80% 50% at 0% -8%, hsl(var(--trosky-red) / 0.06), transparent 55%),
-      radial-gradient(ellipse 60% 40% at 100% 0%, hsl(var(--trosky-red-soft) / 0.9), transparent 50%),
-      hsl(0 0% 100%);
-  }
+  --color-trosky-red: var(--color-brand-600);
+  --color-trosky-red-dark: var(--color-brand-700);
+  --color-trosky-soft: var(--color-brand-50);
+  --color-trosky-ink: var(--color-text-primary);
+  --color-trosky-muted: var(--color-text-tertiary);
+  --color-trosky-border: var(--color-border-secondary);
 
-  .dark .trosky-cockpit-bg {
-    background:
-      radial-gradient(ellipse 70% 45% at 0% -5%, hsl(var(--trosky-red) / 0.12), transparent 55%),
-      hsl(var(--background));
-  }
+  --color-landing-emerald: var(--color-brand-600);
+  --color-landing-amber: var(--color-amber-500);
+  --color-landing-violet: var(--color-brand-700);
+  --color-landing-sky: var(--color-brand-700);
 
-  .trosky-main-scroll {
-    scrollbar-gutter: stable;
-  }
+  --radius-lg: 1rem;
+  --radius-md: calc(1rem - 2px);
+  --radius-sm: calc(1rem - 4px);
 
-  .trosky-app :where(h1, h2, h3, h4, p, span, a, button, label, td, th) {
-    overflow-wrap: anywhere;
-  }
+  --shadow-landing-card: 0 1px 2px 0 rgb(0 0 0 / 0.05), 0 4px 12px -2px rgb(0 0 0 / 0.2);
+  --shadow-landing-glow: 0 0 40px -8px rgb(166 1 1 / 0.2);
+  --shadow-landing-glow-subtle: 0 0 24px -6px rgb(0 0 0 / 0.3);
 
-  .app-surface {
-    @apply border border-border/80 bg-card/85 shadow-sm ring-1 ring-black/[0.025] backdrop-blur-xl dark:border-white/10 dark:bg-card/80 dark:ring-white/[0.035];
-  }
+  --animate-fade-up: fade-up 0.6s ease-out forwards;
+  --animate-scale-in: scale-in 0.5s ease-out forwards;
+  --animate-slide-in-right: slide-in-right 0.5s ease-out forwards;
+  --animate-landing-aurora: landing-aurora 18s ease-in-out infinite;
+  --animate-landing-shimmer: landing-shimmer 8s linear infinite;
 
-  .app-panel {
-    @apply border border-border/70 bg-card/80 shadow-sm backdrop-blur;
+  @keyframes fade-up {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
-
-  .motion-safe-soft {
-    @apply transition-[transform,background-color,border-color,box-shadow,color] duration-200 ease-out;
+  @keyframes scale-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
-
-  @keyframes cursor-blink {
-    0%, 45% { opacity: 1; }
-    50%, 100% { opacity: 0; }
+  @keyframes slide-in-right {
+    0% {
+      opacity: 0;
+      transform: translateX(16px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
-  @keyframes fade-in-up {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .animate-cursor-blink {
-    animation: cursor-blink 1s step-end infinite;
-  }
-
-  /* Editorial landing palette — warm paper, ink, copper accent */
-  .landing-editorial {
-    --landing-accent-warm: 0 99% 33%;
-    --landing-ink: 0 2% 26%;
-    --landing-paper: 40 33% 98%;
-  }
-
-  /* Landing: background and surface utilities (use inside .landing-page) */
-  .landing-bg {
-    background:
-      linear-gradient(135deg, hsl(var(--primary) / 0.08) 0 1px, transparent 1px 32px),
-      radial-gradient(ellipse 105% 70% at 50% -28%, hsl(var(--primary) / 0.12) 0%, transparent 56%),
-      linear-gradient(180deg, hsl(var(--landing-bg)) 0%, hsl(var(--landing-bg-elevated)) 56%, hsl(var(--landing-bg)) 100%);
-  }
-
-  .landing-aurora-blobs {
-    pointer-events: none;
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-  }
-
-  @keyframes landing-aurora-blob {
+  @keyframes landing-aurora {
     0%,
     100% {
       opacity: 0.45;
@@ -232,73 +129,350 @@
       transform: scale(1.02) translate(-1%, 2%);
     }
   }
+  @keyframes landing-shimmer {
+    0% {
+      background-position: 200% center;
+    }
+    100% {
+      background-position: -200% center;
+    }
+  }
+}
+
+/* Legacy HSL tokens for charts, joyride, and hsl(var(--*)) call sites */
+:root {
+  --trosky-red: 0 99% 33%;
+  --trosky-red-dark: 0 100% 24%;
+  --trosky-red-soft: 0 30% 95%;
+  --trosky-ink: 0 2% 26%;
+  --trosky-muted: 10 4% 45%;
+  --trosky-border: 20 6% 86%;
+  --background: 20 25% 98%;
+  --foreground: 0 2% 26%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 2% 26%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 2% 26%;
+  --primary: 0 99% 33%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 30% 95%;
+  --secondary-foreground: 0 2% 26%;
+  --muted: 20 16% 96%;
+  --muted-foreground: 10 4% 45%;
+  --accent: 0 30% 95%;
+  --accent-foreground: 0 2% 26%;
+  --destructive: 0 100% 24%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 20 6% 86%;
+  --input: 20 6% 86%;
+  --ring: 0 99% 33%;
+  --radius: 1rem;
+  --chart-grid: 20 12% 91%;
+  --chart-axis: 0 2% 37%;
+  --chart-primary: 0 99% 33%;
+  --chart-comparison: 0 2% 48%;
+  --chart-recommended: 164 82% 42%;
+  --chart-occupancy: 263 70% 64%;
+  --chart-warning: 38 92% 50%;
+  --chart-series-1: 0 2% 52%;
+  --chart-series-2: 263 70% 64%;
+  --chart-series-3: 24 95% 53%;
+  --chart-series-4: 173 80% 40%;
+  --chart-series-5: 348 83% 58%;
+  --chart-series-6: 258 90% 66%;
+  --chart-series-7: 190 90% 48%;
+  --landing-emerald: 0 99% 33%;
+  --landing-amber: 38 92% 50%;
+  --landing-violet: 0 100% 24%;
+  --landing-sky: 0 100% 24%;
+}
+
+.landing-page {
+  --landing-bg: 42 34% 98%;
+  --landing-bg-elevated: 214 44% 96%;
+  --landing-foreground: 0 2% 25.5%;
+  --landing-muted: 0 2% 35%;
+  --landing-border: 215 28% 87%;
+  --landing-card: 0 0% 100%;
+}
+
+.dark,
+.dark-mode {
+  --trosky-ink: 20 12% 96%;
+  --trosky-muted: 20 6% 64%;
+  --trosky-border: 15 9% 20%;
+  --trosky-red-soft: 10 28% 12%;
+  --trosky-red: 0 78% 50%;
+  --trosky-red-dark: 0 100% 24%;
+  --background: 15 16% 5%;
+  --foreground: 20 12% 96%;
+  --card: 15 13% 8%;
+  --card-foreground: 20 12% 96%;
+  --popover: 15 13% 8%;
+  --popover-foreground: 20 12% 96%;
+  --primary: 0 78% 50%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 12 12% 14%;
+  --secondary-foreground: 20 12% 96%;
+  --muted: 12 10% 13%;
+  --muted-foreground: 20 6% 64%;
+  --accent: 12 12% 16%;
+  --accent-foreground: 20 12% 96%;
+  --destructive: 0 85% 38%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 15 9% 19%;
+  --input: 15 9% 19%;
+  --ring: 0 78% 50%;
+  --chart-grid: 15 10% 21%;
+  --chart-axis: 20 5% 74%;
+  --chart-primary: 0 80% 56%;
+  --chart-comparison: 20 4% 60%;
+  --chart-recommended: 164 82% 48%;
+  --chart-occupancy: 263 70% 66%;
+  --chart-warning: 38 92% 55%;
+  --chart-series-1: 20 4% 62%;
+  --chart-series-2: 263 70% 70%;
+  --chart-series-3: 24 95% 60%;
+  --chart-series-4: 173 80% 50%;
+  --chart-series-5: 348 83% 65%;
+  --chart-series-6: 258 90% 72%;
+  --chart-series-7: 190 90% 58%;
+}
+
+.dark .landing-page,
+.dark-mode .landing-page {
+  --landing-bg: 0 18% 4.5%;
+  --landing-bg-elevated: 0 13% 7%;
+  --landing-foreground: 210 40% 98%;
+  --landing-muted: 0 4% 72%;
+  --landing-border: 0 13% 20%;
+  --landing-card: 0 13% 7%;
+}
+
+html,
+body {
+  font-family: var(--font-body);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  border-color: var(--color-border-secondary);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-brand-600) 20%, transparent);
+  color: var(--color-text-primary);
+}
+
+details summary::-webkit-details-marker {
+  display: none;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+
+.recharts-surface,
+.recharts-surface g,
+.recharts-surface path {
+  outline: none;
+}
+
+.app-bg {
+  background:
+    radial-gradient(900px 520px at 12% -10%, hsl(var(--primary) / 0.08), transparent 62%),
+    radial-gradient(760px 420px at 100% 0%, hsl(var(--primary) / 0.06), transparent 58%),
+    hsl(var(--background));
+}
+
+.dark .app-bg,
+.dark-mode .app-bg {
+  background:
+    radial-gradient(900px 520px at 12% -10%, hsl(var(--primary) / 0.14), transparent 62%),
+    radial-gradient(760px 420px at 100% 0%, hsl(var(--primary) / 0.08), transparent 58%),
+    hsl(var(--background));
+}
+
+.trosky-cockpit-bg {
+  background:
+    radial-gradient(ellipse 80% 50% at 0% -8%, hsl(var(--trosky-red) / 0.06), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 100% 0%, hsl(var(--trosky-red-soft) / 0.9), transparent 50%),
+    hsl(0 0% 100%);
+}
+
+.dark .trosky-cockpit-bg,
+.dark-mode .trosky-cockpit-bg {
+  background:
+    radial-gradient(ellipse 70% 45% at 0% -5%, hsl(var(--trosky-red) / 0.12), transparent 55%),
+    hsl(var(--background));
+}
+
+.trosky-main-scroll {
+  scrollbar-gutter: stable;
+}
+
+.trosky-app :where(h1, h2, h3, h4, p, span, a, button, label, td, th) {
+  overflow-wrap: anywhere;
+}
+
+.app-shell {
+  min-height: 100vh;
+  background: var(--color-bg-secondary);
+}
+
+.app-surface {
+  border: 1px solid color-mix(in srgb, var(--color-border-secondary) 80%, transparent);
+  background: color-mix(in srgb, var(--color-bg-primary) 85%, transparent);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+  backdrop-filter: blur(16px);
+}
+
+.app-panel {
+  border: 1px solid color-mix(in srgb, var(--color-border-secondary) 70%, transparent);
+  background: color-mix(in srgb, var(--color-bg-primary) 80%, transparent);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+  backdrop-filter: blur(8px);
+}
+
+.motion-safe-soft {
+  transition-property: transform, background-color, border-color, box-shadow, color;
+  transition-duration: 200ms;
+  transition-timing-function: ease-out;
+}
+
+@keyframes cursor-blink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-cursor-blink {
+  animation: cursor-blink 1s step-end infinite;
+}
+
+.landing-root {
+  color: var(--color-text-primary);
+}
+
+.landing-editorial {
+  --landing-accent-warm: 0 99% 33%;
+  --landing-ink: 0 2% 26%;
+  --landing-paper: 40 33% 98%;
+}
+
+.landing-bg {
+  background:
+    linear-gradient(135deg, hsl(var(--primary) / 0.08) 0 1px, transparent 1px 32px),
+    radial-gradient(ellipse 105% 70% at 50% -28%, hsl(var(--primary) / 0.12) 0%, transparent 56%),
+    linear-gradient(180deg, hsl(var(--landing-bg)) 0%, hsl(var(--landing-bg-elevated)) 56%, hsl(var(--landing-bg)) 100%);
+}
+
+.landing-aurora-blobs {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+@keyframes landing-aurora-blob {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1) translate(0, 0);
+  }
+  33% {
+    opacity: 0.65;
+    transform: scale(1.05) translate(2%, -1%);
+  }
+  66% {
+    opacity: 0.5;
+    transform: scale(1.02) translate(-1%, 2%);
+  }
+}
+
+.landing-aurora-blobs::before,
+.landing-aurora-blobs::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(76px);
+  animation: landing-aurora-blob 22s ease-in-out infinite;
+}
+
+.landing-aurora-blobs::before {
+  width: min(70vw, 520px);
+  height: min(70vw, 520px);
+  top: -15%;
+  right: -10%;
+  background: radial-gradient(circle, hsl(var(--primary) / 0.18) 0%, transparent 70%);
+  animation-delay: -4s;
+}
+
+.landing-aurora-blobs::after {
+  width: min(55vw, 420px);
+  height: min(55vw, 420px);
+  bottom: 10%;
+  left: -8%;
+  background: radial-gradient(circle, hsl(0 100% 24% / 0.12) 0%, transparent 72%);
+  animation-delay: -10s;
+}
+
+.landing-bg-elevated {
+  background-color: hsl(var(--landing-bg-elevated));
+}
+
+.landing-bg-card {
+  background-color: hsl(var(--landing-card));
+}
+
+.landing-text {
+  color: hsl(var(--landing-foreground));
+}
+
+.landing-text-muted {
+  color: hsl(var(--landing-muted));
+}
+
+.landing-border {
+  border-color: hsl(var(--landing-border));
+}
+
+.landing-grid-pattern {
+  background-image:
+    linear-gradient(hsl(var(--landing-border) / 0.4) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--landing-border) / 0.4) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 
   .landing-aurora-blobs::before,
   .landing-aurora-blobs::after {
-    content: "";
-    position: absolute;
-    border-radius: 999px;
-    filter: blur(76px);
-    animation: landing-aurora-blob 22s ease-in-out infinite;
-  }
-
-  .landing-aurora-blobs::before {
-    width: min(70vw, 520px);
-    height: min(70vw, 520px);
-    top: -15%;
-    right: -10%;
-    background: radial-gradient(circle, hsl(var(--primary) / 0.18) 0%, transparent 70%);
-    animation-delay: -4s;
-  }
-
-  .landing-aurora-blobs::after {
-    width: min(55vw, 420px);
-    height: min(55vw, 420px);
-    bottom: 10%;
-    left: -8%;
-    background: radial-gradient(circle, hsl(0 100% 24% / 0.12) 0%, transparent 72%);
-    animation-delay: -10s;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      scroll-behavior: auto !important;
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .landing-aurora-blobs::before,
-    .landing-aurora-blobs::after {
-      animation: none;
-      opacity: 0.35;
-    }
-  }
-  .landing-bg-elevated {
-    background-color: hsl(var(--landing-bg-elevated));
-  }
-  .landing-bg-card {
-    background-color: hsl(var(--landing-card));
-  }
-  .landing-text {
-    color: hsl(var(--landing-foreground));
-  }
-  .landing-text-muted {
-    color: hsl(var(--landing-muted));
-  }
-  .landing-border {
-    border-color: hsl(var(--landing-border));
-  }
-
-  /* Subtle grid overlay for sections (light) */
-  .landing-grid-pattern {
-    background-image:
-      linear-gradient(hsl(var(--landing-border) / 0.4) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--landing-border) / 0.4) 1px, transparent 1px);
-    background-size: 48px 48px;
+    animation: none;
+    opacity: 0.35;
   }
 }

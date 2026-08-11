@@ -42,7 +42,7 @@ function EfficiencyDivideHeading() {
 
   return (
     <div className="mx-auto max-w-2xl text-center">
-      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-trosky-red">
         Compare
       </p>
       <div className="group relative mt-4 inline-block px-1">
@@ -57,7 +57,7 @@ function EfficiencyDivideHeading() {
         </motion.h2>
         <motion.span
           aria-hidden
-          className="absolute -bottom-1 left-0 h-[3px] w-full rounded-full bg-gradient-to-r from-primary/50 via-primary to-primary/80 shadow-none transition-[box-shadow,filter] duration-500 group-hover:shadow-[0_10px_36px_-12px_rgba(166,1,1,0.45)] dark:from-primary/60 dark:via-primary dark:to-primary/90 dark:group-hover:shadow-[0_12px_40px_-14px_rgba(120,0,0,0.4)]"
+          className="absolute -bottom-1 left-0 h-[3px] w-full rounded-full bg-gradient-to-r from-trosky-red/50 via-trosky-red to-trosky-red/80 shadow-none transition-[box-shadow,filter] duration-500 group-hover:shadow-[0_10px_36px_-12px_rgba(166,1,1,0.45)] dark:from-trosky-red/60 dark:via-trosky-red dark:to-trosky-red/90 dark:group-hover:shadow-[0_12px_40px_-14px_rgba(120,0,0,0.4)]"
           initial={reduced ? false : { scaleX: 0, opacity: 0 }}
           whileInView={{ scaleX: 1, opacity: 1 }}
           viewport={{ once: true }}
@@ -125,11 +125,11 @@ export function ComparisonTable() {
                   </th>
                   <th
                     scope="col"
-                    className="group relative px-5 py-4 text-left text-sm font-semibold text-primary sm:px-6 sm:py-5"
+                    className="group relative px-5 py-4 text-left text-sm font-semibold text-trosky-red sm:px-6 sm:py-5"
                   >
                     <span className="relative inline-block">
                       Trosky
-                      <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-primary/70 transition-all duration-500 group-hover:w-full" />
+                      <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-trosky-red/70 transition-all duration-500 group-hover:w-full" />
                     </span>
                   </th>
                 </tr>
@@ -160,12 +160,12 @@ export function ComparisonTable() {
                         className="px-5 py-4 text-left align-middle font-normal sm:px-6 sm:py-5"
                       >
                         <span className="relative flex items-center gap-3 text-sm font-medium text-foreground">
-                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground transition-colors group-hover:bg-primary/10 group-hover:text-primary">
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground transition-colors group-hover:bg-trosky-red/10 group-hover:text-trosky-red">
                             <Icon className="h-4 w-4" />
                           </span>
                           <span className="relative">
                             {row.feature}
-                            <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-primary/40 transition-all duration-300 group-hover:w-full" />
+                            <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-trosky-red/40 transition-all duration-300 group-hover:w-full" />
                           </span>
                         </span>
                       </th>
@@ -180,10 +180,10 @@ export function ComparisonTable() {
                           <span>{row.traditional}</span>
                         </div>
                       </td>
-                      <td className="px-5 py-4 align-middle text-sm font-medium text-primary sm:px-6 sm:py-5">
+                      <td className="px-5 py-4 align-middle text-sm font-medium text-trosky-red sm:px-6 sm:py-5">
                         <div className="flex items-center gap-2.5">
                           <span
-                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary"
+                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-trosky-red/15 text-trosky-red"
                             aria-hidden
                           >
                             <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
@@ -217,7 +217,7 @@ export function ComparisonTable() {
                 className="rounded-2xl border border-border bg-card p-5 shadow-md dark:border-white/[0.08] dark:bg-card/95"
               >
                 <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/12 text-primary">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-trosky-red/12 text-trosky-red">
                     <Icon className="h-5 w-5" />
                   </span>
                   <p className="text-sm font-semibold text-foreground">{row.feature}</p>
@@ -231,7 +231,7 @@ export function ComparisonTable() {
                     </span>
                   </p>
                   <div className="h-px w-full bg-gradient-to-r from-transparent via-border to-transparent" />
-                  <p className="flex items-start gap-2 text-sm font-medium text-primary">
+                  <p className="flex items-start gap-2 text-sm font-medium text-trosky-red">
                     <Check className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                     <span>
                       <span className="text-primary/90">Trosky: </span>

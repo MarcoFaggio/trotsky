@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import Redis from "ioredis";
-import { Queue } from "bullmq";
+import {
+  QUEUE_UNAVAILABLE_MESSAGE,
+  getScrapeQueue,
+} from "@/lib/job-queue";
 
 export async function POST() {
   const session = await getSession();
@@ -9,33 +11,25 @@ export async function POST() {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const redisUrl = process.env.REDIS_URL;
-  if (!redisUrl) {
+  const queue = getScrapeQueue();
+  if (!queue) {
     return NextResponse.json(
-      {
-        error:
-          "Scraping is not configured. Set REDIS_URL in Vercel and run the worker elsewhere (e.g. Railway, Render).",
-      },
+      { error: QUEUE_UNAVAILABLE_MESSAGE },
       { status: 503 }
     );
   }
 
   try {
-    const connection = new Redis(redisUrl, {
-      maxRetriesPerRequest: null,
+    const job = await queue.add("manual-scrape", {
+      trigger: "manual",
+      triggeredBy: session.email,
     });
-    const queue = new Queue("scrape-queue", { connection });
-    
-    const job = await queue.add("manual-scrape", { trigger: "manual", triggeredBy: session.email });
-    
-    await connection.quit();
-    
     return NextResponse.json({ jobId: job.id, message: "Scrape job queued" });
   } catch (err) {
     console.error("Failed to queue scrape job:", err);
     return NextResponse.json(
       { error: "Could not queue the scrape job. Check the Redis connection and try again." },
-      { status: 500 }
+      { status: 503 }
     );
   }
 }

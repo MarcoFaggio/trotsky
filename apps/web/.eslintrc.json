@@ -1,0 +1,23 @@
+{
+  "root": true,
+  "extends": ["next/core-web-vitals"],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "ignorePatterns": [".next/", "node_modules/", "next-env.d.ts"],
+  "rules": {
+    "@next/next/no-html-link-for-pages": ["error", "src/app"],
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }
+    ],
+    "eqeqeq": ["error", "smart"],
+    "no-console": ["warn", { "allow": ["warn", "error"] }]
+  },
+  "overrides": [
+    {
+      "files": ["src/**/*.test.ts", "src/**/*.test.tsx"],
+      "rules": { "no-console": "off" }
+    }
+  ]
+}

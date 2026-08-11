@@ -120,9 +120,17 @@ export interface JWTPayload {
   sub: string;
   email: string;
   role: "ANALYST" | "CLIENT";
+  /** User.tokenVersion at issue time. Mismatch with the DB revokes the session. */
+  ver: number;
   iat: number;
   exp: number;
 }
+
+/** Claims embedded when signing a token (the `iat`/`exp` halves are added by jose). */
+export type SessionTokenClaims = Pick<
+  JWTPayload,
+  "sub" | "email" | "role" | "ver"
+>;
 
 export interface OverviewHotel {
   id: string;

@@ -2,7 +2,14 @@
 
 import { formatCurrency } from "@hotel-pricing/shared";
 import type { RevenueActionView } from "@hotel-pricing/shared";
+import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import {
   formatConfidenceLabel,
@@ -75,6 +82,26 @@ export function RevenueActionCard({
     action.status === "ACCEPTED" &&
     Boolean(onComplete);
 
+  const overflowItems: { label: string; onSelect: () => void }[] = [];
+  if (canWorkflowPending && onSnooze) {
+    overflowItems.push({
+      label: "Snooze 1 day",
+      onSelect: () => onSnooze(action.id),
+    });
+  }
+  if (canWorkflowPending && onReject) {
+    overflowItems.push({
+      label: "Reject",
+      onSelect: () => onReject(action.id),
+    });
+  }
+  if (canWorkflowComplete && onComplete) {
+    overflowItems.push({
+      label: "Mark complete",
+      onSelect: () => onComplete(action.id),
+    });
+  }
+
   const rateLine =
     action.type === "WATCH_DEMAND"
       ? null
@@ -87,6 +114,11 @@ export function RevenueActionCard({
     action.estimatedUpsideHighCents != null
       ? `Estimated upside ${formatCurrency(action.estimatedUpsideLowCents)}–${formatCurrency(action.estimatedUpsideHighCents)}`
       : null;
+
+  const showActions =
+    Boolean(onViewEvidence) ||
+    (canWorkflowPending && Boolean(onAccept)) ||
+    overflowItems.length > 0;
 
   return (
     <article
@@ -176,65 +208,59 @@ export function RevenueActionCard({
         </p>
       ) : null}
 
-      {onViewEvidence || canWorkflowPending || canWorkflowComplete ? (
-        <div className="flex min-w-0 flex-col gap-2 border-t border-border/80 pt-3 sm:flex-row sm:flex-wrap">
+      {showActions ? (
+        <div className="flex min-w-0 flex-wrap items-center gap-2 border-t border-border/80 pt-3">
+          {isAnalyst && canWorkflowPending && onAccept ? (
+            <Button
+              size="sm"
+              className="h-8 rounded-full bg-trosky-red text-white hover:bg-trosky-red-dark"
+              disabled={busy}
+              onClick={() => onAccept(action.id)}
+            >
+              Accept
+            </Button>
+          ) : null}
           {onViewEvidence ? (
             <Button
               size="sm"
-              className="h-8 w-full rounded-full bg-trosky-red text-white hover:bg-trosky-red-dark sm:w-auto"
+              variant={isAnalyst && canWorkflowPending && onAccept ? "outline" : "default"}
+              className={cn(
+                "h-8 rounded-full",
+                !(isAnalyst && canWorkflowPending && onAccept) &&
+                  "bg-trosky-red text-white hover:bg-trosky-red-dark"
+              )}
               disabled={busy}
               onClick={() => onViewEvidence(action.id)}
             >
               View evidence
             </Button>
           ) : null}
-          {canWorkflowPending ? (
-            <div className="flex min-w-0 flex-wrap gap-2">
-              {onAccept ? (
+          {overflowItems.length > 0 ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-8 rounded-full"
-                  disabled={busy}
-                  onClick={() => onAccept(action.id)}
-                >
-                  Accept
-                </Button>
-              ) : null}
-              {onSnooze ? (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-8 rounded-full"
-                  disabled={busy}
-                  onClick={() => onSnooze(action.id)}
-                >
-                  Snooze 1d
-                </Button>
-              ) : null}
-              {onReject ? (
-                <Button
+                  type="button"
                   size="sm"
                   variant="ghost"
-                  className="h-8 rounded-full text-muted-foreground"
+                  className="h-8 w-8 rounded-full p-0 text-muted-foreground"
                   disabled={busy}
-                  onClick={() => onReject(action.id)}
+                  aria-label="More actions"
                 >
-                  Reject
+                  <MoreHorizontal className="h-4 w-4" />
                 </Button>
-              ) : null}
-            </div>
-          ) : null}
-          {canWorkflowComplete && onComplete ? (
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-8 rounded-full"
-              disabled={busy}
-              onClick={() => onComplete(action.id)}
-            >
-              Mark complete
-            </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {overflowItems.map((item) => (
+                  <DropdownMenuItem
+                    key={item.label}
+                    disabled={busy}
+                    onSelect={item.onSelect}
+                  >
+                    {item.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : null}
         </div>
       ) : null}

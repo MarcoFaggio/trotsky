@@ -4,16 +4,66 @@ import type {
 } from "@hotel-pricing/shared";
 import { isActionDemo } from "@/lib/revenue-action-display";
 
+export type RevenueCommandExplanationOptions = {
+  /** Demo actions excluded from the view when demo mode is disabled. */
+  hiddenDemoActionCount?: number;
+  demoModeEnabled?: boolean;
+  /** When false, omit deploy/ops env guidance (client surfaces). */
+  includeOpsGuidance?: boolean;
+};
+
 export function buildRevenueCommandExplanation(
-  actions: RevenueActionView[]
+  actions: RevenueActionView[],
+  options?: RevenueCommandExplanationOptions
 ): RevenueCommandCentreExplanation {
+  const hiddenDemoActionCount = options?.hiddenDemoActionCount ?? 0;
+  const demoModeEnabled = options?.demoModeEnabled ?? true;
+  const includeOpsGuidance = options?.includeOpsGuidance ?? false;
+
   if (actions.length === 0) {
+    if (!demoModeEnabled && hiddenDemoActionCount > 0) {
+      if (!includeOpsGuidance) {
+        return {
+          headline: "No urgent revenue actions right now",
+          body: "There are no active revenue actions for your hotel right now. New items will appear here after the next pricing review cycle.",
+          bullets: [
+            "Open the rate calendar when actions appear to review evidence.",
+          ],
+        };
+      }
+      const n = hiddenDemoActionCount;
+      return {
+        headline: "Demo actions are hidden in this environment",
+        body:
+          "Seeded revenue actions exist in the database but are filtered out because demo mode is off in production. Enable demo mode for a labelled demo tenant, or generate live actions via the worker.",
+        bullets: [
+          `${n} seeded demo action${n === 1 ? "" : "s"} currently hidden from this queue.`,
+          "Set TROSKY_DEMO_MODE=true on the deploy and redeploy to show labelled demo actions.",
+          "Or set REDIS_URL and run the worker so scrapes can create live pricing actions.",
+        ],
+      };
+    }
+
+    if (!includeOpsGuidance) {
+      return {
+        headline: "No urgent revenue actions right now",
+        body: "Trosky has not found pending revenue actions for this scope. Once new pricing or demand items are available, they will appear in your priority queue.",
+        bullets: [
+          "Check back after the next data refresh.",
+          "Open evidence from the rate calendar when actions appear.",
+        ],
+      };
+    }
+
     return {
       headline: "No urgent revenue actions right now",
       body: "Trosky has not found pending revenue actions for this scope. Once scrapes, recommendations, or worker-generated actions are available, they will appear in your priority queue.",
       bullets: [
         "Run a scrape or refresh recommendations to populate live pricing signals.",
-        "Seeded demo actions appear after `pnpm db:seed` on development databases.",
+        "Configure REDIS_URL and deploy the worker if scrape/refresh jobs are not running.",
+        demoModeEnabled
+          ? "If this is an old demo DB, run `SEED_FORCE=true pnpm db:refresh-demo` so seed action stay dates fall in the current window."
+          : "Seeded demo actions stay hidden while TROSKY_DEMO_MODE is unset/false in production.",
       ],
     };
   }
@@ -63,7 +113,9 @@ export function buildRevenueCommandExplanation(
   }
   if (mostlyDemo) {
     bullets.push(
-      "Current actions include seeded demo intelligence; worker-generated actions will replace these in the next phase."
+      includeOpsGuidance
+        ? "Current actions include seeded demo intelligence; worker-generated actions will replace these in the next phase."
+        : "Some items are labelled demo/preview and should not be treated as live hotel intelligence."
     );
   }
   if (bullets.length === 0) {

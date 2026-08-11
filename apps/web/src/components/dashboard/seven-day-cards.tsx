@@ -9,6 +9,8 @@ interface SevenDayCardsProps {
   rates: SevenDayRate[];
   loading?: boolean;
   onDateClick?: (date: string) => void;
+  /** Analyst-only ops guidance for empty rate windows. */
+  isAnalyst?: boolean;
 }
 
 function formatShortDate(dateStr: string): { day: string; weekday: string } {
@@ -23,6 +25,7 @@ export function SevenDayCards({
   rates,
   loading,
   onDateClick,
+  isAnalyst = false,
 }: SevenDayCardsProps) {
   if (loading) {
     return (
@@ -40,7 +43,9 @@ export function SevenDayCards({
     );
   }
 
-  if (rates.length === 0) {
+  const hasAnyRate = rates.some((r) => r.rateCents != null);
+
+  if (rates.length === 0 || !hasAnyRate) {
     return (
       <div className="space-y-3">
         <div>
@@ -48,7 +53,22 @@ export function SevenDayCards({
           <p className="text-xs text-muted-foreground">Daily rate overview</p>
         </div>
         <div className="rounded-lg border-2 border-dashed p-8 text-center text-sm text-muted-foreground">
-          Rate data collection in progress. Data will appear within 24 hours.
+          {rates.length > 0 && !hasAnyRate ? (
+            isAnalyst ? (
+              <>
+                No rates in the next 7 days. Demo data ages out of this window —
+                run <code className="text-xs">SEED_FORCE=true pnpm db:refresh-demo</code>{" "}
+                against the database, or configure Redis + the worker for live scrapes.
+              </>
+            ) : (
+              <>
+                Rates for the next 7 days are not available yet. Check back after the
+                next data refresh.
+              </>
+            )
+          ) : (
+            <>Rate data collection in progress. Data will appear within 24 hours.</>
+          )}
         </div>
       </div>
     );
@@ -75,8 +95,8 @@ export function SevenDayCards({
               className={cn(
                 "flex min-h-28 w-[calc(50vw-1.5rem)] min-w-32 max-w-36 shrink-0 flex-col items-center rounded-lg border p-3 text-center transition-all hover:shadow-md cursor-pointer sm:w-36",
                 rate.isToday
-                  ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                  : "border-border bg-card hover:border-primary/30"
+                  ? "border-trosky-red bg-trosky-red/5 ring-1 ring-trosky-red/20"
+                  : "border-border bg-card hover:border-trosky-red/30"
               )}
             >
               <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
@@ -115,7 +135,7 @@ export function SevenDayCards({
                   </div>
                   <div className="h-1 w-full rounded-full bg-muted mt-0.5">
                     <div
-                      className="h-1 rounded-full bg-primary/60"
+                      className="h-1 rounded-full bg-trosky-red/60"
                       style={{ width: `${Math.min(occVal, 100)}%` }}
                     />
                   </div>
@@ -123,7 +143,7 @@ export function SevenDayCards({
               )}
 
               {rate.isToday && (
-                <span className="text-[9px] font-semibold text-primary mt-1 uppercase">
+                <span className="text-[9px] font-semibold text-trosky-red mt-1 uppercase">
                   Today
                 </span>
               )}

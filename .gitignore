@@ -1,17 +1,24 @@
+# Dependencies & build
 node_modules
-.next
 dist
+.next
 .turbo
-.env
-*.log
-.DS_Store
 *.tsbuildinfo
 
-# macOS resource forks / AppleDouble (safe to ignore)
+# Env / secrets (keep .env.example tracked)
+.env
+.env.*
+!.env.example
+.vercel
+.vercel-secrets
+
+# Logs / OS
+*.log
+.DS_Store
 ._*
 
 # Compiled seed artifacts (seed runs via tsx)
-packages/db/prisma/seed.js
-packages/db/prisma/seed.js.map
 packages/db/prisma/seed.d.ts
 packages/db/prisma/seed.d.ts.map
+packages/db/prisma/seed.js
+packages/db/prisma/seed.js.map

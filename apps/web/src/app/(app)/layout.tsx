@@ -9,56 +9,37 @@ export default async function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSession();
-  if (!session) redirect("/login");
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.sub },
-    select: { id: true, email: true, role: true, name: true },
-  });
+  // getSession() already re-reads the User row (and is memoised per request),
+  // so there is no separate user lookup here.
+  const user = await getSession();
   if (!user) redirect("/login");
 
-  let hotels;
-  if (user.role === "ANALYST") {
-    hotels = await prisma.hotel.findMany({
-      where: { status: "ACTIVE" },
-      select: { id: true, name: true },
-      orderBy: { name: "asc" },
-    });
-  } else {
-    hotels = await prisma.hotel.findMany({
-      where: {
-        status: "ACTIVE",
-        access: { some: { userId: user.id } },
-      },
-      select: { id: true, name: true },
-      orderBy: { name: "asc" },
-    });
-  }
-
-  // Unread message count
-  const unreadMessages = await prisma.message.count({
-    where: {
-      readAt: null,
-      NOT: { senderUserId: user.id },
-      thread:
-        user.role === "ANALYST"
-          ? {}
-          : { hotel: { access: { some: { userId: user.id } } } },
-    },
-  });
-
-  // Upcoming events in next 7 days
+  const isAnalyst = user.role === "ANALYST";
+  const ownHotels = { access: { some: { userId: user.sub } } };
   const today = startOfTodayUtc();
   const weekOut = addUtcDays(today, 7);
-  const upcomingEvents = await prisma.event.count({
-    where: {
-      date: { gte: today, lte: weekOut },
-      ...(user.role === "CLIENT"
-        ? { hotel: { access: { some: { userId: user.id } } } }
-        : {}),
-    },
-  });
+
+  // Independent counts — one round trip instead of three sequential ones.
+  const [hotels, unreadMessages, upcomingEvents] = await Promise.all([
+    prisma.hotel.findMany({
+      where: { status: "ACTIVE", ...(isAnalyst ? {} : ownHotels) },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+    prisma.message.count({
+      where: {
+        readAt: null,
+        NOT: { senderUserId: user.sub },
+        thread: isAnalyst ? {} : { hotel: ownHotels },
+      },
+    }),
+    prisma.event.count({
+      where: {
+        date: { gte: today, lte: weekOut },
+        ...(isAnalyst ? {} : { hotel: ownHotels }),
+      },
+    }),
+  ]);
 
   return (
     <TroskyShell

@@ -89,7 +89,7 @@ export function TroskyShell({
       <div
         className={cn(
           "trosky-app font-trosky flex h-screen min-h-0 flex-col overflow-hidden lg:flex-row",
-          "trosky-cockpit-bg text-foreground"
+          "trosky-cockpit-bg text-primary"
         )}
       >
         <Sidebar

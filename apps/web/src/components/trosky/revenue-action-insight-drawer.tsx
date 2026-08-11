@@ -24,7 +24,6 @@ import { cn } from "@/lib/utils";
 import {
   formatConfidenceLabel,
   formatUrgencyLabel,
-  getRevenueActionSourceMeta,
 } from "@/lib/revenue-action-display";
 import { TroskyStatusBadge } from "./trosky-status-badge";
 import { RevenueActionSourceBadge } from "./revenue-action-source-badge";

@@ -83,8 +83,8 @@ export function SummaryCards({ data, roomCount }: SummaryCardsProps) {
   return (
     <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-7">
       {cards.map((card) => (
-        <Card key={card.title} className="motion-safe-soft relative overflow-hidden hover:-translate-y-1 hover:border-primary/25 hover:shadow-md">
-          <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary/70 via-primary/60 to-transparent" />
+        <Card key={card.title} className="motion-safe-soft relative overflow-hidden hover:-translate-y-1 hover:border-trosky-red/25 hover:shadow-md">
+          <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-trosky-red/70 via-trosky-red/60 to-transparent" />
           <CardHeader className="flex flex-row items-center justify-between pb-1 pt-4 px-4">
             <CardTitle className="text-xs font-medium text-muted-foreground">
               {card.title}

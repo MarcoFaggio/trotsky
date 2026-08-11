@@ -1,6 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
-import type { LucideIcon } from "lucide-react";
+import type { ComponentType } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { troskySurfaces, troskyTextClamp } from "./trosky-primitives";
@@ -8,7 +8,7 @@ import { troskySurfaces, troskyTextClamp } from "./trosky-primitives";
 export interface TroskyActionCardProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
   description?: string;
-  icon?: LucideIcon;
+  icon?: ComponentType<{ className?: string }>;
   actionLabel: string;
   actionHref?: string;
   onAction?: () => void;

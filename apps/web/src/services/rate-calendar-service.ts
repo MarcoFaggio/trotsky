@@ -2,7 +2,6 @@ import { prisma } from "@hotel-pricing/db";
 import type { RevenueAction } from "@hotel-pricing/db";
 import {
   toDateString,
-  type ActionConfidence,
   type ActionUrgency,
   type RateCalendarDayStatus,
   type RateCalendarDayView,
@@ -17,6 +16,8 @@ import {
 } from "./revenue-action-query-utils";
 
 const DEFAULT_DAYS = 30;
+/** Upper bound on the calendar window so one request can't scan a year of rows. */
+const MAX_DAYS = 120;
 
 const URGENCY_RANK: Record<ActionUrgency, number> = {
   CRITICAL: 0,
@@ -25,9 +26,12 @@ const URGENCY_RANK: Record<ActionUrgency, number> = {
   LOW: 3,
 };
 
+/**
+ * Identity is never accepted from the caller: `userId` and `role` are read from
+ * the verified session inside the function. Only the view parameters below are
+ * caller-supplied, and `hotelId` is still checked against the access filter.
+ */
 export type GetRateCalendarInput = {
-  userId: string;
-  role: "ANALYST" | "CLIENT";
   hotelId?: string;
   startDate?: Date;
   days?: number;
@@ -119,23 +123,27 @@ export async function getRateCalendarView(
   input: GetRateCalendarInput
 ): Promise<RateCalendarView> {
   const session = await requireAuth();
-  if (session.sub !== input.userId) {
-    throw new Error("FORBIDDEN");
-  }
+  const userId = session.sub;
+  const role = session.role === "ANALYST" ? "ANALYST" : "CLIENT";
 
   const now = new Date();
-  const dayCount = input.days ?? DEFAULT_DAYS;
+  const requestedDays = input.days ?? DEFAULT_DAYS;
+  // Bound the window so a caller can't ask for an unbounded date range.
+  const dayCount = Math.min(Math.max(Math.trunc(requestedDays) || DEFAULT_DAYS, 1), MAX_DAYS);
   const start = input.startDate ? new Date(input.startDate) : new Date(now);
+  if (Number.isNaN(start.getTime())) {
+    throw new Error("INVALID_DATE");
+  }
   start.setUTCHours(0, 0, 0, 0);
 
   const end = new Date(start);
   end.setUTCDate(end.getUTCDate() + dayCount - 1);
 
-  const filter = hotelAccessWhere(input.userId, input.role);
+  const filter = hotelAccessWhere(userId, role);
 
   let hotel: { id: string; name: string } | null = null;
 
-  if (input.role === "CLIENT") {
+  if (role === "CLIENT") {
     const accessible = await prisma.hotel.findMany({
       where: filter,
       select: { id: true, name: true },

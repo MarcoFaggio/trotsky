@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@hotel-pricing/db";
-import type { Prisma, RevenueAction } from "@hotel-pricing/db";
+import type { Prisma } from "@hotel-pricing/db";
 import {
   rejectRevenueActionSchema,
   revenueActionFiltersSchema,
@@ -13,52 +13,17 @@ import type {
   RevenueActionFiltersInput,
   RevenueActionView,
 } from "@hotel-pricing/shared";
-import { requireAuth, requireHotelAccess, requireRole } from "@/lib/rbac";
+import { requireHotelAccess, requireRole } from "@/lib/rbac";
 import { isActionDemo } from "@/lib/revenue-action-display";
 import { shouldShowDemoActions } from "@/lib/demo-mode";
-import { filterActionsForDemoMode } from "@/services/revenue-action-query-utils";
-
-function toDateString(date: Date | null | undefined): string | null {
-  return date ? date.toISOString().split("T")[0] : null;
-}
-
-function mapRevenueAction(action: RevenueAction): RevenueActionView {
-  const evidence =
-    action.evidenceJson &&
-    typeof action.evidenceJson === "object" &&
-    !Array.isArray(action.evidenceJson)
-      ? (action.evidenceJson as Record<string, unknown>)
-      : null;
-
-  return {
-    id: action.id,
-    hotelId: action.hotelId,
-    actionKey: action.actionKey,
-    type: action.type,
-    status: action.status,
-    title: action.title,
-    summary: action.summary,
-    reason: action.reason,
-    urgency: action.urgency,
-    confidence: action.confidence,
-    stayDate: toDateString(action.stayDate),
-    currentValueCents: action.currentValueCents,
-    recommendedValueCents: action.recommendedValueCents,
-    estimatedUpsideLowCents: action.estimatedUpsideLowCents,
-    estimatedUpsideHighCents: action.estimatedUpsideHighCents,
-    evidenceJson: evidence,
-    source: action.source,
-    sourceEntityId: action.sourceEntityId,
-    createdAt: action.createdAt.toISOString(),
-    updatedAt: action.updatedAt.toISOString(),
-    lastEvaluatedAt: action.lastEvaluatedAt?.toISOString() ?? null,
-    expiresAt: action.expiresAt?.toISOString() ?? null,
-    decidedById: action.decidedById,
-    decidedAt: action.decidedAt?.toISOString() ?? null,
-    decisionNote: action.decisionNote,
-    snoozedUntil: action.snoozedUntil?.toISOString() ?? null,
-  };
-}
+import {
+  countHiddenDemoActions,
+  filterActionsForDemoMode,
+} from "@/services/revenue-action-query-utils";
+import {
+  mapRevenueAction,
+  toEvidenceObject,
+} from "@/services/revenue-action-mapper";
 
 async function requireRevenueActionAccess(actionId: string) {
   const action = await prisma.revenueAction.findUnique({
@@ -75,12 +40,7 @@ async function requireRevenueActionAccess(actionId: string) {
     throw new Error("NOT_FOUND");
   }
 
-  const evidenceJson =
-    action.evidenceJson &&
-    typeof action.evidenceJson === "object" &&
-    !Array.isArray(action.evidenceJson)
-      ? (action.evidenceJson as Record<string, unknown>)
-      : null;
+  const evidenceJson = toEvidenceObject(action.evidenceJson);
 
   if (
     isActionDemo({ source: action.source, evidenceJson }) &&
@@ -105,10 +65,13 @@ const urgencyOrder: Record<string, number> = {
   LOW: 3,
 };
 
-export async function getRevenueActions(
+async function loadRevenueActions(
   hotelId: string,
   filters?: RevenueActionFiltersInput
-): Promise<RevenueActionView[]> {
+): Promise<{
+  actions: RevenueActionView[];
+  hiddenDemoActionCount: number;
+}> {
   await requireHotelAccess(hotelId);
 
   const parsedFilters = filters
@@ -126,24 +89,56 @@ export async function getRevenueActions(
     orderBy: [{ stayDate: "asc" }, { createdAt: "desc" }],
   });
 
-  return filterActionsForDemoMode(
-    actions
-      .map(mapRevenueAction)
-      .sort(
-        (a, b) =>
-          (urgencyOrder[a.urgency] ?? 99) - (urgencyOrder[b.urgency] ?? 99)
-      )
-  );
+  const mapped = actions
+    .map(mapRevenueAction)
+    .sort(
+      (a, b) =>
+        (urgencyOrder[a.urgency] ?? 99) - (urgencyOrder[b.urgency] ?? 99)
+    );
+
+  return {
+    actions: filterActionsForDemoMode(mapped),
+    hiddenDemoActionCount: countHiddenDemoActions(mapped),
+  };
+}
+
+export async function getRevenueActions(
+  hotelId: string,
+  filters?: RevenueActionFiltersInput
+): Promise<RevenueActionView[]> {
+  const { actions } = await loadRevenueActions(hotelId, filters);
+  return actions;
+}
+
+/** Same as getRevenueActions, plus how many demo rows were filtered out. */
+export async function getRevenueActionsPageData(
+  hotelId: string,
+  filters?: RevenueActionFiltersInput
+): Promise<{
+  actions: RevenueActionView[];
+  hiddenDemoActionCount: number;
+}> {
+  return loadRevenueActions(hotelId, filters);
+}
+
+/**
+ * COMPLETED and EXPIRED are terminal: an action that has already been actioned
+ * or aged out must not be re-decided, or the audit trail (`decidedBy`,
+ * `decidedAt`) silently rewrites itself.
+ */
+const TERMINAL_STATUSES = new Set(["COMPLETED", "EXPIRED"]);
+
+function assertDecidable(status: string) {
+  if (TERMINAL_STATUSES.has(status)) {
+    throw new Error("INVALID_STATUS");
+  }
 }
 
 export async function acceptRevenueAction(actionId: string) {
   const { actionId: id } = revenueActionIdSchema.parse({ actionId });
   const { action, session } = await requireRevenueActionAccess(id);
   await requireAnalystForMutation();
-
-  if (action.status === "COMPLETED" || action.status === "EXPIRED") {
-    throw new Error("INVALID_STATUS");
-  }
+  assertDecidable(action.status);
 
   await prisma.revenueAction.update({
     where: { id },
@@ -162,6 +157,7 @@ export async function rejectRevenueAction(actionId: string, reason?: string) {
   const parsed = rejectRevenueActionSchema.parse({ actionId, reason });
   const { action, session } = await requireRevenueActionAccess(parsed.actionId);
   await requireAnalystForMutation();
+  assertDecidable(action.status);
 
   await prisma.revenueAction.update({
     where: { id: parsed.actionId },
@@ -195,6 +191,7 @@ export async function snoozeRevenueAction(
   const { action, session } = await requireRevenueActionAccess(parsed.actionId);
   // Clients: read-only for workflow — snooze reserved for analysts until product defines client ops.
   await requireAnalystForMutation();
+  assertDecidable(action.status);
 
   await prisma.revenueAction.update({
     where: { id: parsed.actionId },
@@ -213,6 +210,7 @@ export async function completeRevenueAction(actionId: string) {
   const { actionId: id } = revenueActionIdSchema.parse({ actionId });
   const { action, session } = await requireRevenueActionAccess(id);
   await requireAnalystForMutation();
+  assertDecidable(action.status);
 
   await prisma.revenueAction.update({
     where: { id },
@@ -230,6 +228,7 @@ export async function expireRevenueAction(actionId: string) {
   const { actionId: id } = revenueActionIdSchema.parse({ actionId });
   const { action, session } = await requireRevenueActionAccess(id);
   await requireAnalystForMutation();
+  assertDecidable(action.status);
 
   await prisma.revenueAction.update({
     where: { id },

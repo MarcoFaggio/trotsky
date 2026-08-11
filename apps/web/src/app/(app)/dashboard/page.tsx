@@ -2,21 +2,17 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@hotel-pricing/db";
 import { redirect } from "next/navigation";
 import { OverviewDashboard } from "@/components/dashboard/overview-dashboard";
+import { DashboardViewTabs } from "@/components/dashboard/dashboard-view-tabs";
 import { RevenueCommandCentre } from "@/components/trosky/revenue-command-centre";
 import { getRevenueCommandCentreView } from "@/services/revenue-command-centre-service";
 
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: { hotelId?: string };
+  searchParams: { hotelId?: string; view?: string };
 }) {
-  const session = await getSession();
-  if (!session) redirect("/login");
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.sub },
-    select: { id: true, name: true, role: true },
-  });
+  // Memoised with the layout's call — this does not re-query.
+  const user = await getSession();
   if (!user) redirect("/login");
 
   let detailHotelId: string | null = searchParams.hotelId || null;
@@ -24,27 +20,42 @@ export default async function DashboardPage({
     searchParams.hotelId || undefined;
 
   if (user.role === "CLIENT") {
-    const accesses = await prisma.hotelAccess.findMany({
-      where: { userId: user.id },
-      select: { hotelId: true },
+    // Resolve the client's hotel once, from ACTIVE hotels they can reach. The
+    // result is authoritative for the rest of the page, so no later re-check
+    // of the same id is needed.
+    const accessible = await prisma.hotel.findMany({
+      where: { status: "ACTIVE", access: { some: { userId: user.sub } } },
+      select: { id: true },
+      orderBy: { name: "asc" },
     });
-    if (accesses.length === 0) redirect("/login");
-    // Multi-hotel clients may switch via the top-bar selector; the URL param
-    // is honored only when it points at a hotel they actually have access to.
+    if (accessible.length === 0) redirect("/login");
+
+    // Multi-hotel clients switch via the top-bar selector; the URL param is
+    // honoured only when it points at a hotel they actually have access to.
     const requested = searchParams.hotelId;
-    const granted =
-      requested && accesses.some((a) => a.hotelId === requested)
-        ? requested
-        : accesses[0].hotelId;
-    detailHotelId = granted;
-    commandCentreHotelId = granted;
+    const granted = accessible.find((h) => h.id === requested)?.id;
+
+    if (requested && !granted) {
+      await prisma.securityEvent
+        .create({
+          data: {
+            userId: user.sub,
+            hotelId: null,
+            type: "UNAUTHORIZED_HOTEL_ACCESS",
+            metadataJson: { attempted: requested, surface: "dashboard" },
+          },
+        })
+        .catch(() => {});
+      redirect(`/dashboard?hotelId=${accessible[0].id}`);
+    }
+
+    detailHotelId = granted ?? accessible[0].id;
+    commandCentreHotelId = detailHotelId;
   }
 
   let commandView;
   try {
     commandView = await getRevenueCommandCentreView({
-      userId: user.id,
-      role: user.role,
       hotelId: commandCentreHotelId,
     });
   } catch (error) {
@@ -58,13 +69,7 @@ export default async function DashboardPage({
 
   if (!detailHotelId) {
     const firstHotel = await prisma.hotel.findFirst({
-      where:
-        user.role === "ANALYST"
-          ? { status: "ACTIVE" }
-          : {
-              status: "ACTIVE",
-              access: { some: { userId: user.id } },
-            },
+      where: { status: "ACTIVE" },
       orderBy: { name: "asc" },
       select: { id: true },
     });
@@ -103,68 +108,44 @@ export default async function DashboardPage({
     redirect("/login");
   }
 
-  if (user.role === "CLIENT") {
-    const access = await prisma.hotelAccess.findFirst({
-      where: { userId: user.id, hotelId: hotel.id },
-    });
-    if (!access) {
-      await prisma.securityEvent.create({
-        data: {
-          userId: user.id,
-          hotelId: hotel.id,
-          type: "UNAUTHORIZED_HOTEL_ACCESS",
-          metadataJson: { attempted: hotel.id },
-        },
-      });
-      const clientAccess = await prisma.hotelAccess.findFirst({
-        where: { userId: user.id },
-      });
-      if (clientAccess) redirect(`/dashboard?hotelId=${clientAccess.hotelId}`);
-      redirect("/login");
-    }
-  }
+  const marketHint =
+    user.role === "ANALYST" && !searchParams.hotelId
+      ? "Use the hotel selector in the top bar to change property context."
+      : user.role === "CLIENT"
+        ? "Read-only charts for your assigned hotel."
+        : null;
 
   return (
-    <div className="min-w-0 space-y-8">
-      <RevenueCommandCentre
-        view={commandView}
-        userDisplayName={user.name}
-        canManageActions={user.role === "ANALYST"}
+    <div className="min-w-0">
+      <DashboardViewTabs
+        hotelName={hotel.name}
+        marketHint={marketHint}
+        operate={
+          <RevenueCommandCentre
+            view={commandView}
+            userDisplayName={user.name}
+            canManageActions={user.role === "ANALYST"}
+          />
+        }
+        market={
+          <OverviewDashboard
+            hotel={{
+              id: hotel.id,
+              name: hotel.name,
+              roomCount: hotel.roomCount,
+              minRate: hotel.minRate,
+              maxRate: hotel.maxRate,
+              occTarget: hotel.occTarget,
+            }}
+            competitors={hotel.competitors.map((hc) => ({
+              id: hc.competitor.id,
+              name: hc.competitor.name,
+              weight: hc.weight,
+            }))}
+            isAnalyst={user.role === "ANALYST"}
+          />
+        }
       />
-
-      <div className="min-w-0 space-y-4" data-tour="detailed-dashboard">
-        <div>
-          <h2 className="text-lg font-semibold text-foreground">Detailed dashboard</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Rate matrix, competitors, and calendar for{" "}
-            <span className="font-medium text-foreground">{hotel.name}</span>.
-            {user.role === "ANALYST" && !searchParams.hotelId ? (
-              <span>
-                {" "}
-                Use the hotel selector in the top bar to change property context.
-              </span>
-            ) : user.role === "CLIENT" ? (
-              <span> Read-only charts for your assigned hotel.</span>
-            ) : null}
-          </p>
-        </div>
-        <OverviewDashboard
-          hotel={{
-            id: hotel.id,
-            name: hotel.name,
-            roomCount: hotel.roomCount,
-            minRate: hotel.minRate,
-            maxRate: hotel.maxRate,
-            occTarget: hotel.occTarget,
-          }}
-          competitors={hotel.competitors.map((hc) => ({
-            id: hc.competitor.id,
-            name: hc.competitor.name,
-            weight: hc.weight,
-          }))}
-          isAnalyst={user.role === "ANALYST"}
-        />
-      </div>
     </div>
   );
 }

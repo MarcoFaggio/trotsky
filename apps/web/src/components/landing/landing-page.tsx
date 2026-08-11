@@ -4,34 +4,28 @@ import { MotionConfig } from "framer-motion";
 import {
   LandingNav,
   Hero,
+  MetricsStrip,
   PainPoints,
   WhyDifferent,
-  ComparisonTable,
-  Advantage,
   ProcessSteps,
-  MetricsStrip,
   FinalCta,
   LandingFooter,
 } from "./index";
 
 export function LandingPage() {
   return (
-    // reducedMotion="user" disables every nested framer animation for
-    // visitors with prefers-reduced-motion, including whileInView/whileHover.
     <MotionConfig reducedMotion="user">
       <div
-        className="landing-page landing-editorial min-h-screen bg-background font-landing-sans text-foreground antialiased"
+        className="landing-page min-h-screen bg-primary font-body text-primary antialiased"
         data-landing
       >
         <LandingNav />
         <main className="relative overflow-x-hidden">
           <Hero />
+          <MetricsStrip />
           <PainPoints />
           <WhyDifferent />
-          <ComparisonTable />
-          <Advantage />
           <ProcessSteps />
-          <MetricsStrip />
           <FinalCta />
           <LandingFooter />
         </main>

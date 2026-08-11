@@ -61,7 +61,7 @@ export function TopBar({
   }
 
   return (
-    <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-border bg-card/90 px-3 backdrop-blur-md sm:px-4 lg:px-6">
+    <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-secondary bg-primary/90 px-3 backdrop-blur-md sm:px-4 lg:px-6">
       <div className="flex min-w-0 flex-1 items-center gap-3 overflow-hidden">
         {isAnalyst ? (
           <HotelSearch onSelect={onHotelChange} />
@@ -88,7 +88,7 @@ export function TopBar({
         ) : (
           <div
             data-tour="hotel-name"
-            className="truncate text-sm font-medium text-foreground"
+            className="truncate text-sm font-medium text-primary"
           >
             {hotels.find((h) => h.id === selectedHotelId)?.name ||
               "Your Hotel"}
@@ -98,7 +98,7 @@ export function TopBar({
 
       <div className="flex shrink-0 items-center gap-2">
         {lastUpdated && (
-          <div className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
+          <div className="hidden items-center gap-1.5 text-xs text-tertiary sm:flex">
             <Clock className="h-3 w-3" />
             <span>Updated {timeAgo(lastUpdated)}</span>
           </div>
@@ -124,7 +124,7 @@ export function TopBar({
           <Button
             size="sm"
             data-tour="top-bar-add-hotel"
-            className="h-9 gap-1.5 rounded-full bg-trosky-red text-white hover:bg-trosky-red-dark"
+            className="h-9 gap-1.5 rounded-full"
             asChild
           >
             <Link href="/hotels/new">
@@ -145,8 +145,8 @@ export function TopBar({
               data-tour="user-menu"
               className="h-9 gap-2 rounded-full pl-1.5 pr-2 sm:pr-3"
             >
-              <div className="flex h-7 w-7 items-center justify-center rounded-full border border-border bg-muted">
-                <User className="h-3.5 w-3.5 text-muted-foreground" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary ring-1 ring-secondary">
+                <User className="h-3.5 w-3.5 text-fg-quaternary" />
               </div>
               <Badge
                 variant="secondary"
@@ -158,10 +158,10 @@ export function TopBar({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <div className="px-2 py-1.5">
-              <p className="text-sm font-medium">
+              <p className="text-sm font-medium text-primary">
                 {user.name || user.email}
               </p>
-              <p className="text-xs text-muted-foreground">{user.email}</p>
+              <p className="text-xs text-tertiary">{user.email}</p>
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -174,7 +174,7 @@ export function TopBar({
               Product tour
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+            <DropdownMenuItem onClick={handleLogout} className="text-error-primary">
               <LogOut className="mr-2 h-4 w-4" />
               Sign Out
             </DropdownMenuItem>

@@ -3,7 +3,7 @@ import { pathMatchesRoute } from "./onboarding-navigation";
 
 export const ONBOARDING_STORAGE_KEY = "trosky:onboardingComplete";
 /** Bump when tour content changes materially so analysts can re-see auto-start once. */
-export const ONBOARDING_TOUR_VERSION = "2";
+export const ONBOARDING_TOUR_VERSION = "3";
 
 type Role = "ANALYST" | "CLIENT";
 
@@ -294,7 +294,7 @@ export function buildOnboardingSteps({
         placement: "top",
         title: "Key metrics",
         content:
-          "Estimated upside (heuristic, not guaranteed), urgent actions, pending review, and event/watch counts. Demo parity is labelled separately.",
+          "Estimated upside (heuristic, not guaranteed), urgent actions, and pending review. Open More metrics for parity demo and events/watch counts.",
       },
       role
     ),
@@ -311,22 +311,11 @@ export function buildOnboardingSteps({
     ),
     step(
       {
-        target: '[data-tour="command-centre-top-priority"]',
-        placement: "top",
-        title: "Highest priority",
-        content:
-          "The single most important action right now — open View evidence to see the full recommendation.",
-        optional: true,
-      },
-      role
-    ),
-    step(
-      {
         target: '[data-tour="priority-actions"]',
         placement: "top",
         title: "Priority action queue",
         content:
-          "Up to seven actions on the dashboard. Each card shows type (pricing, event, watch), urgency, confidence, source badge, and rate line when relevant.",
+          "Up to four actions on the dashboard. Each card shows type (pricing, event, watch), urgency, confidence, source badge, and rate line when relevant. Open Revenue Actions for the full list.",
       },
       role
     ),
@@ -336,7 +325,7 @@ export function buildOnboardingSteps({
         placement: "center",
         title: "Revenue action cards",
         content:
-          "Pricing actions show current → suggested rate. Watch items explain demand signals (not rate changes). Primary button: View evidence. Analysts also get Accept, Snooze, Reject, and Mark complete when allowed.",
+          "Pricing actions show current → suggested rate. Watch items explain demand signals (not rate changes). Analysts: Accept is primary; View evidence and More (Reject, Snooze, Complete) stay available. Clients: View evidence opens the insight drawer.",
         skipBeacon: true,
       },
       role
@@ -374,11 +363,12 @@ export function buildOnboardingSteps({
     ),
     step(
       {
-        target: '[data-tour="detailed-dashboard"]',
-        placement: "top",
-        title: "Detailed dashboard",
+        target: '[data-tour="dashboard-tab-market"]',
+        placement: "bottom",
+        title: "Market detail",
         content:
-          "Rate matrix, competitor cards, and calendar views for deeper analysis when you have finished the priority queue.",
+          "Switch to Market for the rate matrix, competitor cards, and calendar without leaving the dashboard.",
+        optional: true,
       },
       role
     ),

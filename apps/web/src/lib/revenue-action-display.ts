@@ -17,7 +17,7 @@ export type RevenueActionCategoryFilter =
   | "strategy"
   | "archived";
 
-export const COMMAND_CENTRE_ACTION_LIMIT = 7;
+export const COMMAND_CENTRE_ACTION_LIMIT = 4;
 
 const URGENCY_RANK: Record<RevenueActionView["urgency"], number> = {
   CRITICAL: 0,

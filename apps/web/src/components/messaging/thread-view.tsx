@@ -215,7 +215,7 @@ export function ThreadView({
                   className={cn(
                     "max-w-[80%] rounded-lg px-4 py-2.5",
                     isOwn
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-brand-solid text-white"
                       : "bg-muted"
                   )}
                 >
@@ -227,7 +227,7 @@ export function ThreadView({
                       variant="outline"
                       className={cn(
                         "text-[8px] px-1 py-0",
-                        isOwn && "border-primary-foreground/30 text-primary-foreground/80"
+                        isOwn && "border-white/30 text-white/80"
                       )}
                     >
                       {msg.senderRole}

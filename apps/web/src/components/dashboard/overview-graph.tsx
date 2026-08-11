@@ -118,7 +118,7 @@ export function OverviewGraph({
         <h3 className="relative w-fit text-sm font-semibold">
           Competitive Rate Comparison
           <span
-            className="absolute -bottom-1 left-0 h-px w-full bg-gradient-to-r from-primary via-primary to-landing-emerald"
+            className="absolute -bottom-1 left-0 h-px w-full bg-gradient-to-r from-trosky-red via-trosky-red to-landing-emerald"
             aria-hidden
           />
         </h3>

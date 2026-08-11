@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getRevenueActions } from "@/actions/revenue-actions";
+import { getRevenueActionsPageData } from "@/actions/revenue-actions";
 import { RevenueActionsDemo } from "@/components/trosky/revenue-actions-demo";
 import { getSession } from "@/lib/auth";
 import { shouldShowDemoActions } from "@/lib/demo-mode";
@@ -43,7 +43,9 @@ export default async function RevenueActionsPage({
 
   const hotelId = searchParams.hotelId || hotels[0].id;
   const hotel = hotels.find((h) => h.id === hotelId) ?? hotels[0];
-  const actions = await getRevenueActions(hotel.id);
+  const { actions, hiddenDemoActionCount } = await getRevenueActionsPageData(
+    hotel.id
+  );
 
   return (
     <RevenueActionsDemo
@@ -53,6 +55,7 @@ export default async function RevenueActionsPage({
       initialActions={actions}
       isAnalyst={session.role === "ANALYST"}
       demoModeEnabled={shouldShowDemoActions()}
+      hiddenDemoActionCount={hiddenDemoActionCount}
     />
   );
 }

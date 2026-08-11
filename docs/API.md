@@ -64,17 +64,30 @@ Returns current user info from JWT.
 
 #### `GET /api/health`
 
-Check database connectivity. No auth required.
+Check database connectivity and required auth env. No auth required. Never returns secret values — only booleans / status strings.
 
-**Response (200 or 503):**
+**Ready (200)** when `DATABASE_URL` connects and both JWT secrets are set. Missing JWT secrets or a DB failure returns **503** with `"ready": false`.
+
+**Response:**
 ```json
 {
-  "env": { "DATABASE_URL": true },
-  "db": "ok"
+  "ready": true,
+  "env": {
+    "DATABASE_URL": true,
+    "JWT_SECRET": true,
+    "JWT_REFRESH_SECRET": true,
+    "REDIS_URL": false
+  },
+  "db": "ok",
+  "demoMode": true,
+  "scrapeJobs": "unavailable",
+  "hints": [
+    "REDIS_URL is unset — scrape/refresh queues are unavailable until Redis is configured and a worker is running."
+  ]
 }
 ```
 
-If DB is unreachable, returns 503 with `"db": "error"` and a generic error message (details are logged server-side, not exposed).
+Redis / demo-mode gaps appear in `hints` but do not fail the health check.
 
 ### Public inquiries
 

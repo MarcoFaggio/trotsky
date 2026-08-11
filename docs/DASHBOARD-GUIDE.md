@@ -19,42 +19,55 @@ This document explains every part of the Trosky UI and how the pieces fit togeth
 
 ## 2. App shell (after login)
 
-**Sidebar (left)**  
-- **Command centre** (`/dashboard`) — Prioritized revenue actions, metrics, 14-day rate vs comp chart.
-- **Revenue actions** (`/actions`) — Full triage queue with category filters.
-- **Rate calendar** (`/rate-calendar`) — Day-level urgent / watch / opportunity / healthy from rates + actions.
-- **Hotels** — List of all hotels (analyst only); hotel cockpit at `/hotels/[id]` (matrix + calendar).
-- **Occupancy** — Bulk occupancy entry (analyst only).
-- **Pace / OTB** — Pace vs last year and STR-like index (both roles, scoped to allowed hotels).
-- **Promotions** — Analysts create/delete promotions; clients view promotions for their assigned hotel(s).
-- **Scrape Admin** — Run scrape now, view runs/errors (analyst only).
-- **Sign Out** at the bottom.
+**Sidebar (left)** — grouped by job-to-be-done on **desktop** (uppercase group labels when expanded). **Mobile** stays a flat horizontal bar (no group chrome).
+
+**Analyst groups**
+- **Operate:** Dashboard, Revenue Actions, Rate Calendar
+- **Demand:** Events, Promotions, Pace / OTB
+- **Portfolio:** Portfolio, Manage Hotels, Occupancy
+- **Comms:** Inquiries, Messages
+- **Admin:** Scrape Admin
+
+**Client groups**
+- **Operate:** Dashboard, Revenue Actions, Rate Calendar
+- **Demand:** Events, Promotions, Pace / OTB
+- **Comms:** Inquiries, Message Trosky
+
+Clients do **not** see Portfolio, Manage Hotels, Occupancy, or Scrape Admin. Collapsed desktop rail keeps icons + tooltips; unread / upcoming-events badges remain. **Sign Out** at the bottom.
 
 **Top bar**  
-- **Hotel selector** — Dropdown/search to pick the “current” hotel. Analysts see all active hotels; clients see only assigned hotels. Used for context when you open a hotel or go to Pace.
+- **Hotel selector** — Dropdown/search to pick the “current” hotel. Analysts see all active hotels; clients see only assigned hotels. Drives `?hotelId=` on dashboard, actions, pace, and related surfaces.
 - **User badge** — Role (ANALYST / CLIENT) and email.
 
 ---
 
-## 3. Command centre (`/dashboard`)
+## 3. Dashboard (`/dashboard`) — Operate | Market
 
-The default landing experience after login (action-first MVP).
+Default landing after login. Two top-level tabs (deep-link with `?view=market` for Market; default is **Operate**). Hotel scope via `?hotelId=` is unchanged.
+
+### 3.1 Operate (Command centre) — default
+
+Action triage for the current scope (portfolio or hotel).
 
 **Analyst**  
 - **Scope:** Portfolio or single hotel (hotel selector / scope badge).
-- **Metrics:** Estimated upside, urgent action/date counts, pending actions, parity/event counts — prefer **live** worker actions when both live and demo exist.
+- **Metrics:** Three primary cards — Estimated upside, Urgent actions, Pending review. **More metrics** disclosure still shows Parity (demo) and Events & watch.
 - **Status strip:** “System-generated” vs “Demo data” when applicable (demo only visible when `TROSKY_DEMO_MODE` allows).
-- **Highest priority:** Top live action (demo ranked below live).
-- **Action queue:** Up to seven cards; **View evidence** opens the insight drawer.
-- **Rate chart:** 14-day your rate vs comp median for chart hotel.
-- **Workflow:** Accept / reject / snooze / complete on cards (analyst only). Accept = intent only, not PMS push.
+- **Action queue:** Up to **four** priority cards (`COMMAND_CENTRE_ACTION_LIMIT`); link to **View all → `/actions`** for the rest. Live actions rank above demo.
+- **Primary CTAs:** **Accept** (analyst) and **View evidence**; Reject / Snooze / Complete sit in a compact overflow menu — all mutations remain available.
+- **Rate chart + explanation:** 14-day your rate vs comp median and deterministic “why Trosky surfaced these” panel (stacked below actions on smaller screens).
+- **Workflow:** Accept = intent only, not PMS push.
 
 **Client**  
-- Same command centre for assigned hotel(s); read-only workflow; evidence drawer without mutate controls.
+- Same Operate tab for assigned hotel(s); read-only workflow; **View evidence** opens the insight drawer without mutate controls.
 
 **Empty state:** “Trosky has not found active revenue actions…” — not “demo hidden” (analysts may see a separate subtle line when seed rows exist but demo mode is off).
 
 See [REVENUE-ACTION-SYSTEM.md](./REVENUE-ACTION-SYSTEM.md) for demo/production rules.
+
+### 3.2 Market tab
+
+Progressive disclosure of the **detailed dashboard** (Overview / Matrix / Calendar) for the scoped hotel — same capabilities as before, no longer stacked under the command centre on one long scroll.
 
 ---
 
@@ -62,9 +75,9 @@ See [REVENUE-ACTION-SYSTEM.md](./REVENUE-ACTION-SYSTEM.md) for demo/production r
 
 Full list for the selected hotel.
 
-- **Filters:** Active, Pricing, Events, Watch, Archived; **Demo / beta** only when demo mode is enabled.
-- **Hotel selector** (analyst, multiple hotels).
-- **Cards:** Urgency, confidence, stay date, source badge (live vs **Demo data**).
+- **Category chips:** Active, Pricing, Events, Watch, Archived; **Demo / beta** only when demo mode is enabled.
+- **Hotel selector** — Analysts with multiple hotels keep an in-page portfolio filter. Clients rely on the **top-bar** hotel scope (no duplicate hotel control on this page).
+- **Cards:** Urgency, confidence, stay date, source badge (live vs **Demo data**); same primary CTA / overflow pattern as the command centre.
 - **Evidence drawer** from any card.
 
 ---

@@ -136,7 +136,7 @@ export function PaceDashboard({ hotels, initialHotelId, occupancy, ourRate, comp
                     return (
                       <div className="bg-popover text-popover-foreground border rounded-lg shadow-lg p-3 text-xs space-y-1">
                         <p className="font-semibold">{label}</p>
-                        <p className="text-primary">OTB: {data?.otbRooms ?? "—"} rooms</p>
+                        <p className="text-trosky-red">OTB: {data?.otbRooms ?? "—"} rooms</p>
                         <p className="text-muted-foreground">OTB LY: {data?.otbLyRooms ?? "—"} rooms</p>
                         {data?.pace !== null && (
                           <p className={data.pace >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}>

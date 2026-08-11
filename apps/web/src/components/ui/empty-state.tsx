@@ -1,9 +1,10 @@
 import * as React from "react";
-import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+type IconComponent = React.ComponentType<{ className?: string }>;
+
 export interface EmptyStateProps extends React.HTMLAttributes<HTMLDivElement> {
-  icon?: LucideIcon;
+  icon?: IconComponent;
   title: string;
   description?: string;
   action?: React.ReactNode;
@@ -21,19 +22,19 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border bg-card/40 px-6 py-12 text-center",
+        "flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-secondary bg-secondary_alt/40 px-6 py-12 text-center",
         className
       )}
       {...props}
     >
       {Icon ? (
-        <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl border border-trosky-border bg-trosky-soft">
-          <Icon className="h-5 w-5 text-trosky-muted" aria-hidden />
+        <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-brand-primary ring-1 ring-brand ring-inset">
+          <Icon className="h-5 w-5 text-fg-brand-primary" aria-hidden />
         </div>
       ) : null}
-      <p className="text-sm font-semibold text-foreground">{title}</p>
+      <p className="text-sm font-semibold text-primary">{title}</p>
       {description ? (
-        <p className="mx-auto mt-1 max-w-md text-sm leading-relaxed text-muted-foreground">
+        <p className="mx-auto mt-1 max-w-md text-sm leading-relaxed text-tertiary">
           {description}
         </p>
       ) : null}

@@ -23,7 +23,7 @@ export function TroskyPageHeader({
   return (
     <header
       className={cn(
-        "mb-4 flex min-w-0 flex-col gap-4 border-b border-border/80 pb-4 sm:mb-6 sm:flex-row sm:items-end sm:justify-between sm:gap-6 sm:pb-5 lg:mb-6",
+        "mb-4 flex min-w-0 flex-col gap-4 border-b border-secondary pb-4 sm:mb-6 sm:flex-row sm:items-end sm:justify-between sm:gap-6 sm:pb-5 lg:mb-6",
         className
       )}
       {...props}

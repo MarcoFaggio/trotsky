@@ -60,11 +60,11 @@ export function MatrixChart({ days }: MatrixChartProps) {
 
   return (
     <div className="relative overflow-hidden rounded-lg border bg-card p-4">
-      <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary via-primary to-landing-emerald" />
+      <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-trosky-red via-trosky-red to-landing-emerald" />
       <h3 className="relative mb-4 w-fit text-sm font-medium">
         Rate Comparison & Occupancy
         <span
-          className="absolute -bottom-1 left-0 h-px w-full bg-gradient-to-r from-primary/80 to-transparent"
+          className="absolute -bottom-1 left-0 h-px w-full bg-gradient-to-r from-trosky-red/80 to-transparent"
           aria-hidden
         />
       </h3>
@@ -104,7 +104,7 @@ export function MatrixChart({ days }: MatrixChartProps) {
                 <div className="bg-popover text-popover-foreground border rounded-lg shadow-lg p-3 text-xs space-y-1">
                   <p className="font-semibold">{label}</p>
                   {data?.ourRate && (
-                    <p className="text-primary">
+                    <p className="text-trosky-red">
                       Our Rate: <span className="font-medium">{fmtDollars(data.ourRate)}</span>
                     </p>
                   )}

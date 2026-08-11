@@ -13,46 +13,43 @@ export default async function PublicInquiryPage() {
   });
 
   return (
-    <main className="min-h-screen bg-background">
-      <div className="mx-auto grid min-h-screen max-w-6xl gap-10 px-6 py-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-10">
+    <main className="min-h-screen bg-secondary">
+      <div className="mx-auto grid min-h-screen max-w-7xl gap-12 px-4 py-10 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-8">
         <section className="space-y-8">
-          <Link href="/" className="inline-flex min-w-0 items-center gap-2.5 text-sm font-semibold">
+          <Link href="/" className="inline-flex items-center gap-2.5">
             <TroskyMark className="h-9 w-9" />
-            <span className="truncate text-trosky-ink dark:text-foreground">Trosky</span>
+            <span className="text-md font-semibold text-primary">Trosky</span>
           </Link>
           <div className="space-y-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-              Hotel inquiry capture
+            <p className="text-sm font-semibold tracking-[0.14em] text-brand-secondary uppercase">
+              Group inquiry
             </p>
-            <h1 className="max-w-xl text-4xl font-semibold leading-tight tracking-tight md:text-5xl">
-              Ask once. Let the hotel sales team pick it up cleanly.
+            <h1 className="max-w-xl text-display-sm font-semibold tracking-tight text-primary sm:text-display-md">
+              Ask once. Let the hotel team pick it up cleanly.
             </h1>
-            <p className="max-w-lg text-base leading-7 text-muted-foreground">
-              Send room block, meeting, school trip, wedding, or offsite requests
-              into Trosky. The inquiry is structured automatically for hotel teams.
+            <p className="max-w-lg text-lg text-tertiary">
+              Send room block, meeting, school trip, wedding, or offsite requests into Trosky.
             </p>
           </div>
-          <div className="grid gap-3 text-sm text-muted-foreground sm:grid-cols-3">
-            <div className="border-t pt-3">
-              <p className="font-medium text-foreground">Group-aware</p>
-              <p>Detects rooms, guests, events, and missing details.</p>
-            </div>
-            <div className="border-t pt-3">
-              <p className="font-medium text-foreground">Sales-ready</p>
-              <p>Creates a lead the hotel can qualify and quote.</p>
-            </div>
-            <div className="border-t pt-3">
-              <p className="font-medium text-foreground">Model-ready</p>
-              <p>Uses fallback logic now, with AI provider placeholders ready.</p>
-            </div>
+          <div className="grid gap-6 text-sm sm:grid-cols-3">
+            {[
+              { title: "Group-aware", body: "Rooms, guests, events, and gaps." },
+              { title: "Sales-ready", body: "A lead the hotel can qualify." },
+              { title: "Structured", body: "Captured once, routed correctly." },
+            ].map((item) => (
+              <div key={item.title} className="border-t border-secondary pt-4">
+                <p className="font-semibold text-primary">{item.title}</p>
+                <p className="mt-1 text-tertiary">{item.body}</p>
+              </div>
+            ))}
           </div>
         </section>
 
-        <section className="relative overflow-hidden rounded-lg border bg-card p-5 shadow-sm md:p-7">
-          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-primary to-landing-emerald" />
+        <section className="relative overflow-hidden rounded-xl bg-primary p-6 shadow-xl ring-1 ring-secondary sm:p-8">
+          <div className="absolute inset-x-0 top-0 h-1 bg-brand-solid" />
           <div className="mb-6">
-            <h2 className="text-xl font-semibold tracking-tight">Send an inquiry</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <h2 className="text-xl font-semibold text-primary">Send an inquiry</h2>
+            <p className="mt-1 text-sm text-tertiary">
               Include as much detail as you know. Unknowns are fine.
             </p>
           </div>

@@ -371,7 +371,9 @@ function InquiryDetailPanel({
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Proposal</CardTitle>
-            <CardDescription>Record the hotel's first proposal response.</CardDescription>
+            <CardDescription>
+              Record the hotel&apos;s first proposal response.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {inquiry.proposals.length > 0 && (
@@ -556,7 +558,7 @@ export default async function InquiriesPage({
           ) : (
             inquiries.map((inquiry) => (
               <Link key={inquiry.id} href={`/inquiries?id=${inquiry.id}`}>
-                <Card className={selectedId === inquiry.id ? "border-primary" : "hover:border-primary/50"}>
+                <Card className={selectedId === inquiry.id ? "border-trosky-red" : "hover:border-trosky-red/50"}>
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">

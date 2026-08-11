@@ -1,5 +1,5 @@
 import * as React from "react";
-import type { LucideIcon } from "lucide-react";
+import type { ComponentType } from "react";
 import { cn } from "@/lib/utils";
 import { troskySurfaces, troskyTextClamp } from "./trosky-primitives";
 import { TroskyStatusBadge } from "./trosky-status-badge";
@@ -7,7 +7,7 @@ import { TroskyStatusBadge } from "./trosky-status-badge";
 export interface TroskyMetricCardProps extends React.HTMLAttributes<HTMLDivElement> {
   label: string;
   value: React.ReactNode;
-  icon?: LucideIcon;
+  icon?: ComponentType<{ className?: string }>;
   hint?: string;
   badge?: { text: string; variant?: "neutral" | "urgent" | "warning" | "success" };
   footer?: React.ReactNode;

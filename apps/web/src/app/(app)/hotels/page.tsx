@@ -59,8 +59,8 @@ export default async function HotelsPage() {
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <Building2 className="h-5 w-5 text-primary" aria-hidden />
+                      <div className="h-10 w-10 rounded-lg bg-trosky-red/10 flex items-center justify-center">
+                        <Building2 className="h-5 w-5 text-trosky-red" aria-hidden />
                       </div>
                       <div>
                         <CardTitle className="text-base">{hotel.name}</CardTitle>

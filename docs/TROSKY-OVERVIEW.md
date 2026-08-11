@@ -47,13 +47,13 @@ Both roles share the **same app shell** (sidebar, hotel selector where applicabl
 | Marketing / landing | Public | `/` (logged-out users; logged-in users with valid session redirect to `/dashboard`) |
 | Login | Public | `/login` |
 | Public inquiry form | Public (guests / planners) | `/inquire` → `POST /api/inquiries/public` |
-| Command centre | Authenticated | `/dashboard` — prioritized **RevenueActions**, metrics, rate chart |
+| Command centre | Authenticated | `/dashboard` — **Operate** tab: prioritized **RevenueActions**, metrics, rate chart; **Market** tab (`?view=market`): Overview / Matrix / Calendar |
 | Revenue actions | Authenticated | `/actions` — full triage queue (analyst workflow; client read-only) |
 | Rate calendar | Authenticated | `/rate-calendar` — day-level urgency from actions + rates |
-| Hotel cockpit (matrix/calendar) | Authenticated | `/hotels/[id]`, `/pace`, `/events`, `/promotions`, … |
+| Hotel cockpit (matrix/calendar) | Authenticated | Also on `/dashboard?view=market`; deep dive at `/hotels/[id]`, `/pace`, `/events`, `/promotions`, … |
 | Inquiry inbox | Authenticated | `/inquiries` (same route; **scope** differs by role) |
 
-**Action-first flow:** Analysts and clients land on the command centre, open **evidence** from an action card, and use **Revenue actions** for full filtering. See [REVENUE-ACTION-SYSTEM.md](./REVENUE-ACTION-SYSTEM.md).
+**Action-first flow:** Analysts and clients land on **Dashboard → Operate**, open **evidence** from an action card, switch to **Market** for matrix/calendar, and use **Revenue actions** for full filtering. See [REVENUE-ACTION-SYSTEM.md](./REVENUE-ACTION-SYSTEM.md).
 
 ---
 
@@ -75,16 +75,17 @@ This section records major themes shipped in the Trosky repo. For file-level his
 ### Action-first revenue MVP
 
 - **`RevenueAction`** model and workflow: `PRICE_CHANGE`, `EVENT_PRICING`, `WATCH_DEMAND`, plus seed types for demos.
-- **Command centre** (`/dashboard`), **Revenue actions** (`/actions`), **Rate calendar** (`/rate-calendar`), **evidence drawer** (insight panel).
+- **Dashboard** (`/dashboard`): **Operate** command centre + **Market** detail tabs; **Revenue actions** (`/actions`); **Rate calendar** (`/rate-calendar`); **evidence drawer**.
 - Worker-generated live actions (`RECOMMENDATION`, `EVENT_DEMAND`); seed rows labelled **Demo data**.
 - **Production/demo separation:** `TROSKY_DEMO_MODE` + server-side `filterActionsForDemoMode()` — see [REVENUE-ACTION-SYSTEM.md](./REVENUE-ACTION-SYSTEM.md).
 
 ### UX polish & theming
 
-- Command centre: scope/freshness header, live vs demo strip, role-specific empties, mutation error copy.
-- Action cards: human urgency/confidence labels, client read-only notes, evidence-first CTAs.
+- Command centre: scope/freshness header, live vs demo strip, role-specific empties, slim metrics + queue of four, Accept / View evidence primary CTAs.
+- Sidebar grouped by Operate / Demand / Portfolio / Comms / Admin (analyst) with flat mobile nav.
+- Action cards: human urgency/confidence labels, client read-only notes, overflow for secondary workflow actions.
 - **Dark mode** across authenticated app: semantic surfaces in `globals.css` and `trosky-primitives` (`bg-card`, `border-border`).
-- **Product tour** (~40 steps): sidebar, command centre, actions, calendar, theme toggle; versioned in `localStorage`.
+- **Product tour** (Joyride): sidebar, Operate/Market dashboard, actions, calendar, theme toggle; versioned in `localStorage` (bump `ONBOARDING_TOUR_VERSION` after nav changes).
 
 ### Revenue cockpit & data (legacy + ongoing)
 

@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Moon, Sun } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Moon01, Sun } from "@untitledui/icons";
+import { Button } from "@/components/base/buttons/button";
 
 type Theme = "light" | "dark";
 
 function applyTheme(theme: Theme) {
-  document.documentElement.classList.toggle("dark", theme === "dark");
+  const isDark = theme === "dark";
+  document.documentElement.classList.toggle("dark", isDark);
+  document.documentElement.classList.toggle("dark-mode", isDark);
   localStorage.setItem("trosky:theme", theme);
 }
 
@@ -15,9 +17,11 @@ export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>("light");
 
   useEffect(() => {
-    const currentTheme = document.documentElement.classList.contains("dark")
-      ? "dark"
-      : "light";
+    const currentTheme =
+      document.documentElement.classList.contains("dark") ||
+      document.documentElement.classList.contains("dark-mode")
+        ? "dark"
+        : "light";
     setTheme(currentTheme);
   }, []);
 
@@ -30,19 +34,13 @@ export function ThemeToggle() {
   return (
     <Button
       type="button"
-      variant="ghost"
-      size="icon"
+      color="tertiary"
+      size="sm"
       data-tour="theme-toggle"
-      className="rounded-full"
       aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
       aria-pressed={theme === "dark"}
       onClick={toggleTheme}
-    >
-      {theme === "dark" ? (
-        <Sun className="h-4 w-4" />
-      ) : (
-        <Moon className="h-4 w-4" />
-      )}
-    </Button>
+      iconLeading={theme === "dark" ? Sun : Moon01}
+    />
   );
 }

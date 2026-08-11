@@ -9,6 +9,7 @@
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
+    "db:refresh-demo": "tsx prisma/refresh-demo-horizon.ts",
     "db:studio": "prisma studio",
     "build": "tsc"
   },
@@ -19,7 +20,6 @@
   "devDependencies": {
     "@types/bcryptjs": "^3.0.0",
     "@types/node": "^20.11.0",
-    "argon2": "^0.40.0",
     "prisma": "^5.22.0",
     "tsx": "^4.7.0",
     "typescript": "^5.3.3"

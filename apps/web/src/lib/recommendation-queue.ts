@@ -1,5 +1,4 @@
-import { Queue } from "bullmq";
-import Redis from "ioredis";
+import { getRecommendationQueue } from "@/lib/job-queue";
 
 /** Price-change RevenueActions are upserted in the worker after recompute (see revenue-action-builder). */
 
@@ -7,27 +6,17 @@ export async function queueRecommendationRecompute(
   hotelId: string,
   trigger: string
 ): Promise<void> {
-  const redisUrl = process.env.REDIS_URL;
-  if (!redisUrl) {
-    return;
-  }
+  const queue = getRecommendationQueue();
+  if (!queue) return;
 
   try {
-    const connection = new Redis(redisUrl, {
-      maxRetriesPerRequest: null,
-    });
-    const queue = new Queue("recommendation-queue", { connection });
-    try {
-      await queue.add(
-        "recompute-recommendations",
-        { hotelId, trigger },
-        { removeOnComplete: 100, removeOnFail: 50 }
-      );
-      await queue.close();
-    } finally {
-      await connection.quit();
-    }
+    await queue.add(
+      "recompute-recommendations",
+      { hotelId, trigger },
+      { removeOnComplete: 100, removeOnFail: 50 }
+    );
   } catch (err) {
+    // Recompute is a best-effort side effect; never fail the user's mutation.
     console.warn("Failed to queue recommendation recompute", {
       hotelId,
       trigger,

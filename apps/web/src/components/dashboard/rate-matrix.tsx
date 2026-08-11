@@ -56,7 +56,7 @@ export function RateMatrix({ days, competitors, onCellClick }: RateMatrixProps) 
                     key={d.date}
                     className={cn(
                       "min-w-[90px] cursor-pointer px-3 py-2 text-center font-medium transition-colors hover:bg-accent",
-                      isWeekend && "bg-primary/5"
+                      isWeekend && "bg-trosky-red/5"
                     )}
                     onClick={() => onCellClick(d.date)}
                   >
@@ -89,17 +89,17 @@ export function RateMatrix({ days, competitors, onCellClick }: RateMatrixProps) 
           </thead>
           <tbody>
             {/* Our Hotel Row - pinned */}
-            <tr className="border-b bg-primary/5 font-medium">
-              <th scope="row" className="sticky left-0 z-10 bg-primary/10 px-4 py-3 text-left shadow-[1px_0_0_hsl(var(--border))]">
+            <tr className="border-b bg-trosky-red/5 font-medium">
+              <th scope="row" className="sticky left-0 z-10 bg-trosky-red/10 px-4 py-3 text-left shadow-[1px_0_0_hsl(var(--border))]">
                 <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-primary" />
-                  <span className="font-semibold text-primary">Our Hotel</span>
+                  <div className="h-2 w-2 rounded-full bg-brand-solid" />
+                  <span className="font-semibold text-trosky-red">Our Hotel</span>
                 </div>
               </th>
               {days.map((d) => (
                 <td
                   key={d.date}
-                  className="px-3 py-3 text-center cursor-pointer hover:bg-primary/10 transition-colors"
+                  className="px-3 py-3 text-center cursor-pointer hover:bg-trosky-red/10 transition-colors"
                   onClick={() => onCellClick(d.date)}
                 >
                   <span

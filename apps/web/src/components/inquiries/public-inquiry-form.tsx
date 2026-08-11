@@ -2,8 +2,8 @@
 
 import type { FormEvent } from "react";
 import { useState } from "react";
-import { Hotel } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Building07 } from "@untitledui/icons";
+import { Button } from "@/components/base/buttons/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -70,7 +70,7 @@ export function PublicInquiryForm({ hotels }: { hotels: HotelOption[] }) {
   if (hotels.length === 0) {
     return (
       <EmptyState
-        icon={Hotel}
+        icon={Building07}
         title="No hotels open for inquiries yet"
         description="No active hotels are available for inquiries yet. Please check back soon."
       />
@@ -143,16 +143,23 @@ export function PublicInquiryForm({ hotels }: { hotels: HotelOption[] }) {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <Button type="submit" disabled={state.status === "submitting"}>
+        <Button
+          type="submit"
+          size="lg"
+          color="primary"
+          isDisabled={state.status === "submitting"}
+          isLoading={state.status === "submitting"}
+          showTextWhileLoading
+        >
           {state.status === "submitting" ? "Sending..." : "Send inquiry"}
         </Button>
         {state.status === "success" && (
-          <p role="status" className="text-sm text-emerald-600 dark:text-emerald-400">
+          <p role="status" className="text-sm text-success-primary">
             Inquiry received. Reference {state.inquiryId.slice(-6)}.
           </p>
         )}
         {state.status === "error" && (
-          <p role="alert" className="text-sm text-destructive">{state.message}</p>
+          <p role="alert" className="text-sm text-error-primary">{state.message}</p>
         )}
       </div>
     </form>

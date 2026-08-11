@@ -6,6 +6,12 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  // No `directUrl` here on purpose: Prisma hard-fails when a declared directUrl
+  // env var is missing, which would break every local checkout and CI run.
+  // Migrations instead override DATABASE_URL with DIRECT_DATABASE_URL when one
+  // is set — see `db:migrate:deploy` in the root package.json and
+  // apps/web/vercel.json. pgbouncer's transaction mode cannot run the DDL and
+  // advisory locks `migrate deploy` needs.
 }
 
 enum Role {
@@ -157,11 +163,17 @@ enum ActionConfidence {
 }
 
 model User {
-  id                      String              @id @default(cuid())
-  email                   String              @unique
-  passwordHash            String
-  role                    Role
-  name                    String?
+  id           String  @id @default(cuid())
+  email        String  @unique
+  passwordHash String
+  role         Role
+  name         String?
+  /// Bumped to invalidate every issued refresh token for this user (logout,
+  /// password change, role change, deactivation). Tokens carry `ver`; a
+  /// mismatch fails the session on the next server-side check.
+  tokenVersion Int     @default(0)
+  /// Soft deactivation. A disabled user fails auth without deleting audit history.
+  disabledAt              DateTime?
   createdAt               DateTime            @default(now())
   updatedAt               DateTime            @updatedAt
   hotelAccess             HotelAccess[]
@@ -287,8 +299,11 @@ model DailyRate {
   competitor   Competitor? @relation(fields: [competitorId], references: [id], onDelete: Cascade)
   sourceRun    ScrapeRun?  @relation(fields: [sourceRunId], references: [id])
 
-  @@unique([listingType, hotelId, ota, date], name: "daily_rate_hotel_listing_date")
-  @@unique([listingType, competitorId, ota, date], name: "daily_rate_competitor_listing_date")
+  // `name` is the Prisma client property; `map` is the actual constraint name in
+  // Postgres. Without `map`, Prisma assumes its default naming and every
+  // `migrate diff` reports a phantom index rename against the real database.
+  @@unique([listingType, hotelId, ota, date], name: "daily_rate_hotel_listing_date", map: "DailyRate_daily_rate_hotel_listing_date_key")
+  @@unique([listingType, competitorId, ota, date], name: "daily_rate_competitor_listing_date", map: "DailyRate_daily_rate_competitor_listing_date_key")
   // Hot paths query by hotel/competitor first, then a date range.
   @@index([hotelId, date])
   @@index([competitorId, date])
@@ -520,6 +535,19 @@ model Message {
   sender       User          @relation(fields: [senderUserId], references: [id])
 
   @@index([threadId, createdAt])
+}
+
+/// Fixed-window rate-limit counters.
+///
+/// Serverless deployments run many isolated instances, so an in-process Map
+/// limits nothing. Redis is the preferred backend; this table is the fallback
+/// that works with no extra infrastructure, since Postgres is always present.
+model RateLimitBucket {
+  key     String   @id
+  count   Int      @default(0)
+  resetAt DateTime
+
+  @@index([resetAt])
 }
 
 model SecurityEvent {

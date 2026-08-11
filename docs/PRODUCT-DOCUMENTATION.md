@@ -147,7 +147,7 @@ To add a user today: run a script or insert into `User` and, for clients, into `
 | `/login` | Login page | Allowed (usually redirect if already logged in) | Same |
 | `/` | Landing (logged out) or redirect | Logged out: landing; logged in: redirect to `/dashboard` | Same |
 | `/inquire` | Public inquiry form | Public | Public |
-| `/dashboard` | Command centre (revenue actions, metrics, chart) | Yes — portfolio or hotel scope | Yes — assigned hotel scope |
+| `/dashboard` | Operate (command centre) + Market (overview/matrix/calendar) tabs | Yes — portfolio or hotel scope | Yes — assigned hotel scope |
 | `/actions` | Revenue actions triage queue | Yes — workflow mutations | Yes — read-only |
 | `/rate-calendar` | Day-level action/rate calendar | Yes | Yes — read-only evidence |
 | `/inquiries` | Inquiry inbox & detail | Yes — **all** hotels | Yes — **assigned** hotels only |
@@ -178,11 +178,9 @@ To add a user today: run a script or insert into `User` and, for clients, into `
 1. Open app → redirected to **`/login`**.
 2. Enter **analyst@example.com** / **Password123!** → Sign In.
 3. **POST /api/auth/login** succeeds → cookies set → redirect to **`/dashboard`**.
-4. **Dashboard** loads:
-   - Summary cards: total hotels, avg today rate, avg occupancy, recommendations count.
-   - Grid of **hotel cards** (name, today rate, occ %, recommended rate, room count, competitor count).
-5. Click a **hotel card** → navigate to **`/hotels/[id]`** (Hotel dashboard).
-6. Hotel dashboard loads:
+4. **Dashboard → Operate** loads: prioritized revenue actions, metrics, chart for portfolio or selected hotel.
+5. Optionally switch to **Market** (`?view=market`) for Overview / Matrix / Calendar, or open a hotel cockpit at **`/hotels/[id]`**.
+6. Hotel dashboard / Market view:
    - **Summary cards** for today (rate, recommended, occupancy, LY occ, comp avg, ADR, revenue, alerts).
    - **Rate Matrix** tab: table (our row, recommended row, comp avg row, competitor rows) and chart below; **Calendar** tab available.
    - Date range selector (7/14/30 days), Export CSV.
@@ -296,14 +294,16 @@ To add a user today: run a script or insert into `User` and, for clients, into `
 
 ### 6.2 App shell (layout after login)
 
-- **Sidebar**: Logo/name; nav links **by role** — **Analyst:** Dashboard, Portfolio, Manage Hotels, Events, Occupancy, Pace / OTB, Promotions, **Inquiries**, Messages, Scrape Admin. **Client:** Dashboard, Events, Promotions, **Inquiries**, Message Trosky, Pace / OTB. Sign out at bottom.
+- **Sidebar**: Logo/name; **grouped** nav by role — **Analyst:** Operate (Dashboard, Revenue Actions, Rate Calendar), Demand (Events, Promotions, Pace / OTB), Portfolio (Portfolio, Manage Hotels, Occupancy), Comms (Inquiries, Messages), Admin (Scrape Admin). **Client:** Operate, Demand, Comms (Inquiries, Message Trosky). Group labels on expanded desktop only; mobile flat. Sign out at bottom.
 - **Top bar**: Hotel selector (dropdown of allowed hotels), user role badge and email.
 - **Main area**: Outlet for current page (dashboard, hotel dashboard, occupancy, inquiries, etc.).
 
 ### 6.3 Dashboard (`/dashboard`)
 
-- **Analyst**: Summary cards (total hotels, avg rate, avg occupancy, recommendations count); grid of hotel cards (name, today rate, occ, recommended rate, room count, competitor count); click card → `/hotels/[id]`.
-- **Client**: Redirect to `/hotels/[assignedHotelId]`.
+- **Tabs:** **Operate** (default) | **Market** (`?view=market`). Hotel scope via `?hotelId=`.
+- **Operate (command centre):** Priority revenue actions (up to four), primary metrics (upside / urgent / pending; more behind disclosure), live vs demo status, rate vs comp chart, explanation panel. Analysts: Accept primary + overflow workflow. Clients: View evidence only.
+- **Market:** Overview / Matrix / Calendar for the scoped hotel (same detailed dashboard capabilities as before, not stacked under Operate).
+- **Analyst** may use portfolio or hotel scope on Operate; **Client** is scoped to assigned hotel(s).
 
 ### 6.4 Hotel dashboard (`/hotels/[id]`)
 

@@ -1,62 +1,164 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { jwtVerify } from "jose";
-import { jwtAccessSecretBytes } from "@/lib/jwt-secrets";
+import { SignJWT, jwtVerify } from "jose";
+import {
+  jwtAccessSecretBytes,
+  jwtRefreshSecretBytes,
+} from "@/lib/jwt-secrets";
+import {
+  applySecurityHeaders,
+  buildCsp,
+  generateNonce,
+} from "@/lib/security-headers";
+import { isPublicPath } from "@/lib/public-paths";
 
-const publicPaths = [
-  "/",
-  "/login",
-  "/inquire",
-  "/api/auth/login",
-  "/api/auth/refresh",
-  "/api/health",
-  "/api/inquiries/public",
-];
+const ACCESS_COOKIE = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/",
+  maxAge: 15 * 60,
+};
+
+const REFRESH_COOKIE = {
+  ...ACCESS_COOKIE,
+  maxAge: 7 * 24 * 60 * 60,
+};
+
+const STATIC_ASSET = /\.(?:png|jpe?g|gif|svg|ico|webp|avif|woff2?|txt|xml)$/i;
+
+function unauthorized(request: NextRequest, clearCookies: boolean): NextResponse {
+  let response: NextResponse;
+  if (request.nextUrl.pathname.startsWith("/api/")) {
+    response = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } else {
+    const loginUrl = new URL("/login", request.url);
+    // Preserve where the user was headed so login can send them back.
+    const target = request.nextUrl.pathname + request.nextUrl.search;
+    if (target && target !== "/") loginUrl.searchParams.set("next", target);
+    response = NextResponse.redirect(loginUrl);
+  }
+  if (clearCookies) {
+    response.cookies.set("access_token", "", { ...ACCESS_COOKIE, maxAge: 0 });
+    response.cookies.set("refresh_token", "", { ...REFRESH_COOKIE, maxAge: 0 });
+  }
+  return response;
+}
+
+/**
+ * Mint a short-lived access token from a still-valid refresh token so an
+ * expired access cookie doesn't bounce the user to /login mid-session.
+ *
+ * Deliberately narrow:
+ * - The refresh token is **not** re-issued. Rotating it here on every access
+ *   expiry gave a stolen cookie an indefinitely sliding 7-day window; now the
+ *   refresh token keeps its original expiry and the session genuinely ends.
+ * - The new access token never outlives the refresh token that authorized it.
+ * - Claims are copied verbatim, including `ver`. This runs at the Edge with no
+ *   database, so it cannot detect revocation — `getCurrentUser()` re-reads the
+ *   User row and rejects a stale `ver` before any data is served.
+ */
+async function mintAccessFromRefresh(
+  request: NextRequest
+): Promise<string | null> {
+  const refreshToken = request.cookies.get("refresh_token")?.value;
+  if (!refreshToken) return null;
+
+  try {
+    const { payload } = await jwtVerify(refreshToken, jwtRefreshSecretBytes(), {
+      algorithms: ["HS256"],
+    });
+
+    const sub = typeof payload.sub === "string" ? payload.sub : null;
+    const email = typeof payload.email === "string" ? payload.email : null;
+    const role =
+      payload.role === "ANALYST" || payload.role === "CLIENT"
+        ? payload.role
+        : null;
+    const ver = typeof payload.ver === "number" ? payload.ver : null;
+
+    // Tokens predating these claims fail closed: the user re-authenticates.
+    if (!sub || !email || !role || ver === null) return null;
+
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    const refreshExpiry =
+      typeof payload.exp === "number" ? payload.exp : nowSeconds;
+    const accessExpiry = Math.min(
+      nowSeconds + ACCESS_COOKIE.maxAge,
+      refreshExpiry
+    );
+    if (accessExpiry <= nowSeconds) return null;
+
+    return await new SignJWT({ sub, email, role, ver })
+      .setProtectedHeader({ alg: "HS256" })
+      .setIssuedAt(nowSeconds)
+      .setExpirationTime(accessExpiry)
+      .sign(jwtAccessSecretBytes());
+  } catch {
+    return null;
+  }
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const isDev = process.env.NODE_ENV !== "production";
+  const nonce = generateNonce();
+  const csp = buildCsp(nonce, isDev);
 
-  // Public folder assets (logo, icons) must not require auth
-  if (/\.(?:png|jpe?g|gif|svg|ico|webp|woff2?)$/i.test(pathname)) {
+  // Next extracts the nonce from the CSP on the *request* headers and stamps it
+  // onto its own inline bootstrap script. Without this the policy would ship a
+  // nonce that nothing carries, and enforcing it would blank the page.
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-nonce", nonce);
+  requestHeaders.set("Content-Security-Policy", csp);
+
+  const proceed = (accessToken?: string) => {
+    const response = NextResponse.next({ request: { headers: requestHeaders } });
+    if (accessToken) {
+      response.cookies.set("access_token", accessToken, ACCESS_COOKIE);
+    }
+    applySecurityHeaders(response.headers, csp, { isDev });
+    return response;
+  };
+
+  if (STATIC_ASSET.test(pathname) || pathname.startsWith("/_next/")) {
     return NextResponse.next();
   }
 
-  if (publicPaths.some((p) => (p === "/" ? pathname === "/" : pathname.startsWith(p)))) {
-    return NextResponse.next();
-  }
-
-  if (pathname.startsWith("/_next/") || pathname === "/favicon.ico") {
-    return NextResponse.next();
+  if (isPublicPath(pathname)) {
+    return proceed();
   }
 
   const accessToken = request.cookies.get("access_token")?.value;
-
-  if (!accessToken) {
-    if (pathname.startsWith("/api/")) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (accessToken) {
+    try {
+      await jwtVerify(accessToken, jwtAccessSecretBytes(), {
+        algorithms: ["HS256"],
+      });
+      return proceed();
+    } catch {
+      // Expired or invalid — fall through to the refresh path.
     }
-    return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  try {
-    await jwtVerify(accessToken, jwtAccessSecretBytes(), {
-      algorithms: ["HS256"],
-    });
-    const response = NextResponse.next();
-    response.headers.set("X-Content-Type-Options", "nosniff");
-    response.headers.set("X-Frame-Options", "DENY");
-    response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-    return response;
-  } catch {
-    if (pathname.startsWith("/api/")) {
-      return NextResponse.json({ error: "Token expired" }, { status: 401 });
-    }
-    return NextResponse.redirect(new URL("/login", request.url));
+  const minted = await mintAccessFromRefresh(request);
+  if (minted) {
+    // Make the new token visible to this request's Server Components too.
+    request.cookies.set("access_token", minted);
+    requestHeaders.set("cookie", request.cookies.toString());
+    return proceed(minted);
   }
+
+  const response = unauthorized(
+    request,
+    Boolean(request.cookies.get("refresh_token"))
+  );
+  applySecurityHeaders(response.headers, csp, { isDev });
+  return response;
 }
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpe?g|gif|svg|ico|webp|woff2?)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpe?g|gif|svg|ico|webp|avif|woff2?)$).*)",
   ],
 };

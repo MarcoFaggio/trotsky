@@ -10,7 +10,8 @@ Related: [DASHBOARD-GUIDE.md](./DASHBOARD-GUIDE.md), [TECH-UX-HARDENING.md](./TE
 
 | Surface | Route | Purpose |
 |---------|-------|---------|
-| **Command centre** | `/dashboard` | Highest-priority actions, metrics, rate vs comp chart, explanation panel |
+| **Command centre (Operate)** | `/dashboard` (default) | Priority queue (up to 4), primary metrics, rate vs comp chart, explanation panel |
+| **Market detail** | `/dashboard?view=market` | Overview / Matrix / Calendar for the scoped hotel |
 | **Revenue actions** | `/actions` | Full triage queue: filter, accept/reject/snooze/complete (analyst) |
 | **Rate calendar** | `/rate-calendar` | Day-level status (urgent / watch / opportunity / healthy) tied to actions |
 | **Evidence drawer** | Opened from any action card | Structured evidence, explanation, workflow controls |
@@ -72,7 +73,7 @@ When demo mode is on, live actions are still **prioritized above** demo actions 
 ### UI copy
 
 - **Analyst, demo on:** `/actions` — “Demo mode is enabled. Demo actions are visible and labelled.”
-- **Analyst, demo off, hidden seeds exist:** Command centre — “Demo actions are hidden because demo mode is disabled.”
+- **Analyst, demo off, hidden seeds exist:** Command centre and `/actions` show a status banner plus empty-state copy that names the count and points to `TROSKY_DEMO_MODE=true` or Redis + worker.
 - **Clients:** Normal empty states only (no “hidden demo” messaging).
 
 `/actions`: **Demo / beta** filter is hidden when demo mode is disabled.

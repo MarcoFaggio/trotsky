@@ -2,10 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowRight } from "@untitledui/icons";
+import { Button } from "@/components/base/buttons/button";
+import { Input } from "@/components/base/input/input";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { TroskyMark } from "@/components/brand/trosky-logo";
 
@@ -58,87 +57,108 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-trosky-soft/60 via-background to-primary/5 p-4 dark:from-background dark:via-background dark:to-primary/15">
+    <div className="relative flex min-h-screen">
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-[linear-gradient(90deg,transparent,hsl(var(--primary)/0.14),transparent)] blur-3xl"
+        className="pointer-events-none absolute inset-0"
         aria-hidden
+        style={{
+          background: `
+            radial-gradient(ellipse 70% 50% at 0% 0%, color-mix(in srgb, var(--color-brand-600) 12%, transparent), transparent 55%),
+            var(--color-bg-secondary)
+          `,
+        }}
       />
-      <div className="absolute right-4 top-4">
+
+      <div className="absolute right-4 top-4 z-10">
         <ThemeToggle />
       </div>
-      <Card className="relative w-full max-w-md overflow-hidden border-border/80 bg-card/90 shadow-2xl shadow-black/[0.08] backdrop-blur-xl dark:border-white/10 dark:shadow-black/50">
-        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-trosky-red via-trosky-red to-trosky-red-dark" />
-        <CardHeader className="space-y-1 text-center">
-          <TroskyMark
-            priority
-            className="mx-auto mb-4 h-20 w-20 rounded-2xl p-2 sm:h-24 sm:w-24 sm:p-2.5"
-          />
-          <CardTitle className="text-2xl">Trosky</CardTitle>
-          <CardDescription>
-            Sign in to manage your hotel pricing strategy
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+
+      <div className="relative mx-auto flex w-full max-w-md flex-col justify-center px-4 py-16 sm:px-6">
+        <div className="mb-8 text-center">
+          <TroskyMark priority className="mx-auto mb-5 h-16 w-16" />
+          <p className="text-sm font-semibold tracking-[0.18em] text-brand-secondary uppercase">
+            Trosky
+          </p>
+          <h1 className="mt-2 text-display-xs font-semibold text-primary">
+            Sign in
+          </h1>
+          <p className="mt-2 text-sm text-tertiary">
+            Hotel revenue intelligence for your team
+          </p>
+        </div>
+
+        <div className="rounded-xl bg-primary p-6 shadow-xl ring-1 ring-secondary sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <div
                 role="alert"
-                className="rounded-md bg-destructive/10 text-destructive text-sm p-3"
+                className="rounded-lg bg-error-primary px-3 py-2.5 text-sm text-error-primary ring-1 ring-error_subtle ring-inset"
               >
                 {error}
               </div>
             )}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Signing in..." : "Sign In"}
+            <Input
+              label="Email"
+              id="email"
+              type="email"
+              name="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={setEmail}
+              isRequired
+              size="md"
+            />
+            <Input
+              label="Password"
+              id="password"
+              type="password"
+              name="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={setPassword}
+              isRequired
+              size="md"
+            />
+            <Button
+              type="submit"
+              size="lg"
+              color="primary"
+              className="w-full justify-center"
+              isDisabled={loading}
+              isLoading={loading}
+              showTextWhileLoading
+              iconTrailing={loading ? undefined : ArrowRight}
+            >
+              {loading ? "Signing in..." : "Sign in"}
             </Button>
-            {showDemoAccounts && (
-              <div className="rounded-lg border bg-muted/30 p-3 text-xs text-muted-foreground">
-                <p className="mb-2 text-center font-medium text-foreground">
-                  Pilot demo accounts
-                </p>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {demoAccounts.map((account) => (
-                    <button
-                      key={account.email}
-                      type="button"
-                      className="rounded-md border bg-background px-3 py-2 text-left transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      onClick={() => fillDemoCredentials(account)}
-                    >
-                      <span className="block font-medium text-foreground">
-                        {account.label}
-                      </span>
-                      <span className="block truncate">{account.email}</span>
-                      <span className="block truncate">{account.password}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
           </form>
-        </CardContent>
-      </Card>
+
+          {showDemoAccounts && (
+            <div className="mt-6 rounded-xl bg-secondary_alt p-3 ring-1 ring-secondary ring-inset">
+              <p className="mb-2 text-center text-xs font-semibold text-secondary">
+                Pilot demo accounts
+              </p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {demoAccounts.map((account) => (
+                  <button
+                    key={account.email}
+                    type="button"
+                    className="rounded-lg bg-primary px-3 py-2.5 text-left shadow-xs ring-1 ring-primary ring-inset transition-colors hover:bg-primary_hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                    onClick={() => fillDemoCredentials(account)}
+                  >
+                    <span className="block text-sm font-semibold text-secondary">
+                      {account.label}
+                    </span>
+                    <span className="mt-0.5 block truncate text-xs text-tertiary">
+                      {account.email}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

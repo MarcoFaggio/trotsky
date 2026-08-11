@@ -15,5 +15,7 @@ export default async function ScrapeAdminPage() {
     take: 50,
   });
 
-  return <ScrapeAdmin runs={runs} />;
+  return (
+    <ScrapeAdmin runs={runs} redisConfigured={Boolean(process.env.REDIS_URL)} />
+  );
 }

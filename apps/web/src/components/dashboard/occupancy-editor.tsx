@@ -170,7 +170,7 @@ export function OccupancyEditor({ hotels, initialHotelId, initialData }: Occupan
                   const label = d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" });
                   const isWeekend = d.getUTCDay() === 0 || d.getUTCDay() === 6;
                   return (
-                    <tr key={date} className={`border-b ${isWeekend ? "bg-primary/5" : ""}`}>
+                    <tr key={date} className={`border-b ${isWeekend ? "bg-trosky-red/5" : ""}`}>
                       <th scope="row" className="sticky left-0 bg-background px-4 py-2 text-left text-xs font-medium">
                         <time dateTime={date}>{label}</time>
                       </th>

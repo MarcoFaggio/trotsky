@@ -1,5 +1,5 @@
 import { prisma } from "@hotel-pricing/db";
-import type { Prisma, RevenueAction } from "@hotel-pricing/db";
+import type { Prisma } from "@hotel-pricing/db";
 import {
   computeWeightedAvg,
   toDateString,
@@ -8,6 +8,7 @@ import {
   type RevenueActionView,
   type RevenueCommandCentreView,
 } from "@hotel-pricing/shared";
+import { mapRevenueAction } from "./revenue-action-mapper";
 import { requireAuth } from "@/lib/rbac";
 import { buildRevenueCommandExplanation } from "./revenue-command-explanation";
 import {
@@ -27,51 +28,14 @@ export { activeRevenueActionWhere } from "./revenue-action-query-utils";
 
 const CHART_DAYS = 14;
 
+/**
+ * Identity is never accepted from the caller: `userId` and `role` are read from
+ * the verified session inside the function. `hotelId` only narrows the scope and
+ * is still validated against the caller's access filter.
+ */
 export type GetRevenueCommandCentreViewInput = {
-  userId: string;
-  role: "ANALYST" | "CLIENT";
   hotelId?: string;
 };
-
-function mapRevenueAction(action: RevenueAction): RevenueActionView {
-  const evidence =
-    action.evidenceJson &&
-    typeof action.evidenceJson === "object" &&
-    !Array.isArray(action.evidenceJson)
-      ? (action.evidenceJson as Record<string, unknown>)
-      : null;
-
-  return {
-    id: action.id,
-    hotelId: action.hotelId,
-    actionKey: action.actionKey,
-    type: action.type,
-    status: action.status,
-    title: action.title,
-    summary: action.summary,
-    reason: action.reason,
-    urgency: action.urgency,
-    confidence: action.confidence,
-    stayDate: action.stayDate
-      ? action.stayDate.toISOString().split("T")[0]
-      : null,
-    currentValueCents: action.currentValueCents,
-    recommendedValueCents: action.recommendedValueCents,
-    estimatedUpsideLowCents: action.estimatedUpsideLowCents,
-    estimatedUpsideHighCents: action.estimatedUpsideHighCents,
-    evidenceJson: evidence,
-    source: action.source,
-    sourceEntityId: action.sourceEntityId,
-    createdAt: action.createdAt.toISOString(),
-    updatedAt: action.updatedAt.toISOString(),
-    lastEvaluatedAt: action.lastEvaluatedAt?.toISOString() ?? null,
-    expiresAt: action.expiresAt?.toISOString() ?? null,
-    decidedById: action.decidedById,
-    decidedAt: action.decidedAt?.toISOString() ?? null,
-    decisionNote: action.decisionNote,
-    snoozedUntil: action.snoozedUntil?.toISOString() ?? null,
-  };
-}
 
 function computeMetrics(actions: RevenueActionView[]) {
   let estimatedUpsideLowCents = 0;
@@ -181,12 +145,11 @@ export async function getRevenueCommandCentreView(
   input: GetRevenueCommandCentreViewInput
 ): Promise<RevenueCommandCentreView> {
   const session = await requireAuth();
-  if (session.sub !== input.userId) {
-    throw new Error("FORBIDDEN");
-  }
+  const userId = session.sub;
+  const role = session.role === "ANALYST" ? "ANALYST" : "CLIENT";
 
   const now = new Date();
-  const hotelFilter = hotelAccessWhere(input.userId, input.role);
+  const hotelFilter = hotelAccessWhere(userId, role);
 
   let scopeMode: "PORTFOLIO" | "HOTEL" = "PORTFOLIO";
   let scopeHotelId: string | undefined;
@@ -194,14 +157,14 @@ export async function getRevenueCommandCentreView(
   let chartHotelId: string | undefined;
   let chartHotelName: string | undefined;
 
-  if (input.role === "CLIENT") {
+  if (role === "CLIENT") {
     const accessible = await prisma.hotel.findMany({
       where: hotelFilter,
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     });
     if (accessible.length === 0) {
-      return emptyCommandCentreView("HOTEL");
+      return emptyCommandCentreView("HOTEL", role);
     }
     // TODO: multi-hotel client selector when product supports multiple assignments in UI
     const hotel = input.hotelId
@@ -265,7 +228,11 @@ export async function getRevenueCommandCentreView(
     hasLiveActions ? actions.filter(isActionLive) : actions;
 
   const metrics = computeMetrics(metricsActions);
-  const explanation = buildRevenueCommandExplanation(actions);
+  const explanation = buildRevenueCommandExplanation(actions, {
+    hiddenDemoActionCount,
+    demoModeEnabled,
+    includeOpsGuidance: role === "ANALYST",
+  });
 
   let rateChart: RevenueCommandCentreView["rateChart"] = [];
   if (chartHotelId) {
@@ -302,7 +269,8 @@ export async function getRevenueCommandCentreView(
 }
 
 function emptyCommandCentreView(
-  mode: "PORTFOLIO" | "HOTEL"
+  mode: "PORTFOLIO" | "HOTEL",
+  role: "ANALYST" | "CLIENT" = "CLIENT"
 ): RevenueCommandCentreView {
   return {
     scope: { mode },
@@ -319,7 +287,11 @@ function emptyCommandCentreView(
     actions: [],
     actionHotelNames: {},
     rateChart: [],
-    explanation: buildRevenueCommandExplanation([]),
+    explanation: buildRevenueCommandExplanation([], {
+      demoModeEnabled: shouldShowDemoActions(),
+      hiddenDemoActionCount: 0,
+      includeOpsGuidance: role === "ANALYST",
+    }),
     hasSeededActions: false,
     hasLiveActions: false,
     totalActiveCount: 0,

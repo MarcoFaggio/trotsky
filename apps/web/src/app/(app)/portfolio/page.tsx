@@ -133,7 +133,7 @@ export default async function PortfolioPage() {
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Rec</p>
-                      <p className="text-lg font-semibold tabular-nums text-primary">
+                      <p className="text-lg font-semibold tabular-nums text-trosky-red">
                         {rec ? formatCurrency(rec.recommendedPriceCents) : "—"}
                       </p>
                     </div>

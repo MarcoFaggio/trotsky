@@ -176,7 +176,7 @@ export function CompetitorDetailModal({
                   href={competitor.listingUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-primary flex items-center gap-1 mt-1 hover:underline"
+                  className="text-xs text-trosky-red flex items-center gap-1 mt-1 hover:underline"
                 >
                   View listing <ExternalLink className="h-3 w-3" />
                 </a>

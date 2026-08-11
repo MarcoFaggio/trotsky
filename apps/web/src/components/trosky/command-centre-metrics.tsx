@@ -1,13 +1,19 @@
+"use client";
+
+import { useState } from "react";
 import { formatCurrency } from "@hotel-pricing/shared";
 import type { RevenueCommandCentreMetrics } from "@hotel-pricing/shared";
 import { TroskyMetricCard } from "./trosky-metric-card";
 import {
   AlertTriangle,
+  ChevronDown,
   ListChecks,
   Radio,
   Sparkles,
   TrendingUp,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface CommandCentreMetricsProps {
   metrics: RevenueCommandCentreMetrics;
@@ -22,6 +28,8 @@ export function CommandCentreMetrics({
   hasSeededActions = false,
   totalActiveCount = 0,
 }: CommandCentreMetricsProps) {
+  const [showMore, setShowMore] = useState(false);
+
   const scopeHint =
     hasLiveActions && hasSeededActions
       ? "Estimated metrics use live system-generated actions; demo items are labelled separately."
@@ -44,7 +52,7 @@ export function CommandCentreMetrics({
           centre.
         </p>
       ) : null}
-      <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
+      <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-3">
         <TroskyMetricCard
           label="Estimated upside"
           value={upsideLabel}
@@ -78,18 +86,38 @@ export function CommandCentreMetrics({
           icon={ListChecks}
           hint="Awaiting analyst decision"
         />
-        <TroskyMetricCard
-          label="Parity (demo)"
-          value={metrics.parityIssueCount}
-          icon={Radio}
-          hint="Preview only — no live parity engine"
-        />
-        <TroskyMetricCard
-          label="Events & watch"
-          value={metrics.eventActionCount}
-          icon={Sparkles}
-          hint="Event pricing and watch demand items"
-        />
+      </div>
+
+      <div className="min-w-0">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="h-8 gap-1.5 rounded-full px-2 text-xs text-muted-foreground"
+          aria-expanded={showMore}
+          onClick={() => setShowMore((v) => !v)}
+        >
+          More metrics
+          <ChevronDown
+            className={cn("h-3.5 w-3.5 transition-transform", showMore && "rotate-180")}
+          />
+        </Button>
+        {showMore ? (
+          <div className="mt-2 grid min-w-0 gap-3 sm:grid-cols-2">
+            <TroskyMetricCard
+              label="Parity (demo)"
+              value={metrics.parityIssueCount}
+              icon={Radio}
+              hint="Preview only — no live parity engine"
+            />
+            <TroskyMetricCard
+              label="Events & watch"
+              value={metrics.eventActionCount}
+              icon={Sparkles}
+              hint="Event pricing and watch demand items"
+            />
+          </div>
+        ) : null}
       </div>
     </div>
   );

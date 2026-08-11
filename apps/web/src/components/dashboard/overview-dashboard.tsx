@@ -13,7 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Settings,
   Download,
   RefreshCw,
   MapPin,
@@ -39,7 +38,7 @@ import { SummaryCards } from "./summary-cards";
 import { toast } from "@/hooks/use-toast";
 import { useSessionStorage } from "@/hooks/use-session-storage";
 import type { OverviewData, DashboardDay } from "@hotel-pricing/shared";
-import { formatCurrency, startOfTodayUtc, addUtcDays } from "@hotel-pricing/shared";
+import { startOfTodayUtc, addUtcDays } from "@hotel-pricing/shared";
 
 interface OverviewDashboardProps {
   hotel: {
@@ -293,6 +292,14 @@ export function OverviewDashboard({
       {/* Alerts */}
       {overviewData?.alerts && (
         <div className="flex gap-2 flex-wrap">
+          {overviewData.alerts.staleData && (
+            <Badge variant="destructive" className="text-xs gap-1">
+              <AlertTriangle className="h-3 w-3" />
+              {isAnalyst
+                ? "Rate data is stale — refresh demo data or run a scrape"
+                : "Rate data may be out of date"}
+            </Badge>
+          )}
           {overviewData.alerts.eventCount > 0 && (
             <Badge variant="warning" className="text-xs gap-1">
               <CalendarIcon className="h-3 w-3" />
@@ -355,6 +362,7 @@ export function OverviewDashboard({
             rates={overviewData?.sevenDayRates || []}
             loading={overviewLoading}
             onDateClick={setSelectedDate}
+            isAnalyst={isAnalyst}
           />
 
           <OverviewGraph

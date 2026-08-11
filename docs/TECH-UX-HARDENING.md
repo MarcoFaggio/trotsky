@@ -109,8 +109,10 @@ Use this document as the release-quality checklist for Trosky. It turns the prod
 
 ### 5.5 Action-first surfaces (command centre, actions, rate calendar)
 
-- **Command centre** (`/dashboard`): Shows scoped active actions, metrics (prefer live-only when both live and demo exist), freshness line, highest-priority block, and rate vs comp chart. Empty state must not imply fake urgency when only hidden demo rows exist.
-- **Revenue actions** (`/actions`): Category filters (Active, Pricing, Events, Watch, Archived); **Demo / beta** only when `TROSKY_DEMO_MODE` allows. Demo rows show **Demo data** badges via `getRevenueActionSourceMeta`.
+- **Dashboard** (`/dashboard`): **Operate** (default) shows the command centre; **Market** (`?view=market`) shows Overview / Matrix / Calendar. Do not stack both products in one scroll.
+- **Command centre (Operate):** Scoped active actions, three primary metrics (upside / urgent / pending) with secondary metrics behind “More”, freshness line, up to **four** queue cards, and rate vs comp chart. Empty state must not imply fake urgency when only hidden demo rows exist. Primary card CTAs: Accept (analyst) / View evidence; demote Reject / Snooze / Complete to overflow without removing mutations.
+- **Sidebar:** Desktop group labels by Operate / Demand / Portfolio / Comms / Admin (analyst) or Operate / Demand / Comms (client); mobile nav stays flat. Collapsed rail keeps icons, tooltips, and badges.
+- **Revenue actions** (`/actions`): Category **chips** (Active, Pricing, Events, Watch, Archived); **Demo / beta** only when `TROSKY_DEMO_MODE` allows. Demo rows show **Demo data** badges via `getRevenueActionSourceMeta`. Clients use top-bar hotel scope only; analysts may keep an in-page hotel filter when portfolio-wide.
 - **Rate calendar** (`/rate-calendar`): Day status (urgent / watch / opportunity / healthy) must reflect **live** actions only when demo mode is off.
 - **Evidence drawer:** Demo callouts when visible; `not_found` when demo is hidden (including for analysts). Clients remain read-only with clear footer copy.
 - **Dark mode:** Authenticated shell uses semantic tokens (`bg-card`, `border-border`, Trosky primitives) — avoid hardcoded `bg-white` on operational surfaces.

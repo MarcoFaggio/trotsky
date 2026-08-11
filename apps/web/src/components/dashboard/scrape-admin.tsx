@@ -22,9 +22,14 @@ interface ScrapeRun {
 
 interface ScrapeAdminProps {
   runs: ScrapeRun[];
+  /** False when REDIS_URL is unset — scrape queue cannot accept jobs. */
+  redisConfigured?: boolean;
 }
 
-export function ScrapeAdmin({ runs }: ScrapeAdminProps) {
+export function ScrapeAdmin({
+  runs,
+  redisConfigured = true,
+}: ScrapeAdminProps) {
   const router = useRouter();
   const [triggering, setTriggering] = useState(false);
 
@@ -53,7 +58,15 @@ export function ScrapeAdmin({ runs }: ScrapeAdminProps) {
         description="Monitor and trigger scraping jobs"
         actions={
           <>
-            <Button onClick={handleRunNow} disabled={triggering}>
+            <Button
+              onClick={handleRunNow}
+              disabled={triggering || !redisConfigured}
+              title={
+                redisConfigured
+                  ? undefined
+                  : "Set REDIS_URL and run the worker to enable scrapes"
+              }
+            >
               <Play className="mr-2 h-4 w-4" />
               {triggering ? "Queuing..." : "Run Scrape Now"}
             </Button>
@@ -65,6 +78,18 @@ export function ScrapeAdmin({ runs }: ScrapeAdminProps) {
         }
       />
 
+      {!redisConfigured ? (
+        <div
+          className="rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground"
+          role="status"
+        >
+          <span className="font-medium text-foreground">Scraping is not configured.</span>{" "}
+          Set <code className="text-xs">REDIS_URL</code> on this deploy and run{" "}
+          <code className="text-xs">apps/worker</code> elsewhere (Railway, Render, or a
+          VPS). Hotel rates already in the database remain readable.
+        </div>
+      ) : null}
+
       <Card>
         <CardHeader>
           <CardTitle>Recent Scrape Runs</CardTitle>
@@ -74,7 +99,11 @@ export function ScrapeAdmin({ runs }: ScrapeAdminProps) {
             <EmptyState
               icon={Play}
               title="No scrape runs yet"
-              description={'Click "Run Scrape Now" to start.'}
+              description={
+                redisConfigured
+                  ? 'Click "Run Scrape Now" to start.'
+                  : "Configure REDIS_URL and the worker, then queue a scrape."
+              }
             />
           ) : (
             <div className="overflow-x-auto">

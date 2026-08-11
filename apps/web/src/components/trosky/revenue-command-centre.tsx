@@ -20,12 +20,9 @@ import { RevenueCommandExplanationPanel } from "./revenue-command-explanation-pa
 import { RevenueActionInsightDrawer } from "./revenue-action-insight-drawer";
 import {
   formatEvaluationFreshnessLine,
-  formatUrgencyLabel,
-  isActionDemo,
-  isActionLive,
   limitCommandCentreActions,
-  prioritizeLiveActions,
 } from "@/lib/revenue-action-display";
+import { demoActionsHiddenMessage } from "@/lib/demo-mode-copy";
 import { troskySurfaces } from "./trosky-primitives";
 
 function greetingForHour(): string {
@@ -77,9 +74,14 @@ export function RevenueCommandCentre({
     view.actions
   );
 
-  const topAction = prioritizeLiveActions(view.actions)[0] ?? null;
-
   const emptyMessage = useMemo(() => {
+    if (
+      canManageActions &&
+      !view.demoModeEnabled &&
+      view.hiddenDemoActionCount > 0
+    ) {
+      return demoActionsHiddenMessage(view.hiddenDemoActionCount);
+    }
     if (view.hasSeededActions && !view.hasLiveActions && view.demoModeEnabled) {
       return "You are viewing demo actions. Live actions will appear after the worker processes recommendations and events.";
     }
@@ -91,6 +93,7 @@ export function RevenueCommandCentre({
     view.hasSeededActions,
     view.hasLiveActions,
     view.demoModeEnabled,
+    view.hiddenDemoActionCount,
     canManageActions,
   ]);
 
@@ -181,10 +184,12 @@ export function RevenueCommandCentre({
       !view.demoModeEnabled &&
       view.hiddenDemoActionCount > 0 ? (
         <div
+          data-tour="command-centre-demo-hidden"
           className={`${troskySurfaces.mutedPanel} px-4 py-3 text-xs leading-relaxed text-muted-foreground`}
           role="status"
         >
-          Demo actions are hidden because demo mode is disabled.
+          <span className="font-medium text-foreground">Demo mode is off.</span>{" "}
+          {demoActionsHiddenMessage(view.hiddenDemoActionCount)}
         </div>
       ) : null}
 
@@ -203,43 +208,8 @@ export function RevenueCommandCentre({
       />
       </div>
 
-      {topAction ? (
-        <div
-          data-tour="command-centre-top-priority"
-          className={`${troskySurfaces.panel} min-w-0 p-4 sm:p-5`}
-        >
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-            Highest priority
-          </p>
-          <p className="mt-1 text-sm font-semibold leading-snug text-foreground">
-            {topAction.title}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {formatUrgencyLabel(topAction.urgency)}
-            {topAction.stayDate ? ` · Stay ${topAction.stayDate}` : ""}
-            {isActionLive(topAction)
-              ? " · System-generated"
-              : isActionDemo(topAction)
-                ? " · Demo data"
-                : ""}
-          </p>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            className="mt-3 h-8 rounded-full"
-            onClick={() => {
-              setInsightActionId(topAction.id);
-              setInsightOpen(true);
-            }}
-          >
-            View evidence
-          </Button>
-        </div>
-      ) : null}
-
       <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-        <div className="min-w-0 space-y-3">
+        <div className="order-1 min-w-0 space-y-3 xl:order-none">
           <div className="flex min-w-0 flex-wrap items-end justify-between gap-2">
             <h2
               id="command-centre-heading"
@@ -254,7 +224,14 @@ export function RevenueCommandCentre({
               >
                 +{hiddenCount} more in Revenue Actions
               </Link>
-            ) : null}
+            ) : (
+              <Link
+                href="/actions"
+                className="text-xs font-medium text-foreground underline-offset-2 hover:underline"
+              >
+                View all →
+              </Link>
+            )}
           </div>
           <div data-tour="priority-actions">
           <RevenueActionQueue
@@ -289,7 +266,7 @@ export function RevenueCommandCentre({
           </div>
         </div>
 
-        <div className="flex min-w-0 flex-col gap-4">
+        <div className="order-2 flex min-w-0 flex-col gap-4 xl:order-none">
           <div data-tour="command-centre-chart">
             <RateVsCompChart
               data={view.rateChart}

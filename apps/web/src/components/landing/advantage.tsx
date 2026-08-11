@@ -17,7 +17,7 @@ const blocks = [
     title: "Automated Scraping",
     body: "Replace repetitive manual rate checks with automated tracking that runs around the clock.",
     icon: Settings2,
-    iconBg: "bg-primary text-primary-foreground",
+    iconBg: "bg-brand-solid text-white",
   },
   {
     title: "Real-Time Tracking",

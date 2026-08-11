@@ -1,74 +1,58 @@
 "use client";
 
-import { PlugZap, ScanSearch, Send } from "lucide-react";
 import { motion } from "framer-motion";
 import { SectionWrapper, cardItemVariants } from "./section-wrapper";
 
 const steps = [
   {
-    title: "Quick Setup",
-    body: "Connect your property and select your top 5 local competitors.",
-    icon: PlugZap,
-    bg: "bg-primary text-primary-foreground",
+    step: "01",
+    title: "Connect the property",
+    body: "Add your hotel and pick the competitors that matter in your market.",
   },
   {
-    title: "Automated Data Collection",
-    body: "Trosky begins tracking competitor prices and availability automatically.",
-    icon: ScanSearch,
-    bg: "bg-landing-sky text-white",
+    step: "02",
+    title: "Let Trosky collect",
+    body: "Rates and availability flow in automatically—no weekly OTA refresh ritual.",
   },
   {
-    title: "Act in Real Time",
-    body: "Get alerts by email or mobile and respond faster to market changes.",
-    icon: Send,
-    bg: "bg-landing-emerald text-white",
+    step: "03",
+    title: "Act with evidence",
+    body: "Review recommended actions, accept or reject, and keep owners aligned.",
   },
 ];
 
 export function ProcessSteps() {
   return (
-    <SectionWrapper id="process" className="landing-bg-elevated px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
-      <div className="mx-auto max-w-6xl">
-        <h2 className="text-center font-landing-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl md:text-[2.35rem]">
-          Three steps to live intelligence
-        </h2>
-        <p className="mx-auto mt-5 max-w-xl text-center text-base leading-relaxed text-muted-foreground">
-          Frictionless onboarding. You focus on strategy; we handle the data.
-        </p>
-        <div className="mt-14 grid gap-10 sm:grid-cols-3">
-          {steps.map(({ title, body, icon: Icon, bg }, index) => (
-            <motion.div
-              key={title}
+    <SectionWrapper id="process" className="bg-primary px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="max-w-2xl">
+          <h2 className="text-display-sm font-semibold tracking-tight text-primary sm:text-display-md">
+            Live in three steps
+          </h2>
+          <p className="mt-4 text-lg text-tertiary">
+            Frictionless onboarding. You focus on strategy; we handle the data.
+          </p>
+        </div>
+
+        <ol className="mt-14 grid gap-10 sm:grid-cols-3 sm:gap-8">
+          {steps.map(({ step, title, body }, index) => (
+            <motion.li
+              key={step}
               custom={index}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-40px" }}
               variants={cardItemVariants}
-              className="relative flex flex-col items-center text-center"
+              className="relative"
             >
-              {index < steps.length - 1 && (
-                <div
-                  className="absolute top-10 left-[calc(50%+2.5rem)] hidden h-0.5 w-[calc(100%-4rem)] max-w-[80px] bg-landing-border sm:block lg:max-w-[120px]"
-                  aria-hidden
-                />
-              )}
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 400, damping: 24 }}
-                className={`flex h-16 w-16 items-center justify-center rounded-2xl ${bg} shadow-landing-card`}
-              >
-                <Icon className="h-8 w-8" />
-              </motion.div>
-              <span className="mt-4 text-sm font-medium text-landing-emerald">
-                Step {index + 1}
-              </span>
-              <h3 className="mt-2 text-lg font-semibold landing-text">
-                {title}
-              </h3>
-              <p className="mt-2 text-sm landing-text-muted">{body}</p>
-            </motion.div>
+              <p className="text-display-xs font-semibold tabular-nums text-brand-secondary">
+                {step}
+              </p>
+              <h3 className="mt-3 text-lg font-semibold text-primary">{title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-tertiary">{body}</p>
+            </motion.li>
           ))}
-        </div>
+        </ol>
       </div>
     </SectionWrapper>
   );

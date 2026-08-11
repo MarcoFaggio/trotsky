@@ -1,6 +1,5 @@
 import type { RateCalendarView } from "@hotel-pricing/shared";
 import { cn } from "@/lib/utils";
-import { troskySurfaces } from "./trosky-primitives";
 import { TroskyMetricCard } from "./trosky-metric-card";
 
 export interface RateCalendarSummaryProps {

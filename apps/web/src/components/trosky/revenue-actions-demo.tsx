@@ -18,6 +18,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   getFilterEmptyMessage,
   isActionDemo,
@@ -26,6 +28,7 @@ import {
   sortActionsForDisplay,
   type RevenueActionCategoryFilter,
 } from "@/lib/revenue-action-display";
+import { demoActionsHiddenMessage } from "@/lib/demo-mode-copy";
 import { TroskyFilterBar } from "./trosky-filter-bar";
 import { TroskyPageHeader } from "./trosky-page-header";
 import { RevenueActionQueue } from "./revenue-action-queue";
@@ -39,6 +42,7 @@ interface RevenueActionsDemoProps {
   initialActions: RevenueActionView[];
   isAnalyst: boolean;
   demoModeEnabled: boolean;
+  hiddenDemoActionCount?: number;
 }
 
 export function RevenueActionsDemo({
@@ -48,6 +52,7 @@ export function RevenueActionsDemo({
   initialActions,
   isAnalyst,
   demoModeEnabled,
+  hiddenDemoActionCount = 0,
 }: RevenueActionsDemoProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -111,8 +116,27 @@ export function RevenueActionsDemo({
     runMutation(() => snoozeRevenueAction(actionId, until));
   }
 
-  const emptyMessage = getFilterEmptyMessage(listFilter, isAnalyst);
+  const emptyMessage =
+    isAnalyst &&
+    !demoModeEnabled &&
+    hiddenDemoActionCount > 0 &&
+    filtered.length === 0 &&
+    listFilter === "active"
+      ? demoActionsHiddenMessage(hiddenDemoActionCount)
+      : getFilterEmptyMessage(listFilter, isAnalyst);
+  // Analysts keep an in-page hotel filter for portfolio triage; clients rely on the top bar.
   const showHotelSelect = isAnalyst && hotels.length > 1;
+
+  const categoryChips: { value: RevenueActionCategoryFilter; label: string }[] = [
+    { value: "active", label: "Active" },
+    { value: "pricing", label: "Pricing" },
+    { value: "events", label: "Events" },
+    { value: "watch", label: "Watch" },
+    ...(demoModeEnabled
+      ? [{ value: "demo" as const, label: "Demo / beta" }]
+      : []),
+    { value: "archived", label: "Archived" },
+  ];
 
   return (
     <div className="min-w-0 space-y-6" data-tour="actions-page">
@@ -145,6 +169,17 @@ export function RevenueActionsDemo({
         >
           <span className="font-medium text-foreground">Demo mode is enabled.</span>{" "}
           Demo actions are visible and labelled.
+        </div>
+      ) : null}
+
+      {isAnalyst && !demoModeEnabled && hiddenDemoActionCount > 0 ? (
+        <div
+          data-tour="actions-demo-hidden"
+          className={`${troskySurfaces.mutedPanel} px-4 py-3 text-xs leading-relaxed text-muted-foreground`}
+          role="status"
+        >
+          <span className="font-medium text-foreground">Demo mode is off.</span>{" "}
+          {demoActionsHiddenMessage(hiddenDemoActionCount)}
         </div>
       ) : null}
 
@@ -197,39 +232,36 @@ export function RevenueActionsDemo({
               </SelectContent>
             </Select>
           </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">Hotel:</span> {hotelName}
-          </p>
-        )}
+        ) : null}
         <div className="flex min-w-0 flex-col gap-1.5">
-          <Label htmlFor="actions-category" className="text-xs text-muted-foreground">
+          <span className="text-xs text-muted-foreground" id="actions-category-label">
             Category
-          </Label>
-          <Select
-            value={listFilter}
-            onValueChange={(v) =>
-              setListFilter(v as RevenueActionCategoryFilter)
-            }
+          </span>
+          <div
+            className="flex min-w-0 flex-wrap gap-1.5"
+            role="group"
+            aria-labelledby="actions-category-label"
           >
-            <SelectTrigger
-              id="actions-category"
-              className="h-9 w-full min-w-[10rem] max-w-xs rounded-xl"
-              aria-label="Filter by category"
-            >
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="pricing">Pricing</SelectItem>
-              <SelectItem value="events">Events</SelectItem>
-              <SelectItem value="watch">Watch</SelectItem>
-              {demoModeEnabled ? (
-                <SelectItem value="demo">Demo / beta</SelectItem>
-              ) : null}
-              <SelectItem value="archived">Archived</SelectItem>
-            </SelectContent>
-          </Select>
+            {categoryChips.map((chip) => {
+              const selected = listFilter === chip.value;
+              return (
+                <Button
+                  key={chip.value}
+                  type="button"
+                  size="sm"
+                  variant={selected ? "default" : "outline"}
+                  className={cn(
+                    "h-8 rounded-full px-3 text-xs",
+                    selected && "bg-trosky-red text-white hover:bg-trosky-red-dark"
+                  )}
+                  aria-pressed={selected}
+                  onClick={() => setListFilter(chip.value)}
+                >
+                  {chip.label}
+                </Button>
+              );
+            })}
+          </div>
         </div>
       </TroskyFilterBar>
 
