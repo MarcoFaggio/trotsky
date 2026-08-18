@@ -45,3 +45,25 @@ export function TroskyMark({
     </span>
   );
 }
+
+export function TroskyWordmark({
+  className,
+  priority,
+}: {
+  className?: string;
+  priority?: boolean;
+}) {
+  return (
+    <div className={cn("flex items-center gap-3", className)}>
+      <TroskyMark priority={priority} className="h-12 w-12" />
+      <div className="min-w-0 leading-tight">
+        <p className="text-lg font-bold tracking-[0.04em] text-primary uppercase">
+          Trosky
+        </p>
+        <p className="mt-0.5 text-xs font-medium text-tertiary">
+          Hotel revenue intelligence
+        </p>
+      </div>
+    </div>
+  );
+}
