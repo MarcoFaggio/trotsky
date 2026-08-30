@@ -27,6 +27,18 @@ const REFRESH_COOKIE = {
 
 const STATIC_ASSET = /\.(?:png|jpe?g|gif|svg|ico|webp|avif|woff2?|txt|xml)$/i;
 
+const CANONICAL_HOST = "trosky-ai.com";
+
+function canonicalHostRedirect(request: NextRequest): NextResponse | null {
+  const host = request.headers.get("host")?.split(":")[0]?.toLowerCase();
+  if (host !== `www.${CANONICAL_HOST}`) return null;
+  const url = request.nextUrl.clone();
+  url.protocol = "https:";
+  url.host = CANONICAL_HOST;
+  url.port = "";
+  return NextResponse.redirect(url, 308);
+}
+
 function unauthorized(request: NextRequest, clearCookies: boolean): NextResponse {
   let response: NextResponse;
   if (request.nextUrl.pathname.startsWith("/api/")) {
@@ -100,6 +112,9 @@ async function mintAccessFromRefresh(
 }
 
 export async function middleware(request: NextRequest) {
+  const canonical = canonicalHostRedirect(request);
+  if (canonical) return canonical;
+
   const { pathname } = request.nextUrl;
   const isDev = process.env.NODE_ENV !== "production";
   const nonce = generateNonce();
