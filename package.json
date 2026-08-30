@@ -16,6 +16,7 @@
     "db:push": "pnpm exec dotenv -e .env -- pnpm --filter @hotel-pricing/db exec prisma db push",
     "db:seed": "pnpm exec dotenv -e .env -- pnpm --filter @hotel-pricing/db db:seed",
     "db:refresh-demo": "pnpm exec dotenv -e .env -- pnpm --filter @hotel-pricing/db db:refresh-demo",
+    "worker:run-once": "pnpm exec dotenv -e .env -- pnpm --filter @hotel-pricing/worker run-once",
     "db:generate": "pnpm --filter @hotel-pricing/db db:generate",
     "db:studio": "pnpm exec dotenv -e .env -- pnpm --filter @hotel-pricing/db db:studio",
     "cleanup:appledouble": "python3 scripts/cleanup-macos-appledouble.py .",

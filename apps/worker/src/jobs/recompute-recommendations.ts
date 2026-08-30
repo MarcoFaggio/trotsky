@@ -12,6 +12,14 @@ import { upsertPriceChangeActionsForHotel } from "../services/revenue-action-bui
 
 const logger = pino({ name: "recommendations" });
 
+/** Skip days with no own rate and no competitor observations. */
+export function shouldComputeRecommendation(
+  ourRateCents: number,
+  competitorRateCount: number
+): boolean {
+  return !(ourRateCents === 0 && competitorRateCount === 0);
+}
+
 /** Ignore scraped rates older than this when building recommendation inputs. */
 const STALE_COMP_RATE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -143,7 +151,7 @@ export async function recomputeRecommendationsProcessor(data: { hotelId?: string
         }
 
         const ourRate = override?.overridePriceCents || hotelRate?.priceCents || 0;
-        if (ourRate === 0 && compRates.length === 0) continue;
+        if (!shouldComputeRecommendation(ourRate, compRates.length)) continue;
 
         const signalPressure = computeSignalPressure(daySignalImpacts);
         const result = computeRecommendation({

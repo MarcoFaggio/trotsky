@@ -53,7 +53,7 @@ function daysUntil(stayDate: Date, today: Date): number {
   return Math.floor((stayDate.getTime() - today.getTime()) / msPerDay);
 }
 
-function eventUrgency(daysAway: number): ActionUrgency | null {
+export function eventUrgency(daysAway: number): ActionUrgency | null {
   if (daysAway < 0) return null;
   if (daysAway <= 3) return "CRITICAL";
   if (daysAway <= 7) return "HIGH";

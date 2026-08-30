@@ -1,0 +1,8 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile.worker"
+
+[deploy]
+startCommand = "pnpm --filter @hotel-pricing/worker exec tsx src/index.ts"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10

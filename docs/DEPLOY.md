@@ -158,26 +158,51 @@ SEED_FORCE=true pnpm db:refresh-demo
 
 ---
 
-## 6. Worker deployment (optional)
+## 6. Worker deployment
 
 The worker (`apps/worker`) processes scrape jobs and recomputes recommendations. It's a long-running Node process — **it cannot run on Vercel**.
 
-### Railway
+A one-shot path (no Redis) lives at `pnpm worker:run-once`. Hosted databases require `SEED_FORCE=true`. GitHub Actions (`.github/workflows/worker-pipeline.yml`) runs that same job every 2 hours so the 30-day window stays fresh.
 
-1. New project → deploy from repo
-2. Set root directory to repo root
-3. Add env vars: `DATABASE_URL`, `REDIS_URL` (same values as Vercel)
-4. Optional schedule env: `SCRAPE_CRON` (default `0 */2 * * *`), `SIGNAL_CRON` (default `15 */6 * * *`), `HOTEL_GEO_CRON` (default `45 2 * * *`)
-5. Build: `pnpm install && pnpm --filter @hotel-pricing/worker build`
-6. Start: `node apps/worker/dist/index.js`
+### Redis (Upstash, free tier)
+
+Needed for "Run scrape now" / "Refresh" to enqueue instead of 503.
+
+1. Accept Vercel marketplace terms: [Upstash](https://vercel.com/target-alert-group/~/integrations/accept-terms/upstash?source=cli)
+2. Provision and attach to production:
+
+```bash
+npx vercel integration add upstash/upstash-kv --plan free \
+  -m primaryRegion=dub1 -m autoUpgrade=false -m eviction=true \
+  --environment production --scope team_Efp3uwY6NBKutBd4aEowAs3P
+```
+
+3. Confirm `REDIS_URL` is set, then redeploy. Leave `TROSKY_DEMO_MODE` unset/false so only live actions show.
+
+### Railway (queued worker)
+
+Repo root has `Dockerfile.worker` and `railway.toml`.
+
+1. `railway login` then `railway init` in the repo root (or New Project → deploy from GitHub)
+2. Builder uses `Dockerfile.worker` (skips Playwright; `SCRAPE_MODE=mock`)
+3. Env: `DATABASE_URL` (same Neon), `REDIS_URL` (same Upstash), `SCRAPE_MODE=mock`, `SCRAPE_CRON=0 */2 * * *`
+4. Start command (already in `railway.toml`): `pnpm --filter @hotel-pricing/worker exec tsx src/index.ts`
 
 ### Render
 
-Same approach — create a Background Worker service with the same config.
+`render.yaml` defines a Docker worker. Set `DATABASE_URL` and `REDIS_URL` in the dashboard; `SCRAPE_MODE` and `SCRAPE_CRON` are prefilled.
 
-### No worker
+### Bootstrap without Redis
 
-Everything works except "Run scrape now" and "Refresh" — they'll return a message that the worker is not configured.
+```bash
+SEED_FORCE=true pnpm worker:run-once
+```
+
+Writes live `DailyRate`, `Recommendation`, and `RevenueAction` rows (`source: RECOMMENDATION` / `EVENT_DEMAND`).
+
+### No queued worker
+
+The scheduled GitHub Action still refreshes rates. "Run scrape now" and "Refresh" return 503 until `REDIS_URL` is set and a long-lived worker is consuming the queue.
 
 ---
 

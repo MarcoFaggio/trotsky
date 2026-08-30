@@ -57,5 +57,8 @@ jobs:
       - name: Test
         run: pnpm --filter @hotel-pricing/web test
 
+      - name: Worker tests
+        run: pnpm --filter @hotel-pricing/worker test
+
       - name: Build
         run: pnpm --filter @hotel-pricing/web build

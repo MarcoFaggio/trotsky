@@ -1,0 +1,26 @@
+# Long-lived BullMQ worker. Build from repo root:
+#   docker build -f Dockerfile.worker -t trosky-worker .
+FROM node:20-bookworm-slim
+
+WORKDIR /app
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+ENV SCRAPE_MODE=mock
+
+RUN corepack enable
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+COPY apps/worker/package.json apps/worker/package.json
+COPY apps/web/package.json apps/web/package.json
+COPY packages/db/package.json packages/db/package.json
+COPY packages/shared/package.json packages/shared/package.json
+
+RUN pnpm install --frozen-lockfile
+
+COPY packages/db packages/db
+COPY packages/shared packages/shared
+COPY apps/worker apps/worker
+COPY tsconfig.json ./
+
+RUN pnpm --filter @hotel-pricing/db exec prisma generate
+
+CMD ["pnpm", "--filter", "@hotel-pricing/worker", "exec", "tsx", "src/index.ts"]

@@ -91,6 +91,33 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  let lastCompletedScrapeAt: string | null = null;
+  let liveActionCount: number | null = null;
+  if (db === "ok") {
+    try {
+      const [lastScrape, liveCount] = await Promise.all([
+        prisma.scrapeRun.findFirst({
+          where: { status: "COMPLETED" },
+          orderBy: { finishedAt: "desc" },
+          select: { finishedAt: true },
+        }),
+        prisma.revenueAction.count({
+          where: {
+            source: { in: ["RECOMMENDATION", "EVENT_DEMAND"] },
+            status: { in: ["PENDING", "SNOOZED"] },
+          },
+        }),
+      ]);
+      lastCompletedScrapeAt = lastScrape?.finishedAt?.toISOString() ?? null;
+      liveActionCount = liveCount;
+    } catch (e) {
+      console.error(
+        "Health pipeline stats error:",
+        e instanceof Error ? e.message : e
+      );
+    }
+  }
+
   return NextResponse.json(
     {
       status: ready ? "ok" : "degraded",
@@ -104,6 +131,10 @@ export async function GET(request: NextRequest) {
       db,
       demoMode,
       scrapeJobs: hasRedisUrl ? "configured" : "unavailable",
+      pipeline: {
+        lastCompletedScrapeAt,
+        liveActionCount,
+      },
       ...(dbMessage && { dbMessage }),
       hints,
     },

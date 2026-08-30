@@ -1,12 +1,23 @@
 import { prisma } from "@hotel-pricing/db";
 import { addUtcDays, startOfTodayUtc } from "@hotel-pricing/shared";
 import { mockScraper } from "../scrapers/mock";
-import { expediaScraper } from "../scrapers/expedia";
-import { bookingStub } from "../scrapers/booking-stub";
+import type { ScraperAdapter } from "../scrapers/adapter";
 import pino from "pino";
 
 const logger = pino({ name: "daily-scrape" });
 const SCRAPE_MODE = process.env.SCRAPE_MODE || "mock";
+
+async function scraperForOta(ota: string): Promise<ScraperAdapter> {
+  if (SCRAPE_MODE === "real" && ota === "EXPEDIA") {
+    const { expediaScraper } = await import("../scrapers/expedia");
+    return expediaScraper;
+  }
+  if (SCRAPE_MODE === "real" && ota === "BOOKING") {
+    const { bookingStub } = await import("../scrapers/booking-stub");
+    return bookingStub;
+  }
+  return mockScraper;
+}
 
 export async function dailyScrapeProcessor(
   data: any
@@ -56,12 +67,7 @@ export async function dailyScrapeProcessor(
       // Scrape hotel listings
       for (const listing of hotel.listings) {
         try {
-          const adapter = SCRAPE_MODE === "real" && listing.ota === "EXPEDIA"
-            ? expediaScraper
-            : SCRAPE_MODE === "real" && listing.ota === "BOOKING"
-              ? bookingStub
-              : mockScraper;
-
+          const adapter = await scraperForOta(listing.ota);
           const results = await adapter.scrape(listing.url, dates, hotel.name);
           listingsScraped++;
 
@@ -124,10 +130,7 @@ export async function dailyScrapeProcessor(
       for (const hc of hotel.competitors) {
         for (const listing of hc.competitor.listings) {
           try {
-            const adapter = SCRAPE_MODE === "real" && listing.ota === "EXPEDIA"
-              ? expediaScraper
-              : mockScraper;
-
+            const adapter = await scraperForOta(listing.ota);
             const results = await adapter.scrape(listing.url, dates, hc.competitor.name);
             listingsScraped++;
 

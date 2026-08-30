@@ -1,0 +1,15 @@
+services:
+  - type: worker
+    name: trosky-worker
+    runtime: docker
+    dockerfilePath: ./Dockerfile.worker
+    dockerContext: .
+    envVars:
+      - key: SCRAPE_MODE
+        value: mock
+      - key: SCRAPE_CRON
+        value: "0 */2 * * *"
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false

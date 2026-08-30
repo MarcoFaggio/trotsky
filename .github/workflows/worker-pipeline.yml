@@ -1,0 +1,42 @@
+name: Worker pipeline
+
+# Keeps the 30-day rate window and live RevenueActions fresh without Redis.
+# Redis + Railway remain the queued path once marketplace terms are accepted.
+on:
+  schedule:
+    - cron: "0 */2 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: worker-pipeline
+  cancel-in-progress: false
+
+jobs:
+  run-once:
+    name: Scrape + recompute
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm --filter @hotel-pricing/db exec prisma generate
+
+      - name: Run scrape and recompute
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_DATABASE_URL: ${{ secrets.DIRECT_DATABASE_URL }}
+          SEED_FORCE: "true"
+          SCRAPE_MODE: mock
+        run: pnpm --filter @hotel-pricing/worker run-once
