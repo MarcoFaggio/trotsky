@@ -31,7 +31,10 @@ const CANONICAL_HOST = "trosky-ai.com";
 
 function canonicalHostRedirect(request: NextRequest): NextResponse | null {
   const host = request.headers.get("host")?.split(":")[0]?.toLowerCase();
-  if (host !== `www.${CANONICAL_HOST}`) return null;
+  if (!host || host === CANONICAL_HOST) return null;
+  const shouldRedirect =
+    host === `www.${CANONICAL_HOST}` || host === "trotsky.vercel.app";
+  if (!shouldRedirect) return null;
   const url = request.nextUrl.clone();
   url.protocol = "https:";
   url.host = CANONICAL_HOST;
