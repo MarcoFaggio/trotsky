@@ -1,77 +1,69 @@
 "use client";
 
-import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "motion/react";
 import { ArrowRight } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
-import { TroskyMark } from "@/components/brand/trosky-logo";
-import { HeroChart } from "./hero-chart";
+import { Accent, Container, EASE, Eyebrow } from "./primitives";
+import { HeroCockpit } from "./hero-cockpit";
+
+const FACTS = [
+  "Rates refreshed daily from Booking.com and Expedia",
+  "Production data in Frankfurt, eu-central-1",
+  "Analyst and owner views on the same record",
+];
 
 export function Hero() {
-  const reduced = useReducedMotion();
+  const rise = (delay: number) => ({
+    initial: { opacity: 0, y: 18 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.65, ease: EASE, delay },
+  });
 
   return (
-    <section className="relative min-h-[100svh] overflow-hidden bg-primary">
-      {/* Atmospheric plane — red wash over paper, not purple glow */}
+    <section className="relative overflow-hidden">
       <div
-        className="pointer-events-none absolute inset-0"
         aria-hidden
+        className="landing-hairline-grid pointer-events-none absolute inset-x-0 top-0 h-[70vh] min-h-[560px]"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-[60vh]"
         style={{
-          background: `
-            radial-gradient(ellipse 90% 70% at 70% 20%, color-mix(in srgb, var(--color-brand-600) 10%, transparent), transparent 55%),
-            radial-gradient(ellipse 60% 50% at 10% 90%, color-mix(in srgb, var(--color-brand-700) 6%, transparent), transparent 50%),
-            linear-gradient(180deg, var(--color-bg-primary) 0%, var(--color-bg-secondary) 100%)
-          `,
+          background:
+            "radial-gradient(60% 55% at 78% 0%, color-mix(in srgb, var(--color-brand-600) 9%, transparent), transparent 70%)",
         }}
       />
 
-      <div className="relative mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-center px-4 pb-16 pt-28 sm:px-6 lg:px-8 lg:pb-20 lg:pt-32">
-        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-16">
-          <div className="max-w-xl">
-            <motion.div
-              initial={reduced ? false : { opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-              className="mb-8"
-            >
-              <TroskyMark
-                priority
-                className="h-20 w-20 sm:h-24 sm:w-24"
-              />
+      <Container className="relative pt-28 pb-16 sm:pt-32 lg:pt-40 lg:pb-24">
+        <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-10">
+          <div className="lg:col-span-5">
+            <motion.div {...rise(0)}>
+              <Eyebrow>
+                Hotel revenue intelligence
+                <span className="hidden sm:inline"> · Cork, Ireland</span>
+              </Eyebrow>
             </motion.div>
 
-            <motion.p
-              initial={reduced ? false : { opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: reduced ? 0 : 0.05 }}
-              className="mb-4 text-sm font-semibold tracking-[0.18em] text-brand-secondary uppercase"
-            >
-              Trosky
-            </motion.p>
-
             <motion.h1
-              className="text-display-md font-semibold tracking-tight text-primary sm:text-display-lg"
-              initial={reduced ? false : { opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, delay: reduced ? 0 : 0.1, ease: [0.22, 1, 0.36, 1] }}
+              {...rise(0.08)}
+              className="mt-6 text-display-md font-semibold tracking-tight text-primary sm:text-display-lg lg:text-display-xl"
             >
-              Hotel revenue intelligence that keeps pace with the market.
+              Know where your rate stands{" "}
+              <Accent>before the market moves.</Accent>
             </motion.h1>
 
             <motion.p
-              initial={reduced ? false : { opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: reduced ? 0 : 0.22 }}
-              className="mt-5 max-w-md text-lg text-tertiary sm:text-xl"
+              {...rise(0.16)}
+              className="mt-6 max-w-lg text-lg leading-relaxed text-tertiary sm:text-xl"
             >
-              Competitor rates, pace, and recommended actions in one cockpit—built for analysts and owners.
+              Trosky checks your comp set on Booking.com and Expedia every day,
+              lines it up against pace, occupancy and local events, and turns
+              the gap into a rate action your team can accept in one click.
             </motion.p>
 
             <motion.div
-              initial={reduced ? false : { opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: reduced ? 0 : 0.34 }}
-              className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center"
+              {...rise(0.24)}
+              className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center"
             >
               <Button
                 href="/login"
@@ -80,7 +72,7 @@ export function Hero() {
                 iconTrailing={ArrowRight}
                 className="w-full justify-center sm:w-auto"
               >
-                Open the dashboard
+                Open the command centre
               </Button>
               <Button
                 href="/inquire"
@@ -88,21 +80,32 @@ export function Hero() {
                 color="secondary"
                 className="w-full justify-center sm:w-auto"
               >
-                Request a conversation
+                Request a walkthrough
               </Button>
             </motion.div>
+
+            <motion.ul
+              {...rise(0.34)}
+              role="list"
+              className="mt-10 flex flex-col gap-2.5 border-t border-secondary pt-6 text-sm text-tertiary"
+            >
+              {FACTS.map((fact) => (
+                <li key={fact} className="flex items-start gap-3">
+                  <span
+                    aria-hidden
+                    className="mt-[0.55rem] h-px w-4 shrink-0 bg-brand-solid"
+                  />
+                  {fact}
+                </li>
+              ))}
+            </motion.ul>
           </div>
 
-          <motion.div
-            initial={reduced ? false : { opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: reduced ? 0 : 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="relative w-full max-w-xl justify-self-center lg:max-w-none lg:justify-self-stretch"
-          >
-            <HeroChart />
-          </motion.div>
+          <div className="lg:col-span-7">
+            <HeroCockpit />
+          </div>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

@@ -1,8 +1,11 @@
 export { LandingNav } from "./landing-nav";
 export { Hero } from "./hero";
+export { ActionTicker } from "./action-ticker";
 export { PainPoints } from "./pain-points";
-export { WhyDifferent } from "./why-different";
+export { ProductTour } from "./product-tour";
+export { ConnectedPlatform } from "./connected-platform";
 export { ProcessSteps } from "./process-steps";
-export { MetricsStrip } from "./metrics-strip";
+export { Presence } from "./presence";
 export { FinalCta } from "./final-cta";
 export { LandingFooter } from "./landing-footer";
+export { PublicHeader } from "./public-header";

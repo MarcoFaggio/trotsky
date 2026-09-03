@@ -5,9 +5,9 @@ import { LandingPage } from "@/components/landing/landing-page";
 import { jwtAccessSecretBytes } from "@/lib/jwt-secrets";
 
 export const metadata = {
-  title: "Trosky Analytics – Automated Hotel Rate Tracking & Market Intelligence",
+  title: "Trosky | Hotel revenue intelligence from Cork, Ireland",
   description:
-    "Trosky Analytics automates hotel rate tracking across OTAs and direct channels. Save time, react faster, and make better pricing decisions with real-time market intelligence.",
+    "Trosky checks your comp set on Booking.com and Expedia daily, lines it up against pace, occupancy and events, and turns the gap into rate actions. Built in Cork, hosted in the EU.",
 };
 
 export default async function Home() {

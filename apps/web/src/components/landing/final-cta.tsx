@@ -1,58 +1,56 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight } from "@untitledui/icons";
 import { Button } from "@/components/base/buttons/button";
-import { SectionWrapper } from "./section-wrapper";
+import { Accent, Container, Eyebrow, Reveal } from "./primitives";
 
 export function FinalCta() {
-  const reduced = useReducedMotion();
-
   return (
-    <SectionWrapper className="relative overflow-hidden px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
+    <section className="relative overflow-hidden bg-ink text-white">
       <div
-        className="pointer-events-none absolute inset-0"
         aria-hidden
+        className="pointer-events-none absolute inset-0"
         style={{
-          background: `
-            radial-gradient(ellipse 80% 80% at 50% 0%, color-mix(in srgb, var(--color-brand-600) 14%, transparent), transparent 60%),
-            var(--color-bg-secondary)
-          `,
+          background:
+            "radial-gradient(70% 90% at 50% 100%, rgba(166,1,1,0.32), transparent 65%)",
         }}
       />
-      <motion.div
-        initial={reduced ? false : { opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.45 }}
-        className="relative mx-auto max-w-2xl text-center"
-      >
-        <h2 className="text-display-sm font-semibold tracking-tight text-primary sm:text-display-md">
-          Price with full market context
-        </h2>
-        <p className="mx-auto mt-4 max-w-lg text-lg text-tertiary">
-          Open the pilot dashboard, or send an inquiry and we will walk you through comps, actions, and owner reporting.
-        </p>
-        <div className="mt-10 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
-          <Button
-            href="/login"
-            size="xl"
-            color="primary"
-            iconTrailing={ArrowRight}
-            className="w-full justify-center sm:w-auto"
-          >
-            Open the dashboard
-          </Button>
-          <Button
-            href="/inquire"
-            size="xl"
-            color="secondary"
-            className="w-full justify-center sm:w-auto"
-          >
-            Request a conversation
-          </Button>
-        </div>
-      </motion.div>
-    </SectionWrapper>
+      <Container className="relative py-24 sm:py-28 lg:py-36">
+        <Reveal className="mx-auto max-w-3xl text-center">
+          <Eyebrow tone="on-ink" className="justify-center">
+            Start with one property
+          </Eyebrow>
+          <h2 className="mt-6 text-display-md font-semibold tracking-tight text-white sm:text-display-lg lg:text-display-xl">
+            See the whole market <Accent>before you set a rate.</Accent>
+          </h2>
+          <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-white/65">
+            Open the command centre with example data, or ask for a walkthrough
+            and we will bring your comp set.
+          </p>
+          <div className="mt-10 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+            <Button
+              href="/login"
+              size="xl"
+              color="primary"
+              iconTrailing={ArrowRight}
+              className="w-full justify-center sm:w-auto"
+            >
+              Open the command centre
+            </Button>
+            <Button
+              href="/inquire"
+              size="xl"
+              color="secondary"
+              className="w-full justify-center bg-white/[0.06] text-white ring-white/15 hover:bg-white/10 hover:text-white sm:w-auto"
+            >
+              Request a walkthrough
+            </Button>
+          </div>
+          <p className="mt-10 text-sm text-white/45">
+            Built in Cork · Supported from India · Hosted in the EU
+          </p>
+        </Reveal>
+      </Container>
+    </section>
   );
 }

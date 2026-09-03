@@ -32,13 +32,15 @@
   Trosky compatibility tokens.
   Do NOT override Untitled `--background-color-primary` / `bg-primary` (surface).
   Brand red is `brand-*` / `trosky-red` / HSL `--primary` for charts.
+
+  Fonts are self-hosted through `next/font` (see `app/layout.tsx`), which sets
+  `--font-jakarta` and `--font-newsreader` on <html>.
 */
 @theme {
-  --font-body: "Plus Jakarta Sans", "DM Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Plus Jakarta Sans", "DM Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-trosky: "Plus Jakarta Sans", "DM Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-landing-body: "Plus Jakarta Sans", "DM Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-landing-display: "Plus Jakarta Sans", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-newsreader), "Iowan Old Style", "Times New Roman", serif;
+  --font-trosky: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
 
   --color-background: var(--color-bg-primary);
   --color-foreground: var(--color-text-primary);
@@ -65,76 +67,22 @@
   --color-trosky-muted: var(--color-text-tertiary);
   --color-trosky-border: var(--color-border-secondary);
 
-  --color-landing-emerald: var(--color-brand-600);
-  --color-landing-amber: var(--color-amber-500);
-  --color-landing-violet: var(--color-brand-700);
-  --color-landing-sky: var(--color-brand-700);
+  /* Editorial ink surface used by the marketing site (identical in both themes). */
+  --color-ink: rgb(12 11 11);
+  --color-ink-elevated: rgb(22 20 20);
 
   --radius-lg: 1rem;
   --radius-md: calc(1rem - 2px);
   --radius-sm: calc(1rem - 4px);
 
-  --shadow-landing-card: 0 1px 2px 0 rgb(0 0 0 / 0.05), 0 4px 12px -2px rgb(0 0 0 / 0.2);
-  --shadow-landing-glow: 0 0 40px -8px rgb(166 1 1 / 0.2);
-  --shadow-landing-glow-subtle: 0 0 24px -6px rgb(0 0 0 / 0.3);
+  --animate-ticker: ticker var(--ticker-duration, 60s) linear infinite;
 
-  --animate-fade-up: fade-up 0.6s ease-out forwards;
-  --animate-scale-in: scale-in 0.5s ease-out forwards;
-  --animate-slide-in-right: slide-in-right 0.5s ease-out forwards;
-  --animate-landing-aurora: landing-aurora 18s ease-in-out infinite;
-  --animate-landing-shimmer: landing-shimmer 8s linear infinite;
-
-  @keyframes fade-up {
+  @keyframes ticker {
     0% {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  @keyframes scale-in {
-    0% {
-      opacity: 0;
-      transform: scale(0.95);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-  @keyframes slide-in-right {
-    0% {
-      opacity: 0;
-      transform: translateX(16px);
-    }
-    100% {
-      opacity: 1;
       transform: translateX(0);
     }
-  }
-  @keyframes landing-aurora {
-    0%,
     100% {
-      opacity: 0.45;
-      transform: scale(1) translate(0, 0);
-    }
-    33% {
-      opacity: 0.65;
-      transform: scale(1.05) translate(2%, -1%);
-    }
-    66% {
-      opacity: 0.5;
-      transform: scale(1.02) translate(-1%, 2%);
-    }
-  }
-  @keyframes landing-shimmer {
-    0% {
-      background-position: 200% center;
-    }
-    100% {
-      background-position: -200% center;
+      transform: translateX(-50%);
     }
   }
 }
@@ -181,19 +129,6 @@
   --chart-series-5: 348 83% 58%;
   --chart-series-6: 258 90% 66%;
   --chart-series-7: 190 90% 48%;
-  --landing-emerald: 0 99% 33%;
-  --landing-amber: 38 92% 50%;
-  --landing-violet: 0 100% 24%;
-  --landing-sky: 0 100% 24%;
-}
-
-.landing-page {
-  --landing-bg: 42 34% 98%;
-  --landing-bg-elevated: 214 44% 96%;
-  --landing-foreground: 0 2% 25.5%;
-  --landing-muted: 0 2% 35%;
-  --landing-border: 215 28% 87%;
-  --landing-card: 0 0% 100%;
 }
 
 .dark,
@@ -239,16 +174,6 @@
   --chart-series-7: 190 90% 58%;
 }
 
-.dark .landing-page,
-.dark-mode .landing-page {
-  --landing-bg: 0 18% 4.5%;
-  --landing-bg-elevated: 0 13% 7%;
-  --landing-foreground: 210 40% 98%;
-  --landing-muted: 0 4% 72%;
-  --landing-border: 0 13% 20%;
-  --landing-card: 0 13% 7%;
-}
-
 html,
 body {
   font-family: var(--font-body);
@@ -256,6 +181,10 @@ body {
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 * {
@@ -366,113 +295,84 @@ input[type="search"]::-webkit-search-cancel-button {
   animation: cursor-blink 1s step-end infinite;
 }
 
-.landing-root {
-  color: var(--color-text-primary);
+/* ------------------------------------------------------------------ */
+/* Marketing site                                                      */
+/* ------------------------------------------------------------------ */
+
+.landing-page {
+  /* Fine hairline grid used behind the hero; fades out toward the bottom. */
+  --landing-grid: color-mix(in srgb, var(--color-border-secondary) 70%, transparent);
+  scroll-padding-top: 5rem;
 }
 
-.landing-editorial {
-  --landing-accent-warm: 0 99% 33%;
-  --landing-ink: 0 2% 26%;
-  --landing-paper: 40 33% 98%;
+.landing-page :where(h1, h2, h3) {
+  text-wrap: balance;
 }
 
-.landing-bg {
-  background:
-    linear-gradient(135deg, hsl(var(--primary) / 0.08) 0 1px, transparent 1px 32px),
-    radial-gradient(ellipse 105% 70% at 50% -28%, hsl(var(--primary) / 0.12) 0%, transparent 56%),
-    linear-gradient(180deg, hsl(var(--landing-bg)) 0%, hsl(var(--landing-bg-elevated)) 56%, hsl(var(--landing-bg)) 100%);
+.landing-page :where(p) {
+  text-wrap: pretty;
 }
 
-.landing-aurora-blobs {
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-}
-
-@keyframes landing-aurora-blob {
-  0%,
-  100% {
-    opacity: 0.45;
-    transform: scale(1) translate(0, 0);
-  }
-  33% {
-    opacity: 0.65;
-    transform: scale(1.05) translate(2%, -1%);
-  }
-  66% {
-    opacity: 0.5;
-    transform: scale(1.02) translate(-1%, 2%);
-  }
-}
-
-.landing-aurora-blobs::before,
-.landing-aurora-blobs::after {
-  content: "";
-  position: absolute;
-  border-radius: 999px;
-  filter: blur(76px);
-  animation: landing-aurora-blob 22s ease-in-out infinite;
-}
-
-.landing-aurora-blobs::before {
-  width: min(70vw, 520px);
-  height: min(70vw, 520px);
-  top: -15%;
-  right: -10%;
-  background: radial-gradient(circle, hsl(var(--primary) / 0.18) 0%, transparent 70%);
-  animation-delay: -4s;
-}
-
-.landing-aurora-blobs::after {
-  width: min(55vw, 420px);
-  height: min(55vw, 420px);
-  bottom: 10%;
-  left: -8%;
-  background: radial-gradient(circle, hsl(0 100% 24% / 0.12) 0%, transparent 72%);
-  animation-delay: -10s;
-}
-
-.landing-bg-elevated {
-  background-color: hsl(var(--landing-bg-elevated));
-}
-
-.landing-bg-card {
-  background-color: hsl(var(--landing-card));
-}
-
-.landing-text {
-  color: hsl(var(--landing-foreground));
-}
-
-.landing-text-muted {
-  color: hsl(var(--landing-muted));
-}
-
-.landing-border {
-  border-color: hsl(var(--landing-border));
-}
-
-.landing-grid-pattern {
+.landing-hairline-grid {
   background-image:
-    linear-gradient(hsl(var(--landing-border) / 0.4) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(var(--landing-border) / 0.4) 1px, transparent 1px);
-  background-size: 48px 48px;
+    linear-gradient(to right, var(--landing-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--landing-grid) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, black 30%, transparent 80%);
+}
+
+.landing-ticker-mask {
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+.landing-ticker-track:hover,
+.landing-ticker-track:focus-within {
+  animation-play-state: paused;
+}
+
+/* SVG geometry eases between refreshes; `d`, `cx` and `cy` are animatable in current browsers. */
+.landing-chart-morph {
+  transition:
+    d 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    cx 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    cy 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.landing-serif {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  font-variation-settings: "opsz" 72;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
+  html {
+    scroll-behavior: auto;
+  }
+  .landing-chart-morph {
+    transition: none;
+  }
+  /* The ticker becomes a static, wrapping list; the duplicated loop items are dropped. */
+  .landing-ticker-mask {
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+  .landing-ticker-track {
+    animation: none !important;
+    width: auto;
+    flex-wrap: wrap;
+  }
+  .landing-ticker-track > li[aria-hidden="true"] {
+    display: none;
+  }
+  .landing-page *,
+  .landing-page *::before,
+  .landing-page *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-
-  .landing-aurora-blobs::before,
-  .landing-aurora-blobs::after {
-    animation: none;
-    opacity: 0.35;
   }
 }

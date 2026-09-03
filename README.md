@@ -52,7 +52,7 @@ In development, the app listens on **port 3030** (see `apps/web` `dev` script). 
 │                                                          │
 │  apps/web ──────── Next.js 14 (App Router)               │
 │  │  Server actions, API routes, Tailwind + shadcn/ui     │
-│  │  Recharts for charts, Framer Motion for landing       │
+│  │  Recharts for charts, Motion (motion/react) for landing│
 │  │                                                       │
 │  apps/worker ───── BullMQ worker                         │
 │  │  Scrape queue (mock + Expedia + Booking stub)         │
@@ -236,7 +236,7 @@ See [Deploying to Vercel](docs/DEPLOY.md) for step-by-step deployment instructio
 
 ## Tech stack
 
-- **Frontend:** Next.js 14 (App Router), TypeScript, Tailwind CSS, shadcn/ui, Recharts, Framer Motion
+- **Frontend:** Next.js 14 (App Router), TypeScript, Tailwind CSS, shadcn/ui, Recharts, Motion
 - **Backend:** Server actions, API routes, custom JWT auth (jose + bcrypt)
 - **Database:** PostgreSQL 16, Prisma ORM
 - **Queue:** Redis 7, BullMQ

@@ -32,8 +32,10 @@ const CANONICAL_HOST = "trosky-ai.com";
 function canonicalHostRedirect(request: NextRequest): NextResponse | null {
   const host = request.headers.get("host")?.split(":")[0]?.toLowerCase();
   if (!host || host === CANONICAL_HOST) return null;
-  const shouldRedirect =
-    host === `www.${CANONICAL_HOST}` || host === "trotsky.vercel.app";
+  // Only fold www onto the apex. Do not send trotsky.vercel.app to the custom
+  // domain — many local resolvers still cache GoDaddy Website Builder IPs for
+  // trosky-ai.com, which makes the Vercel URL unusable if we redirect it.
+  const shouldRedirect = host === `www.${CANONICAL_HOST}`;
   if (!shouldRedirect) return null;
   const url = request.nextUrl.clone();
   url.protocol = "https:";

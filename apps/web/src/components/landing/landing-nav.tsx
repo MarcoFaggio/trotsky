@@ -2,65 +2,114 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Menu01, XClose, LogIn01 } from "@untitledui/icons";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { ArrowRight, Menu01, XClose } from "@untitledui/icons";
 import { TroskyMark } from "@/components/brand/trosky-logo";
 import { Button } from "@/components/base/buttons/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { cn } from "@/lib/utils";
+import { useActiveSection } from "./use-active-section";
 
-const navLinks = [
-  { href: "#problem", label: "Challenge" },
-  { href: "#platform", label: "Platform" },
-  { href: "#process", label: "How it works" },
-];
+const NAV_LINKS = [
+  { id: "product", label: "Product" },
+  { id: "connected", label: "Data" },
+  { id: "how-it-works", label: "How it works" },
+  { id: "presence", label: "Ireland & India" },
+] as const;
+
+const SECTION_IDS = NAV_LINKS.map((link) => link.id);
 
 export function LandingNav() {
   const reduced = useReducedMotion();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const active = useActiveSection(SECTION_IDS);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Close the sheet if the viewport grows past the mobile breakpoint.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const mq = window.matchMedia("(min-width: 768px)");
+    const onChange = () => mq.matches && setMobileOpen(false);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, [mobileOpen]);
+
   return (
     <header
-      aria-label="Main navigation"
-      className={`fixed inset-x-0 top-0 z-50 transition-[background,box-shadow,border-color] duration-300 ${
-        scrolled
-          ? "border-b border-secondary bg-primary/90 shadow-xs backdrop-blur-xl"
+      className={cn(
+        "fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,box-shadow] duration-300",
+        scrolled || mobileOpen
+          ? "border-b border-secondary bg-primary/85 shadow-xs backdrop-blur-xl supports-[backdrop-filter]:bg-primary/75"
           : "border-b border-transparent bg-transparent"
-      }`}
+      )}
     >
-      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary focus:shadow-lg"
+      >
+        Skip to content
+      </a>
+
+      <nav
+        aria-label="Main"
+        className="mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between px-5 sm:px-8"
+      >
         <Link
           href="/"
-          className="flex min-w-0 items-center gap-2.5 text-primary"
+          className="flex min-w-0 items-center gap-2.5 rounded-lg text-primary outline-brand focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           <TroskyMark priority className="h-9 w-9 shrink-0" />
-          <span className="hidden text-md font-semibold tracking-tight sm:inline">
-            Trosky
-          </span>
+          <span className="text-md font-semibold tracking-tight">Trosky</span>
         </Link>
 
-        <div className="hidden items-center gap-1 md:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="rounded-lg px-3 py-2 text-sm font-semibold text-tertiary transition-colors hover:bg-primary_hover hover:text-secondary"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
+        <ul className="hidden items-center gap-1 md:flex" role="list">
+          {NAV_LINKS.map((link) => {
+            const isActive = active === link.id;
+            return (
+              <li key={link.id} className="relative">
+                <a
+                  href={`#${link.id}`}
+                  aria-current={isActive ? "location" : undefined}
+                  className={cn(
+                    "relative z-10 inline-flex rounded-full px-3.5 py-2 text-sm font-medium transition-colors duration-200",
+                    isActive
+                      ? "text-primary"
+                      : "text-tertiary hover:text-primary"
+                  )}
+                >
+                  {link.label}
+                </a>
+                {isActive ? (
+                  <motion.span
+                    layoutId="nav-active-pill"
+                    aria-hidden
+                    transition={
+                      reduced
+                        ? { duration: 0 }
+                        : { type: "spring", stiffness: 380, damping: 32 }
+                    }
+                    className="absolute inset-0 rounded-full bg-secondary ring-1 ring-secondary ring-inset"
+                  />
+                ) : null}
+              </li>
+            );
+          })}
+        </ul>
 
         <div className="hidden items-center gap-2 md:flex">
           <ThemeToggle />
-          <Button href="/login" size="md" color="primary" iconLeading={LogIn01}>
+          <Button href="/login" size="md" color="tertiary">
             Log in
+          </Button>
+          <Button href="/inquire" size="md" color="primary" iconTrailing={ArrowRight}>
+            Request a walkthrough
           </Button>
         </div>
 
@@ -79,37 +128,51 @@ export function LandingNav() {
         </div>
       </nav>
 
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {mobileOpen && (
           <motion.div
             id="landing-mobile-menu"
             initial={reduced ? false : { opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden border-b border-secondary bg-primary md:hidden"
+            exit={reduced ? undefined : { opacity: 0, height: 0 }}
+            transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden border-t border-secondary md:hidden"
           >
-            <div className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-4">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="rounded-lg px-3 py-3 text-sm font-semibold text-secondary"
+            <div className="mx-auto flex w-full max-w-[1200px] flex-col px-5 pt-2 pb-5 sm:px-8">
+              <ul role="list" className="flex flex-col">
+                {NAV_LINKS.map((link) => (
+                  <li key={link.id}>
+                    <a
+                      href={`#${link.id}`}
+                      onClick={() => setMobileOpen(false)}
+                      className="flex min-h-12 items-center justify-between border-b border-secondary text-md font-semibold text-primary"
+                    >
+                      {link.label}
+                      <ArrowRight className="size-4 text-fg-quaternary" aria-hidden />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <Button
+                  href="/login"
+                  size="lg"
+                  color="secondary"
+                  className="justify-center"
                   onClick={() => setMobileOpen(false)}
                 >
-                  {link.label}
-                </Link>
-              ))}
-              <Button
-                href="/login"
-                size="lg"
-                color="primary"
-                className="mt-2 w-full justify-center"
-                iconLeading={LogIn01}
-                onClick={() => setMobileOpen(false)}
-              >
-                Log in to dashboard
-              </Button>
+                  Log in
+                </Button>
+                <Button
+                  href="/inquire"
+                  size="lg"
+                  color="primary"
+                  className="justify-center"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Walkthrough
+                </Button>
+              </div>
             </div>
           </motion.div>
         )}

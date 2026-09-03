@@ -21,10 +21,6 @@ export function generateNonce(): string {
  * `style-src` keeps `unsafe-inline`: React inline styles and Next's injected
  * critical CSS are not nonced, so removing it breaks rendering.
  */
-/** Google Fonts, loaded from the root layout. Drop these if fonts are self-hosted. */
-const FONT_STYLE_ORIGIN = "https://fonts.googleapis.com";
-const FONT_FILE_ORIGIN = "https://fonts.gstatic.com";
-
 export function buildCsp(nonce: string, isDev: boolean): string {
   const scriptSrc = isDev
     ? // Dev needs eval for React Refresh / webpack HMR.
@@ -34,9 +30,10 @@ export function buildCsp(nonce: string, isDev: boolean): string {
   return [
     `default-src 'self'`,
     `script-src ${scriptSrc}`,
-    `style-src 'self' 'unsafe-inline' ${FONT_STYLE_ORIGIN}`,
+    `style-src 'self' 'unsafe-inline'`,
     `img-src 'self' data: blob: https:`,
-    `font-src 'self' data: ${FONT_FILE_ORIGIN}`,
+    // Fonts are self-hosted via next/font, so no external font origin is needed.
+    `font-src 'self' data:`,
     // No third-party API surface today; widen deliberately if that changes.
     `connect-src 'self'${isDev ? " ws: wss:" : ""}`,
     `object-src 'none'`,

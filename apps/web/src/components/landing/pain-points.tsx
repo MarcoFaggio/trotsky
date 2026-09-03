@@ -1,60 +1,52 @@
 "use client";
 
-import { FileSearch02, Clock, Eye } from "@untitledui/icons";
-import { motion } from "framer-motion";
-import { SectionWrapper, cardItemVariants } from "./section-wrapper";
+import { Container, Reveal, SectionHeading } from "./primitives";
 
-const points = [
+const POINTS = [
   {
-    title: "Manual rate collection",
-    body: "Hours spent refreshing OTAs every week instead of pricing strategy.",
-    icon: FileSearch02,
+    title: "The weekly OTA check eats the afternoon",
+    body: "Comp rates get copied by hand into a sheet, one stay date at a time. By the time the sheet is finished, the rates on it have moved.",
   },
   {
-    title: "Market lag",
-    body: "Competitors move daily. Spreadsheet workflows leave you reacting late.",
-    icon: Clock,
+    title: "Competitor moves land days late",
+    body: "A comp drops €15 on Tuesday and you find out on Friday. The weekend has already sold at the wrong price.",
   },
   {
-    title: "Trust gap",
-    body: "Owners want live context—not delayed decks and constant check-ins.",
-    icon: Eye,
+    title: "Owners get decks instead of context",
+    body: "Stakeholders see a monthly summary, not the evidence behind each change. Every rate decision turns into a conversation.",
   },
 ];
 
 export function PainPoints() {
   return (
-    <SectionWrapper id="problem" className="bg-primary px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="max-w-2xl">
-          <h2 className="text-display-sm font-semibold tracking-tight text-primary sm:text-display-md">
-            The status quo costs revenue
-          </h2>
-          <p className="mt-4 text-lg text-tertiary">
-            Manual competitor tracking slows decisions and leaves teams flying blind between reports.
-          </p>
+    <section id="problem" className="scroll-mt-20 py-20 sm:py-24 lg:py-32">
+      <Container className="grid gap-12 lg:grid-cols-12 lg:gap-8">
+        <div className="lg:col-span-5">
+          <Reveal>
+            <SectionHeading
+              eyebrow="The problem"
+              title="Rates drift when the market is checked by hand."
+              lede="Most independent hotels still price from a spreadsheet and a weekly look at Booking.com. The market moves every day."
+            />
+          </Reveal>
         </div>
 
-        <div className="mt-14 grid gap-x-8 gap-y-10 sm:grid-cols-3">
-          {points.map(({ title, body, icon: Icon }, i) => (
-            <motion.div
-              key={title}
-              custom={i}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-40px" }}
-              variants={cardItemVariants}
-              className="relative border-t border-secondary pt-6"
-            >
-              <div className="mb-4 flex size-10 items-center justify-center rounded-lg bg-brand-primary ring-1 ring-brand ring-inset">
-                <Icon className="size-5 text-fg-brand-primary" />
+        <ol className="lg:col-span-7 lg:pt-2" role="list">
+          {POINTS.map((point, i) => (
+            <Reveal key={point.title} as="li" index={i} className="group border-t border-secondary py-7 last:border-b sm:py-8">
+              <div className="grid grid-cols-[3rem_1fr] gap-4 sm:grid-cols-[4.5rem_1fr] sm:gap-6">
+                <span className="font-serif text-display-xs leading-none text-quaternary tabular-nums transition-colors group-hover:text-brand-secondary sm:text-display-sm">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div>
+                  <h3 className="text-lg font-semibold text-primary sm:text-xl">{point.title}</h3>
+                  <p className="mt-2 max-w-xl text-md leading-relaxed text-tertiary">{point.body}</p>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-primary">{title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-tertiary">{body}</p>
-            </motion.div>
+            </Reveal>
           ))}
-        </div>
-      </div>
-    </SectionWrapper>
+        </ol>
+      </Container>
+    </section>
   );
 }

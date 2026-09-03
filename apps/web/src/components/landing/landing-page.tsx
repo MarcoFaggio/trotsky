@@ -1,13 +1,15 @@
 "use client";
 
-import { MotionConfig } from "framer-motion";
+import { MotionConfig } from "motion/react";
 import {
   LandingNav,
   Hero,
-  MetricsStrip,
+  ActionTicker,
   PainPoints,
-  WhyDifferent,
+  ProductTour,
+  ConnectedPlatform,
   ProcessSteps,
+  Presence,
   FinalCta,
   LandingFooter,
 } from "./index";
@@ -15,20 +17,19 @@ import {
 export function LandingPage() {
   return (
     <MotionConfig reducedMotion="user">
-      <div
-        className="landing-page min-h-screen bg-primary font-body text-primary antialiased"
-        data-landing
-      >
+      <div className="landing-page min-h-screen bg-primary font-body text-primary antialiased">
         <LandingNav />
-        <main className="relative overflow-x-hidden">
+        <main id="main" className="relative overflow-x-clip">
           <Hero />
-          <MetricsStrip />
+          <ActionTicker />
           <PainPoints />
-          <WhyDifferent />
+          <ProductTour />
+          <ConnectedPlatform />
           <ProcessSteps />
+          <Presence />
           <FinalCta />
-          <LandingFooter />
         </main>
+        <LandingFooter />
       </div>
     </MotionConfig>
   );
